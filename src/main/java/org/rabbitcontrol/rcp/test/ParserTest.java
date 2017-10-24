@@ -54,7 +54,10 @@ public class ParserTest {
 
                 final byte[] the_bytes = os.toByteArray();
 
-                try (OutputStream fs = new FileOutputStream("~/_rcp/_generated.rcp")) {
+                System.out.println("generate packet:\n" + bytesToHex(the_bytes));
+
+                try (final OutputStream fs = new FileOutputStream(file.getParent() + File
+                        .separator + "_generated.rcp")) {
 
                     os.writeTo(fs);
                 }
@@ -66,5 +69,18 @@ public class ParserTest {
         }
 
     }
+
+
+
+
+    public static String bytesToHex(byte[] in) {
+        final StringBuilder builder = new StringBuilder();
+        for(byte b : in) {
+            builder.append(String.format("0x%02x ", b));
+        }
+        return builder.toString();
+    }
+
+
 
 }
