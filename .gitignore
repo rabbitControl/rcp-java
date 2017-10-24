@@ -1,0 +1,13 @@
+.gradle
+/build
+.DS_Store
+.idea
+*/build
+classes
+**/*.iml
+/bin
+.classpath
+.project
+.settings
+**/dist
+/.nb-gradle/

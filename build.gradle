@@ -1,0 +1,58 @@
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+version = "1.0"
+
+group = 'org.rabbitcontrol'
+
+dependencies {
+
+    compile ('io.kaitai:kaitai-struct-runtime:0.+')
+
+    compile ('io.netty:netty-all:4.1.+')
+}
+
+
+task runServer(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = "org.rabbitcontrol.rcp.test.RCPServerTest"
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2.1'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}

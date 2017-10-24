@@ -1,0 +1,192 @@
+package org.rabbitcontrol.rcp.model;
+
+import org.rabbitcontrol.rcp.model.RCPTypes.Command;
+import org.rabbitcontrol.rcp.model.RCPTypes.Packet;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import io.kaitai.struct.KaitaiStream;
+
+import java.io.*;
+import java.nio.ByteBuffer;
+
+/**
+ * Created by inx on 13/06/17.
+ */
+public class RCPPacket implements RCPWritable {
+
+    public static final byte[] TOI_MAGIC = { 4, 15, 5, 9 };
+
+    public static byte[] serialize(final RCPPacket _packet) throws IOException {
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+
+            _packet.write(os);
+            return os.toByteArray();
+        }
+    }
+
+    public static RCPPacket parse(final KaitaiStream _io) throws RCPUnsupportedFeatureException,
+                                                                 RCPDataErrorException {
+
+        final Command cmd = Command.byId(_io.readU1());
+
+        if (cmd == null) {
+            throw new RCPDataErrorException();
+        }
+
+        final RCPPacket packet = new RCPPacket(cmd);
+
+        // read packet options
+        while (!_io.isEof()) {
+
+            final int did = _io.readU1();
+
+            if (did == Packet.TERMINATOR.id()) {
+                // terminator
+                break;
+            }
+
+            final Packet dataid = Packet.byId(did);
+
+            if (dataid == null) {
+                // wrong data id... skip whole packet?
+                throw new RCPDataErrorException();
+            }
+
+            switch (dataid) {
+                case DATA:
+
+                    if (packet.getData() != null) {
+                        throw new RCPDataErrorException();
+                    }
+
+                    switch (cmd) {
+                        case INIT:
+                            // init - shout not happen
+                            throw new RCPDataErrorException();
+
+                        case ADD:
+                        case REMOVE:
+                        case UPDATE:
+                            // expect parameter
+                            packet.setData(RCPParameter.parse(_io));
+
+                            break;
+                        case VERSION:
+                            // version: expect meta
+                            // TODO: implement
+                            break;
+                    }
+
+                    break;
+                case ID:
+                    packet.setPacketId(_io.readU4be());
+                    break;
+                case TIMESTAMP:
+                    packet.setTimestamp(_io.readU8be());
+                    break;
+                default:
+                    throw new RCPDataErrorException();
+            }
+
+        }
+
+        return packet;
+    }
+
+    //--------------------------------------------------------
+    private final Command cmd;
+
+    private Long packetId;
+
+    private Long timestamp;
+
+    private RCPWritable data;
+
+    //--------------------------------------------------------
+    //--------------------------------------------------------
+    public RCPPacket(final Command _cmd) {
+
+        this(_cmd, null);
+    }
+
+    public RCPPacket(final Command _cmd, final RCPWritable _data) {
+
+        cmd = _cmd;
+        data = _data;
+    }
+
+    //--------------------------------------------------------
+    public void write(final boolean _magic, final OutputStream _outputStream) throws IOException {
+
+        if (_magic) {
+            // write magic
+            _outputStream.write(TOI_MAGIC);
+        }
+
+        write(_outputStream);
+    }
+
+
+    @Override
+    public void write(final OutputStream _outputStream) throws IOException {
+
+        // write mandatory command
+        _outputStream.write((int)cmd.id());
+
+        if (packetId != null) {
+            _outputStream.write((int)Packet.ID.id());
+            _outputStream.write(ByteBuffer.allocate(4).putInt(packetId.intValue()).array());
+        }
+
+        if (timestamp != null) {
+            _outputStream.write((int)Packet.TIMESTAMP.id());
+            _outputStream.write(ByteBuffer.allocate(8).putLong(timestamp).array());
+        }
+
+        if (data != null) {
+            _outputStream.write((int)Packet.DATA.id());
+            data.write(_outputStream);
+        }
+
+        // finalize packet with terminator
+        _outputStream.write((int)Packet.TERMINATOR.id());
+    }
+
+    //--------------------------------------------------------
+
+    public Command getCmd() {
+
+        return cmd;
+    }
+
+    public Long getPacketId() {
+
+        return packetId;
+    }
+
+    public void setPacketId(final long _packetId) {
+
+        packetId = _packetId;
+    }
+
+    public Long getTimestamp() {
+
+        return timestamp;
+    }
+
+    public void setTimestamp(final long _timestamp) {
+
+        timestamp = _timestamp;
+    }
+
+    public RCPWritable getData() {
+
+        return data;
+    }
+
+    public void setData(final RCPWritable _data) {
+
+        data = _data;
+    }
+}
