@@ -28,7 +28,7 @@ public class RCPClientTest implements Add, Remove, Update {
                 try {
                     Thread.sleep(1000);
 
-                    //                    test.updateValue();
+//                    test.updateValue();
                 }
                 catch (final InterruptedException _e) {
                     break;
@@ -50,35 +50,35 @@ public class RCPClientTest implements Add, Remove, Update {
 
     //------------------------------------------------------------
     //
-    private final RCPClient toui;
+    private final RCPClient rcp;
 
     //------------------------------------------------------------
     //
     public RCPClientTest() throws IOException, URISyntaxException, InterruptedException {
 
         // create serializer and transporter
-        //        final UDPClientTransporter transporter = new UDPClientTransporter("localhost",
-        // 8888);
+//        final UDPClientTransporter transporter = new UDPClientTransporter("localhost", 8888);
         //        final TCPClientTransporter transporter = new TCPClientTransporter("localhost",
         // 8888);
-        final WebsocketClientTransporter transporter = new WebsocketClientTransporter("localhost",
-                                                                                      8181);
+        final WebsocketClientTransporter transporter = new WebsocketClientTransporter("localhost", 10000);
 
         // create toi
-        toui = new RCPClient(transporter);
-        toui.setUpdateListener(this);
-        toui.setAddListener(this);
-        toui.setRemoveListener(this);
+        rcp = new RCPClient(transporter);
+        rcp.setUpdateListener(this);
+        rcp.setAddListener(this);
+        rcp.setRemoveListener(this);
+
+        transporter.connect();
 
         // init
-        toui.init();
+        rcp.init();
     }
 
     int count;
 
     public void updateValue() {
 
-        final Map<Integer, RCPParameter<?>> cache = toui.getValueCache();
+        final Map<Integer, RCPParameter<?>> cache = rcp.getValueCache();
 
         if (!cache.isEmpty()) {
 
@@ -101,7 +101,7 @@ public class RCPClientTest implements Add, Remove, Update {
                 ((RCPParameter<Number>)newParam).setValue(count++);
             }
 
-            toui.update(newParam);
+            rcp.update(newParam);
 
         }
         else {
