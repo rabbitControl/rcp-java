@@ -1,11 +1,11 @@
 package org.rabbitcontrol.rcp.test;
 
-import org.rabbitcontrol.rcp.transport.RCPClient;
 import org.rabbitcontrol.rcp.model.RCPCommands.*;
 import org.rabbitcontrol.rcp.model.RCPParameter;
 import org.rabbitcontrol.rcp.model.types.RCPTypeNumber;
 import org.rabbitcontrol.rcp.model.types.RCPTypeSTRING;
 import org.rabbitcontrol.rcp.test.websocket.client.WebsocketClientTransporter;
+import org.rabbitcontrol.rcp.transport.RCPClient;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,14 +28,20 @@ public class RCPClientTest implements Add, Remove, Update {
                 try {
                     Thread.sleep(1000);
 
-//                    test.updateValue();
+                    //                    test.updateValue();
                 }
                 catch (final InterruptedException _e) {
                     break;
                 }
             }
         }
-        catch (final IOException | InterruptedException | URISyntaxException _e) {
+        catch (final IOException _e) {
+            _e.printStackTrace();
+        }
+        catch (final InterruptedException _e) {
+            _e.printStackTrace();
+        }
+        catch (final URISyntaxException _e) {
             _e.printStackTrace();
         }
 
@@ -51,11 +57,12 @@ public class RCPClientTest implements Add, Remove, Update {
     public RCPClientTest() throws IOException, URISyntaxException, InterruptedException {
 
         // create serializer and transporter
-//        final UDPClientTransporter transporter = new UDPClientTransporter("localhost", 8888);
-//        final TCPClientTransporter transporter = new TCPClientTransporter("localhost", 8888);
-        final WebsocketClientTransporter transporter = new WebsocketClientTransporter
-                ("localhost", 8181);
-
+        //        final UDPClientTransporter transporter = new UDPClientTransporter("localhost",
+        // 8888);
+        //        final TCPClientTransporter transporter = new TCPClientTransporter("localhost",
+        // 8888);
+        final WebsocketClientTransporter transporter = new WebsocketClientTransporter("localhost",
+                                                                                      8181);
 
         // create toi
         toui = new RCPClient(transporter);
@@ -96,7 +103,8 @@ public class RCPClientTest implements Add, Remove, Update {
 
             toui.update(newParam);
 
-        } else {
+        }
+        else {
             System.err.println("no values");
         }
 
@@ -108,7 +116,7 @@ public class RCPClientTest implements Add, Remove, Update {
     public void added(final RCPParameter<?> _value) {
 
         System.out.println("client: added: " + _value.getId());
-//        toi.dumpCache();
+        //        toi.dumpCache();
         _value.dump();
     }
 
@@ -116,7 +124,7 @@ public class RCPClientTest implements Add, Remove, Update {
     public void updated(final RCPParameter<?> _value) {
 
         System.out.println("client: updated: " + _value.getId());
-//        toi.dumpCache();
+        //        toi.dumpCache();
         _value.dump();
     }
 
@@ -124,7 +132,7 @@ public class RCPClientTest implements Add, Remove, Update {
     public void removed(final RCPParameter<?> _value) {
 
         System.out.println("client: removed: " + _value.getId());
-//        toi.dumpCache();
+        //        toi.dumpCache();
         _value.dump();
     }
 }

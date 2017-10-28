@@ -39,7 +39,7 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
     private RCPTransporterListener listener;
 
-    private final Collection<InetAddress> clients = new ArrayList<>();
+    private final Collection<InetAddress> clients = new ArrayList<InetAddress>();
 
     private int targetPort = 8182;
 
@@ -84,7 +84,10 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
                     received(toiPacket);
                 }
-                catch (RCPUnsupportedFeatureException | RCPDataErrorException _e) {
+                catch (RCPUnsupportedFeatureException _e) {
+                    _e.printStackTrace();
+                }
+                catch (RCPDataErrorException _e) {
                     _e.printStackTrace();
                 }
             }
@@ -104,8 +107,7 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
         try {
             final byte[] data = RCPPacket.serialize(_packet);
 
-            clients.forEach(_inetAddress -> {
-
+            for (final InetAddress _inetAddress : clients) {
 //                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
 //                                   "" + new String
 //                                           (data));
@@ -121,8 +123,7 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
                 catch (final IOException _e) {
                     _e.printStackTrace();
                 }
-
-            });
+            }
         }
         catch (final IOException _e) {
             _e.printStackTrace();

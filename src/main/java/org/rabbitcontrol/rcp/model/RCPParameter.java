@@ -29,7 +29,7 @@ public class RCPParameter<T> implements RCPWritable {
         // get mandatory type
         final RCPTypeDefinition<?> type_definition = RCPTypeDefinition.parse(_io);
 
-        final RCPParameter<?> parameter = new RCPParameter<>(parameter_id, type_definition);
+        final RCPParameter<?> parameter = new RCPParameter(parameter_id, type_definition);
 
         // get options from the stream
         while (true) {
@@ -159,7 +159,7 @@ public class RCPParameter<T> implements RCPWritable {
 
     public RCPParameter<T> cloneEmpty() {
 
-        return new RCPParameter<>((int)id, type.cloneEmpty());
+        return new RCPParameter<T>((int)id, type.cloneEmpty());
     }
 
 
@@ -255,10 +255,9 @@ public class RCPParameter<T> implements RCPWritable {
 
                         ((Map)value).clear();
 
-
-                        ((Map)_other.getValue()).forEach((_o, _o2) -> {
-                            ((Map)value).put(_o, _o2);
-                        });
+                        for (final Object k : ((Map)_other.getValue()).keySet()) {
+                            ((Map)value).put(k, ((Map)_other.getValue()).get(k));
+                        }
 
                         //                        System.out.println("updated map");
 

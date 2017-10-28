@@ -1,10 +1,10 @@
 package org.rabbitcontrol.rcp.model;
 
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet;
+import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -18,15 +18,26 @@ public class RCPPacket implements RCPWritable {
 
     public static byte[] serialize(final RCPPacket _packet) throws IOException {
 
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+        byte[] result = null;
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
+        try {
             _packet.write(os);
-            return os.toByteArray();
+            result = os.toByteArray();
         }
+        catch (IOException _e) {
+            _e.printStackTrace();
+        }
+        finally {
+            os.close();
+        }
+
+        return result;
     }
 
-    public static RCPPacket parse(final KaitaiStream _io) throws RCPUnsupportedFeatureException,
-                                                                 RCPDataErrorException {
+    public static RCPPacket parse(final KaitaiStream _io) throws
+                                                          RCPUnsupportedFeatureException,
+                                                          RCPDataErrorException {
 
         // get mandatory
         final Command cmd = Command.byId(_io.readU1());
@@ -131,7 +142,6 @@ public class RCPPacket implements RCPWritable {
 
         write(_outputStream);
     }
-
 
     @Override
     public void write(final OutputStream _outputStream) throws IOException {

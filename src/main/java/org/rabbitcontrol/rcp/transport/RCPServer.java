@@ -3,7 +3,7 @@ package org.rabbitcontrol.rcp.transport;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 
-import java.util.Objects;
+import java.util.Map;
 
 /**
  * Created by inx on 30/11/16.
@@ -32,17 +32,23 @@ public class RCPServer extends RCPBase {
     //
     public void add(final RCPParameter<?> _value) {
 
-        operateOnCache(valueCache -> {
-            if (!valueCache.containsKey((int)_value.getId())) {
-                // added
-                valueCache.put((int)_value.getId(), _value);
-            }
-            else {
+        operateOnCache(new RCPCacheOperator() {
 
-                if (!Objects.equals(valueCache.get((int)_value.getId()), _value)) {
-                    System.err.println("different object with same ID!!!");
-                } else {
-                    System.out.println("already added value with this id - ignore");
+            @Override
+            public void operate(final Map<Integer, RCPParameter<?>> valueCache) {
+
+                if (!valueCache.containsKey((int)_value.getId())) {
+                    // added
+                    valueCache.put((int)_value.getId(), _value);
+                }
+                else {
+
+                    if (valueCache.get((int)_value.getId()) != _value) {
+                        System.err.println("different object with same ID!!!");
+                    }
+                    else {
+                        System.out.println("already added value with this id - ignore");
+                    }
                 }
             }
         });
@@ -56,14 +62,17 @@ public class RCPServer extends RCPBase {
 
     public void remove(final RCPParameter<?> _value) {
 
-        operateOnCache(valueCache -> {
+        operateOnCache(new RCPCacheOperator() {
 
-            if (valueCache.containsKey((int)_value.getId())) {
-                // removed
-                valueCache.remove(_value.getId());
-            }
-            else {
-                System.out.println("value not in cache - ignore");
+            @Override
+            public void operate(final Map<Integer, RCPParameter<?>> valueCache) {
+                if (valueCache.containsKey((int)_value.getId())) {
+                    // removed
+                    valueCache.remove(_value.getId());
+                }
+                else {
+                    System.out.println("value not in cache - ignore");
+                }
             }
         });
 
@@ -120,17 +129,20 @@ public class RCPServer extends RCPBase {
 
         System.out.println("GOT INIT");
 
-        operateOnCache(valueCache -> {
+        operateOnCache(new RCPCacheOperator() {
 
-            // init with all values
-            valueCache.forEach((_s, _parameter) -> {
+            @Override
+            public void operate(final Map<Integer, RCPParameter<?>> valueCache) {
+                // init with all values
+                for (final Map.Entry<Integer, RCPParameter<?>> entry : valueCache
+                        .entrySet()) {
 
-                System.out.println("sending ::: " + _parameter.getDescription());
+                    System.out.println("sending ::: " + entry.getValue().getDescription());
 
-                final RCPPacket packet = new RCPPacket(Command.ADD, _parameter);
-                transporter.send(packet);
-            });
-
+                    final RCPPacket packet = new RCPPacket(Command.ADD, entry.getValue());
+                    transporter.send(packet);
+                }
+            }
         });
 
 

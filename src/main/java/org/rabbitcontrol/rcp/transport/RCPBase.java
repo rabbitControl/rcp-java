@@ -17,7 +17,7 @@ public abstract class RCPBase implements RCPTransporterListener {
     //
     protected RCPTransporter transporter;
 
-    private final Map<Integer, RCPParameter<?>> valueCache = new ConcurrentHashMap<>();
+    private final Map<Integer, RCPParameter<?>> valueCache = new ConcurrentHashMap<Integer, RCPParameter<?>>();
 
     // callback objects
     protected RCPCommands.Update updateListener;
@@ -86,11 +86,13 @@ public abstract class RCPBase implements RCPTransporterListener {
     }
 
     public void dumpCache() {
-        valueCache.forEach((_s, _valueDescription) -> {
+
+        for (final Map.Entry<Integer, RCPParameter<?>> entry : valueCache.entrySet()) {
+
             System.out.println("------");
-            _valueDescription.dump();
+            entry.getValue().dump();
             System.out.println();
-        });
+        }
     }
 
     public void operateOnCache(final RCPCacheOperator _operator) {

@@ -37,10 +37,10 @@ public class ParserTest {
             final RCPPacket newP = new RCPPacket(RcpTypes.Command.UPDATE);
             newP.setTimestamp(1234);
 
-            final RCPParameter<Short> param = new RCPParameter<>(12,
-                                                                 new RCPTypeINT16((short)33,
-                                                                                  (short)10,
-                                                                                  (short)100));
+            final RCPParameter<Short> param = new RCPParameter<Short>(12,
+                                                                      new RCPTypeINT16((short)33,
+                                                                                       (short)10,
+                                                                                       (short)100));
 
             param.setLabel("a short value");
             param.setDescription("longer description");
@@ -49,39 +49,49 @@ public class ParserTest {
 
             newP.setData(param);
 
-            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try {
                 newP.write(os);
 
                 final byte[] the_bytes = os.toByteArray();
 
                 System.out.println("generate packet:\n" + bytesToHex(the_bytes));
 
-                try (final OutputStream fs = new FileOutputStream(file.getParent() + File
-                        .separator + "_generated.rcp")) {
-
+                try {
+                    final OutputStream fs = new FileOutputStream(file.getParent() +
+                                                                 File.separator +
+                                                                 "_generated.rcp");
                     os.writeTo(fs);
+
+                    fs.close();
+
+                } catch (FileNotFoundException _e) {
+                    _e.printStackTrace();
                 }
+            } finally {
+                os.close();
             }
 
         }
-        catch (IOException | RCPDataErrorException | RCPUnsupportedFeatureException _e) {
+        catch (IOException _e) {
+            _e.printStackTrace();
+        }
+        catch (RCPDataErrorException _e) {
+            _e.printStackTrace();
+        }
+        catch (RCPUnsupportedFeatureException _e) {
             _e.printStackTrace();
         }
 
     }
 
-
-
-
     public static String bytesToHex(byte[] in) {
+
         final StringBuilder builder = new StringBuilder();
-        for(byte b : in) {
+        for (byte b : in) {
             builder.append(String.format("0x%02x ", b));
         }
         return builder.toString();
     }
-
-
 
 }

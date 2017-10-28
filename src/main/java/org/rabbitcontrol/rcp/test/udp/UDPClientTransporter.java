@@ -67,7 +67,10 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
 
                     received(toiPacket);
                 }
-                catch (RCPUnsupportedFeatureException | RCPDataErrorException _e) {
+                catch (RCPUnsupportedFeatureException _e) {
+                    _e.printStackTrace();
+                }
+                catch (RCPDataErrorException _e) {
                     _e.printStackTrace();
                 }
 

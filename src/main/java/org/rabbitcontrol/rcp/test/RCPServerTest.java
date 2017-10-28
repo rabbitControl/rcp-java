@@ -21,28 +21,36 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
             if (doAutoUpdate) {
 
-                Thread t = new Thread(() -> {
+                Thread t = new Thread(new Runnable() {
 
-                    // some automatic value update...
-                    while (!Thread.interrupted()) {
+                    @Override
+                    public void run() {
+                        // some automatic value update...
+                        while (!Thread.interrupted()) {
 
-                        try {
-                            Thread.sleep(500);
-                            test.updateVar2();
-                        }
-                        catch (final InterruptedException _e) {
-                            break;
+                            try {
+                                Thread.sleep(500);
+                                test.updateVar2();
+                            }
+                            catch (final InterruptedException _e) {
+                                break;
+                            }
                         }
                     }
                 });
                 t.start();
             }
         }
-        catch (final InterruptedException | CertificateException | IOException _e) {
+        catch (final InterruptedException _e) {
+            _e.printStackTrace();
+        }
+        catch (final CertificateException _e) {
+            _e.printStackTrace();
+        }
+        catch (final IOException _e) {
             _e.printStackTrace();
         }
     }
-
 
     //------------------------------------------------------------
     //
@@ -64,17 +72,16 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
     //
     public RCPServerTest() throws IOException, CertificateException, InterruptedException {
 
-
         // a udp transporter
-//        final UDPServerTransporter transporter = new UDPServerTransporter(8181);
-//        transporter.setTargetPort(61187);
+        //        final UDPServerTransporter transporter = new UDPServerTransporter(8181);
+        //        transporter.setTargetPort(61187);
 
         // a tcp transporter
-//        final TCPServerTransporter transporter = new TCPServerTransporter(8888);
+        //        final TCPServerTransporter transporter = new TCPServerTransporter(8888);
 
         // a websocket transporter
-        final WebsocketServerTransporterNetty transporter = new WebsocketServerTransporterNetty
-                (10000);
+        final WebsocketServerTransporterNetty transporter = new WebsocketServerTransporterNetty(
+                10000);
 
         // create toi
         toi = new RCPServer(transporter);
@@ -82,32 +89,28 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         toi.setInitListener(this);
 
         // create values
-        theValueString = new RCPParameter<>(1, new RCPTypeSTRING());
+        theValueString = new RCPParameter<String>(1, new RCPTypeSTRING());
         theValueString.setValue("This is a text encoded in utf-8. let's test it: ¬”#£œæýýý‘");
         theValueString.setDescription("test description 2");
         theValueString.setLabel("text label");
         theValueString.setUserdata("some user data?".getBytes());
 
-        theValueDouble = new RCPParameter<>(2, new RCPTypeFLOAT64(0.D, 10.D));
+        theValueDouble = new RCPParameter<Double>(2, new RCPTypeFLOAT64(0.D, 10.D));
         theValueDouble.setLabel("a double");
         theValueDouble.setDescription("double description");
         theValueDouble.setValue(3.14);
 
-
-        theValueInt = new RCPParameter<>(3, new RCPTypeINT32());
+        theValueInt = new RCPParameter<Integer>(3, new RCPTypeINT32());
         theValueInt.setLabel("INT LABEL");
         theValueInt.setValue(333);
 
-
-        theValueBool = new RCPParameter<>(4, new RCPTypeBOOL());
+        theValueBool = new RCPParameter<Boolean>(4, new RCPTypeBOOL());
         theValueBool.setLabel("toggle button");
         theValueBool.setValue(true);
 
-
-        theValueLong = new RCPParameterNumber<>(5, new RCPTypeINT64());
+        theValueLong = new RCPParameterNumber<Long>(5, new RCPTypeINT64());
         theValueLong.setValue((long)10);
         theValueLong.setLabel("a long number");
-
 
         // add the values to toi
         toi.add(theValueString);
@@ -125,6 +128,7 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
     }
 
     public void updateVar2() {
+
         RCPParameter<String> newVal = theValueString.cloneEmpty();
 
         newVal.setValue("content: " + counter++);
@@ -144,5 +148,6 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     @Override
     public void init() {
+
     }
 }
