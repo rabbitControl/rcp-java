@@ -115,6 +115,10 @@ public class RCPParameter<T> implements RCPWritable {
                     parameter.setOrder(_io.readS4be());
                     break;
 
+                case PARENT:
+                    parameter.setParentId(_io.readU4be());
+                    break;
+
                 case WIDGET:
                     // skip...
                     throw new RCPUnsupportedFeatureException();
@@ -144,6 +148,14 @@ public class RCPParameter<T> implements RCPWritable {
     private String description;
 
     private Integer order;
+
+    // TODO:
+    // this should rather be a Parameter??
+    private Long                  parentId;
+
+    private RCPParameter<?>       parent;
+
+    private List<RCPParameter<?>> children;
 
     // widget
 
@@ -350,6 +362,16 @@ public class RCPParameter<T> implements RCPWritable {
     public void setOrder(final int _order) {
 
         order = _order;
+    }
+
+    public Long getParentId() {
+
+        return parentId;
+    }
+
+    public void setParentId(final long _parentId) {
+
+        parentId = _parentId;
     }
 
     public byte[] getUserdata() {
