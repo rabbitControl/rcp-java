@@ -1,6 +1,7 @@
 package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
+import io.netty.util.internal.ConcurrentSet;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes;
@@ -8,7 +9,7 @@ import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by inx on 13/06/17.
@@ -135,6 +136,39 @@ public class RCPParameter<T> implements RCPWritable {
     }
 
     //------------------------------------------------------------
+    // interfaces
+    public interface VALUE_CHANGED<T> {
+
+        void valueChanged(final T newValue, final T oldValue);
+    }
+
+    public interface LABEL_CHANGED {
+
+        void labelChanged(final String newValue, final String oldValue);
+    }
+
+    public interface DESCRIPTION_CHANGED {
+
+        void descriptionChanged(final String newValue, final String oldValue);
+    }
+
+    public interface ORDER_CHANGED {
+
+        void orderChanged(final int newValue, final int oldValue);
+    }
+
+    public interface USERDATA_CHANGED {
+
+        void userdataChanged(final byte[] newValue, final byte[] oldValue);
+    }
+
+    public interface PARENT_CHANGED {
+
+        void parentChanged(final long newValue, final long oldValue);
+    }
+
+    //------------------------------------------------------------
+    //------------------------------------------------------------
     // mandatory
     private final long id;
 
@@ -161,6 +195,23 @@ public class RCPParameter<T> implements RCPWritable {
 
     private byte[] userdata;
 
+    //------------------------
+    // change listener
+
+    private Set<VALUE_CHANGED<T>> valueChangeListener = new ConcurrentSet<VALUE_CHANGED<T>>();
+
+    private Set<LABEL_CHANGED> labelChangeListener = new ConcurrentSet<LABEL_CHANGED>();
+
+    private Set<DESCRIPTION_CHANGED>
+            descriptionChangeListener
+            = new ConcurrentSet<DESCRIPTION_CHANGED>();
+
+    private Set<ORDER_CHANGED> orderChangeListener = new ConcurrentSet<ORDER_CHANGED>();
+
+    private Set<USERDATA_CHANGED> userdataChangeListener = new ConcurrentSet<USERDATA_CHANGED>();
+
+    private Set<PARENT_CHANGED> parentChangeListener = new ConcurrentSet<PARENT_CHANGED>();
+
     //------------------------------------------------------------
     //
     public RCPParameter(final int _id, final RCPTypeDefinition<T> _type) {
@@ -174,6 +225,118 @@ public class RCPParameter<T> implements RCPWritable {
         return new RCPParameter<T>((int)id, type.cloneEmpty());
     }
 
+    //------------------------------------------------------------
+    // listener
+
+    /*
+        VALUE_CHANGED listener
+     */
+    public void addValueChangeListener(final VALUE_CHANGED<T> _listener) {
+
+        if (!valueChangeListener.contains(_listener)) {
+            valueChangeListener.add(_listener);
+        }
+    }
+
+    public void removeValueChangeListener(final VALUE_CHANGED<T> _listener) {
+
+        if (valueChangeListener.contains(_listener)) {
+            valueChangeListener.remove(_listener);
+        }
+    }
+
+    public void clearValueChangeListener() {
+
+        valueChangeListener.clear();
+    }
+
+    /*
+        LABEL_CHANGED listener
+     */
+    public void addLabelChangeListener(final LABEL_CHANGED _listener) {
+
+        if (!valueChangeListener.contains(_listener)) {
+            labelChangeListener.add(_listener);
+        }
+    }
+
+    public void removeLabelChangeListener(final LABEL_CHANGED _listener) {
+
+        if (valueChangeListener.contains(_listener)) {
+            labelChangeListener.remove(_listener);
+        }
+    }
+
+    public void clearLabelChangeListener() {
+
+        labelChangeListener.clear();
+    }
+
+    /*
+        DESCRIPTION_CHANGED listener
+     */
+    public void addDescriptionChangedListener(final DESCRIPTION_CHANGED _listener) {
+
+        if (!descriptionChangeListener.contains(_listener)) {
+            descriptionChangeListener.add(_listener);
+        }
+    }
+
+    public void removeDescriptionChangedListener(final DESCRIPTION_CHANGED _listener) {
+
+        if (descriptionChangeListener.contains(_listener)) {
+            descriptionChangeListener.remove(_listener);
+        }
+    }
+
+    public void clearDescriptionChangedListener() {
+
+        descriptionChangeListener.clear();
+    }
+
+    /*
+        ORDER_CHANGED listener
+     */
+    public void addOrderChangedListener(final ORDER_CHANGED _listener) {
+
+        if (!orderChangeListener.contains(_listener)) {
+            orderChangeListener.add(_listener);
+        }
+    }
+
+    public void removeOrderChangedListener(final ORDER_CHANGED _listener) {
+
+        if (orderChangeListener.contains(_listener)) {
+            orderChangeListener.remove(_listener);
+        }
+    }
+
+    public void clearOrderChangedListener() {
+
+        orderChangeListener.clear();
+    }
+
+    /*
+        USERDATA_CHANGED listener
+     */
+    public void addUserdataChangedListener(final USERDATA_CHANGED _listener) {
+
+        if (!userdataChangeListener.contains(_listener)) {
+            userdataChangeListener.add(_listener);
+        }
+    }
+
+    public void removeUserdataChangedListener(final USERDATA_CHANGED _listener) {
+
+        if (userdataChangeListener.contains(_listener)) {
+            userdataChangeListener.remove(_listener);
+        }
+    }
+
+    public void clearUserdataChangedListener() {
+
+        userdataChangeListener.clear();
+    }
 
     //------------------------------------------------------------
     //
@@ -227,37 +390,39 @@ public class RCPParameter<T> implements RCPWritable {
         }
 
         if ((_other.getType() != null) && (type.getTypeid() != _other.getType().getTypeid())) {
-            System.err.println("not updated unmatching types: " + type + " != " + _other.type );
+            System.err.println("not updated unmatching types: " + type + " != " + _other.type);
             return;
         }
 
         // try our best to match the values
         if (_other.getValue() != null) {
 
+            T newValue = value;
+
             try {
-                value = (T)value.getClass().cast(_other.getValue());
+                newValue = (T)value.getClass().cast(_other.getValue());
             }
             catch (final ClassCastException e) {
 
                 if ((value instanceof Number) && (_other.getValue() instanceof Number)) {
 
                     if (value instanceof Integer) {
-                        value = (T)new Integer(((Number)_other.getValue()).intValue());
+                        newValue = (T)Integer.valueOf(((Number)_other.getValue()).intValue());
                     }
                     else if (value instanceof Short) {
-                        value = (T)new Short(((Number)_other.getValue()).shortValue());
+                        newValue = (T)Short.valueOf(((Number)_other.getValue()).shortValue());
                     }
                     else if (value instanceof Byte) {
-                        value = (T)new Byte(((Number)_other.getValue()).byteValue());
+                        newValue = (T)Byte.valueOf(((Number)_other.getValue()).byteValue());
                     }
                     else if (value instanceof Long) {
-                        value = (T)new Long(((Number)_other.getValue()).longValue());
+                        newValue = (T)Long.valueOf(((Number)_other.getValue()).longValue());
                     }
                     else if (value instanceof Float) {
-                        value = (T)new Float(((Number)_other.getValue()).floatValue());
+                        newValue = (T)new Float(((Number)_other.getValue()).floatValue());
                     }
                     else if (value instanceof Double) {
-                        value = (T)new Double(((Number)_other.getValue()).doubleValue());
+                        newValue = (T)new Double(((Number)_other.getValue()).doubleValue());
                     }
 
                 }
@@ -265,33 +430,35 @@ public class RCPParameter<T> implements RCPWritable {
 
                     if (_other.getValue() instanceof Map) {
 
-                        ((Map)value).clear();
+                        ((Map)newValue).clear();
 
                         for (final Object k : ((Map)_other.getValue()).keySet()) {
-                            ((Map)value).put(k, ((Map)_other.getValue()).get(k));
+                            ((Map)newValue).put(k, ((Map)_other.getValue()).get(k));
                         }
 
                         //                        System.out.println("updated map");
 
                         //                            value = (Map)_other.value;
 
-                    } else {
+                    }
+                    else {
                         System.err.println("other not of map");
                     }
 
-
                 }
                 else {
-                    System.err.println("cannot updated of from type: " + value.getClass().getName
-                            () + " other: " + _other.value.getClass().getName());
+                    System.err.println("cannot updated of from type: " +
+                                       value.getClass().getName() +
+                                       " other: " +
+                                       _other.value.getClass().getName());
                 }
             }
+
+            setValue(newValue);
         }
 
-//        final RCPParameter<T> other = (RCPParameter<T>)_other;
-
         if (_other.getLabel() != null) {
-            label = _other.getLabel();
+            setLabel(_other.getLabel());
         }
 
         if (_other.getDescription() != null) {
@@ -307,19 +474,6 @@ public class RCPParameter<T> implements RCPWritable {
         }
     }
 
-    public void dump() {
-
-        System.out.println("--- " + id + " ---");
-        System.out.println("type:\t\t\t" + type.getTypeid().name());
-        System.out.println("value:\t\t\t" + value);
-        System.out.println("label:\t\t\t" + label);
-        System.out.println("description:\t" + description);
-        System.out.println("userdata:\t\t" + userdata);
-        System.out.println();
-
-    }
-
-
     public T getValue() {
 
         if (value == null) {
@@ -331,7 +485,19 @@ public class RCPParameter<T> implements RCPWritable {
 
     public void setValue(final T _value) {
 
+        if ((value != null) && value.equals(_value)) {
+            return;
+        }
+
+        T oldValue = value;
         value = _value;
+
+        // update listener
+        if (!valueChangeListener.isEmpty()) {
+            for (final VALUE_CHANGED<T> listener : valueChangeListener) {
+                listener.valueChanged(value, oldValue);
+            }
+        }
     }
 
     public String getLabel() {
@@ -341,7 +507,15 @@ public class RCPParameter<T> implements RCPWritable {
 
     public void setLabel(final String _label) {
 
+        String oldLabel = label;
         label = _label;
+
+        // update label-changed listener
+        if (!labelChangeListener.isEmpty()) {
+            for (final LABEL_CHANGED listener : labelChangeListener) {
+                listener.labelChanged(label, oldLabel);
+            }
+        }
     }
 
     public String getDescription() {
@@ -351,7 +525,15 @@ public class RCPParameter<T> implements RCPWritable {
 
     public void setDescription(final String _description) {
 
+        final String oldValue = description;
         description = _description;
+
+        // update description-changed listener
+        if (!descriptionChangeListener.isEmpty()) {
+            for (final DESCRIPTION_CHANGED listener : descriptionChangeListener) {
+                listener.descriptionChanged(description, oldValue);
+            }
+        }
     }
 
     public Integer getOrder() {
@@ -361,7 +543,14 @@ public class RCPParameter<T> implements RCPWritable {
 
     public void setOrder(final int _order) {
 
+        final int oldValue = order;
         order = _order;
+
+        if (!orderChangeListener.isEmpty()) {
+            for (final ORDER_CHANGED listener : orderChangeListener) {
+                listener.orderChanged(order, oldValue);
+            }
+        }
     }
 
     public Long getParentId() {
@@ -371,7 +560,19 @@ public class RCPParameter<T> implements RCPWritable {
 
     public void setParentId(final long _parentId) {
 
+        final long oldValue = parentId;
         parentId = _parentId;
+
+        // TODO
+        // get RCPParameter for that id
+        // if parameter does not exist, install a listener so we get called when that parameter
+        // gets added
+
+        if (!parentChangeListener.isEmpty()) {
+            for (final PARENT_CHANGED listener : parentChangeListener) {
+                listener.parentChanged(parentId, oldValue);
+            }
+        }
     }
 
     public byte[] getUserdata() {
@@ -381,7 +582,14 @@ public class RCPParameter<T> implements RCPWritable {
 
     public void setUserdata(final byte[] _userdata) {
 
+        final byte[] oldValue = userdata;
         userdata = _userdata;
+
+        if (!userdataChangeListener.isEmpty()) {
+            for (final USERDATA_CHANGED listener : userdataChangeListener) {
+                listener.userdataChanged(userdata, oldValue);
+            }
+        }
     }
 
     public long getId() {
@@ -392,5 +600,17 @@ public class RCPParameter<T> implements RCPWritable {
     public RCPTypeDefinition<T> getType() {
 
         return type;
+    }
+
+    public void dump() {
+
+        System.out.println("--- " + id + " ---");
+        System.out.println("type:\t\t\t" + type.getTypeid().name());
+        System.out.println("value:\t\t\t" + value);
+        System.out.println("label:\t\t\t" + label);
+        System.out.println("description:\t" + description);
+        System.out.println("userdata:\t\t" + userdata);
+        System.out.println();
+
     }
 }
