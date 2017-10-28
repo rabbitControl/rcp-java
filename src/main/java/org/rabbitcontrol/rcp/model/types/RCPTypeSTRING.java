@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp.model.types;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 
@@ -57,9 +58,16 @@ public class RCPTypeSTRING extends RCPTypeDefinition<String> {
     @Override
     public void write(final OutputStream _outputStream) throws IOException {
 
-        super.write(_outputStream);
+        // write mandatory fields and defaultValue
+        _outputStream.write((int)typeid.id());
 
-        // finalize typedefinition with terminator
+        if (defaultValue != null) {
+            // use any of the default values id
+            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
+            writeValue(defaultValue, _outputStream);
+        }
+
+        // finalize with terminator
         _outputStream.write(RCPParser.TERMINATOR);
     }
 

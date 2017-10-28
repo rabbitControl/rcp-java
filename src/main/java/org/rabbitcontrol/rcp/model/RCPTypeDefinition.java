@@ -118,9 +118,9 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
     }
 
     //------------------------------------------------------------
-    private final RcpTypes.Datatype typeid;
+    protected final RcpTypes.Datatype typeid;
 
-    private T defaultValue;
+    protected T defaultValue;
 
     //------------------------------------------------------------
     public RCPTypeDefinition(final RcpTypes.Datatype _typeid) {
@@ -129,19 +129,6 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
     }
 
     public abstract RCPTypeDefinition<T> cloneEmpty();
-
-
-    @Override
-    public void write(final OutputStream _outputStream) throws IOException {
-
-        _outputStream.write((int)typeid.id());
-
-        if (defaultValue != null) {
-            // use any of the default values id
-            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
-            writeValue(defaultValue, _outputStream);
-        }
-    }
 
     public abstract void writeValue(final T _value, final OutputStream _outputStream) throws
                                                                                       IOException;

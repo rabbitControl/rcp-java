@@ -60,9 +60,16 @@ public class RCPTypeBOOL extends RCPTypeDefinition<Boolean> {
     @Override
     public void write(final OutputStream _outputStream) throws IOException {
 
-        super.write(_outputStream);
+        // write mandatory fields and defaultValue
+        _outputStream.write((int)typeid.id());
 
-        // finalize typedefinition with terminator
+        if (defaultValue != null) {
+            // use any of the default values id
+            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
+            writeValue(defaultValue, _outputStream);
+        }
+
+        // finalize with terminator
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
