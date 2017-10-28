@@ -72,6 +72,7 @@ public final class WebsocketServerTransporterNetty implements RCPTransporterNett
         workerGroup.shutdownGracefully();
     }
 
+    // TODO: resolve this!
     ChannelHandlerContext lastCtx;
 
     @Override

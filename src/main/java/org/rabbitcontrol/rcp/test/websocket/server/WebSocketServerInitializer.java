@@ -34,9 +34,9 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
 
     private final SslContext sslCtx;
 
-    private final WebsocketServerTransporterNetty listener;
+    private final RCPTransporterNetty listener;
 
-    public WebSocketServerInitializer(final SslContext sslCtx, final WebsocketServerTransporterNetty listener) {
+    public WebSocketServerInitializer(final SslContext sslCtx, final RCPTransporterNetty listener) {
 
         this.sslCtx = sslCtx;
         this.listener = listener;
@@ -54,6 +54,8 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(new WebSocketServerCompressionHandler());
         pipeline.addLast(new WebSocketServerProtocolHandler("/", null, true));
         //        pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
+
+
 
         pipeline.addLast(new MessageToMessageDecoder<WebSocketFrame>() {
 
