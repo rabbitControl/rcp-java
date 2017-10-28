@@ -68,24 +68,24 @@ public abstract class RCPTypeNumber<T extends Number> extends RCPTypeDefinition<
 
         if (defaultValue != null) {
             // use any of the default values id
-            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
+            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULT.id());
             writeValue(defaultValue, _outputStream);
         }
 
 
         // write other options
         if (getMin() != null) {
-            _outputStream.write((int)NumberProperty.MIN.id());
+            _outputStream.write((int)NumberProperty.MINIMUM.id());
             writeValue(min, _outputStream);
         }
 
         if (getMax() != null) {
-            _outputStream.write((int)NumberProperty.MAX.id());
+            _outputStream.write((int)NumberProperty.MAXIMUM.id());
             writeValue(max, _outputStream);
         }
 
         if (getMultipleof() != null) {
-            _outputStream.write((int)NumberProperty.MULT.id());
+            _outputStream.write((int)NumberProperty.MULTIPLEOF.id());
             writeValue(multipleof, _outputStream);
         }
 

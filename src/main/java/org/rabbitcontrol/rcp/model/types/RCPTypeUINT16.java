@@ -37,16 +37,16 @@ public class RCPTypeUINT16 extends RCPTypeNumber<Integer> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue(_io.readU2be());
                     break;
-                case MIN:
+                case MINIMUM:
                     type.setMin(_io.readU2be());
                     break;
-                case MAX:
+                case MAXIMUM:
                     type.setMax(_io.readU2be());
                     break;
-                case MULT:
+                case MULTIPLEOF:
                     type.setMultipleof(_io.readU2be());
                     break;
 

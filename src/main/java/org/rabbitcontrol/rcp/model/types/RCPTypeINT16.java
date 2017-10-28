@@ -39,16 +39,16 @@ public class RCPTypeINT16 extends RCPTypeNumber<Short> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue(_io.readS2be());
                     break;
-                case MIN:
+                case MINIMUM:
                     type.setMin(_io.readS2be());
                     break;
-                case MAX:
+                case MAXIMUM:
                     type.setMax(_io.readS2be());
                     break;
-                case MULT:
+                case MULTIPLEOF:
                     type.setMultipleof(_io.readS2be());
                     break;
 

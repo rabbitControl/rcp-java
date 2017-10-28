@@ -37,16 +37,16 @@ public class RCPTypeUINT8 extends RCPTypeNumber<Short> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue((short)_io.readU1());
                     break;
-                case MIN:
+                case MINIMUM:
                     type.setMin((short)_io.readU1());
                     break;
-                case MAX:
+                case MAXIMUM:
                     type.setMax((short)_io.readU1());
                     break;
-                case MULT:
+                case MULTIPLEOF:
                     type.setMultipleof((short)_io.readU1());
                     break;
 

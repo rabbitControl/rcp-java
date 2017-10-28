@@ -37,16 +37,16 @@ public class RCPTypeFLOAT64 extends RCPTypeNumber<Double> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue(_io.readF8be());
                     break;
-                case MIN:
+                case MINIMUM:
                     type.setMin(_io.readF8be());
                     break;
-                case MAX:
+                case MAXIMUM:
                     type.setMax(_io.readF8be());
                     break;
-                case MULT:
+                case MULTIPLEOF:
                     type.setMultipleof(_io.readF8be());
                     break;
 

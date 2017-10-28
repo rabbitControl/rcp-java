@@ -37,16 +37,16 @@ public class RCPTypeFLOAT32 extends RCPTypeNumber<Float> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue(_io.readF4be());
                     break;
-                case MIN:
+                case MINIMUM:
                     type.setMin(_io.readF4be());
                     break;
-                case MAX:
+                case MAXIMUM:
                     type.setMax(_io.readF4be());
                     break;
-                case MULT:
+                case MULTIPLEOF:
                     type.setMultipleof(_io.readF4be());
                     break;
 

@@ -30,7 +30,7 @@ public class RCPTypeSTRING extends RCPTypeDefinition<String> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     LongString longString = new LongString(_io);
                     type.setDefaultValue(longString.data());
                     break;
@@ -63,7 +63,7 @@ public class RCPTypeSTRING extends RCPTypeDefinition<String> {
 
         if (defaultValue != null) {
             // use any of the default values id
-            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
+            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULT.id());
             writeValue(defaultValue, _outputStream);
         }
 

@@ -1,4 +1,6 @@
-package org.rabbitcontrol.rcp.model.gen;// This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
+// This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
+
+package org.rabbitcontrol.rcp.model.gen;
 
 import io.kaitai.struct.KaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
@@ -14,7 +16,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum StringProperty {
-        DEFAULTVALUE(48);
+        DEFAULT(48);
 
         private final long id;
         StringProperty(long id) { this.id = id; }
@@ -48,7 +50,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum DynamicArrayProperty {
-        DEFAULTVALUE(48);
+        DEFAULT(48);
 
         private final long id;
         DynamicArrayProperty(long id) { this.id = id; }
@@ -62,7 +64,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum BooleanProperty {
-        DEFAULTVALUE(48);
+        DEFAULT(48);
 
         private final long id;
         BooleanProperty(long id) { this.id = id; }
@@ -76,7 +78,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum EnumProperty {
-        DEFAULTVALUE(48),
+        DEFAULT(48),
         ENTRIES(49);
 
         private final long id;
@@ -135,7 +137,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum CompoundProperty {
-        DEFAULTVALUE(48);
+        DEFAULT(48);
 
         private final long id;
         CompoundProperty(long id) { this.id = id; }
@@ -151,11 +153,11 @@ public class RcpTypes extends KaitaiStruct {
     public enum Command {
         INVALID(0),
         VERSION(1),
-        INIT(2),
+        INITIALIZE(2),
         ADD(3),
         UPDATE(4),
         REMOVE(5),
-        UPDATE_VALUE(6);
+        UPDATEVALUE(6);
 
         private final long id;
         Command(long id) { this.id = id; }
@@ -169,8 +171,8 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum NumberScale {
-        LIN(0),
-        LOG(1),
+        LINEAR(0),
+        LOGARITHMIC(1),
         EXP2(2);
 
         private final long id;
@@ -185,7 +187,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum FixedArrayProperty {
-        DEFAULTVALUE(48);
+        DEFAULT(48);
 
         private final long id;
         FixedArrayProperty(long id) { this.id = id; }
@@ -217,10 +219,10 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum VectorProperty {
-        DEFAULTVALUE(48),
-        MIN(49),
-        MAX(50),
-        MULT(51),
+        DEFAULT(48),
+        MINIMUM(49),
+        MAXIMUM(50),
+        MULTIPLEOF(51),
         SCALE(52),
         UNIT(53);
 
@@ -236,7 +238,7 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum ColorProperty {
-        DEFAULTVALUE(48);
+        DEFAULT(48);
 
         private final long id;
         ColorProperty(long id) { this.id = id; }
@@ -337,10 +339,10 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum NumberProperty {
-        DEFAULTVALUE(48),
-        MIN(49),
-        MAX(50),
-        MULT(51),
+        DEFAULT(48),
+        MINIMUM(49),
+        MAXIMUM(50),
+        MULTIPLEOF(51),
         SCALE(52),
         UNIT(53);
 
@@ -402,9 +404,9 @@ public class RcpTypes extends KaitaiStruct {
             this.myLen = this._io.readU1();
             this.data = new String(this._io.readBytes(myLen()), Charset.forName("UTF-8"));
         }
-        private int          myLen;
-        private String       data;
-        private RcpTypes     _root;
+        private int myLen;
+        private String data;
+        private RcpTypes _root;
         private KaitaiStruct _parent;
         public int myLen() { return myLen; }
         public String data() { return data; }
@@ -437,9 +439,9 @@ public class RcpTypes extends KaitaiStruct {
             this.myLen = this._io.readU2be();
             this.data = new String(this._io.readBytes(myLen()), Charset.forName("UTF-8"));
         }
-        private int          myLen;
-        private String       data;
-        private RcpTypes     _root;
+        private int myLen;
+        private String data;
+        private RcpTypes _root;
         private KaitaiStruct _parent;
         public int myLen() { return myLen; }
         public String data() { return data; }
@@ -472,9 +474,9 @@ public class RcpTypes extends KaitaiStruct {
             this.myLen = this._io.readU4be();
             this.data = new String(this._io.readBytes(myLen()), Charset.forName("UTF-8"));
         }
-        private long         myLen;
-        private String       data;
-        private RcpTypes     _root;
+        private long myLen;
+        private String data;
+        private RcpTypes _root;
         private KaitaiStruct _parent;
         public long myLen() { return myLen; }
         public String data() { return data; }
@@ -507,16 +509,16 @@ public class RcpTypes extends KaitaiStruct {
             this.myLen = this._io.readU4be();
             this.data = this._io.readBytes(myLen());
         }
-        private long         myLen;
-        private byte[]       data;
-        private RcpTypes     _root;
+        private long myLen;
+        private byte[] data;
+        private RcpTypes _root;
         private KaitaiStruct _parent;
         public long myLen() { return myLen; }
         public byte[] data() { return data; }
         public RcpTypes _root() { return _root; }
         public KaitaiStruct _parent() { return _parent; }
     }
-    private RcpTypes     _root;
+    private RcpTypes _root;
     private KaitaiStruct _parent;
     public RcpTypes _root() { return _root; }
     public KaitaiStruct _parent() { return _parent; }

@@ -50,7 +50,7 @@ public class RCPClient extends RCPBase {
 
         if (transporter != null) {
             // send to all clients
-            final RCPPacket packet = new RCPPacket(Command.INIT);
+            final RCPPacket packet = new RCPPacket(Command.INITIALIZE);
             transporter.send(packet);
         }
     }

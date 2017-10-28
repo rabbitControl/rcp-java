@@ -109,7 +109,7 @@ public class RCPServer extends RCPBase {
             // try to convert to version object
             System.out.println("version object yet to be specified");
         }
-        else if (_packet.getCmd() == Command.INIT) {
+        else if (_packet.getCmd() == Command.INITIALIZE) {
 
             if (_packet.getData() != null) {
                 // TODO: send full description of only one parameter

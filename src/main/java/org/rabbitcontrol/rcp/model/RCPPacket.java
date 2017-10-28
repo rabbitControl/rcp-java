@@ -73,7 +73,7 @@ public class RCPPacket implements RCPWritable {
                     }
 
                     switch (cmd) {
-                        case INIT:
+                        case INITIALIZE:
                             // init - shout not happen
                             throw new RCPDataErrorException();
 

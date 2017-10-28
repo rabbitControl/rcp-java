@@ -33,7 +33,7 @@ public class RCPTypeBOOL extends RCPTypeDefinition<Boolean> {
 
             switch (dataid) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue((_io.readU1() > 0));
                     break;
 
@@ -65,7 +65,7 @@ public class RCPTypeBOOL extends RCPTypeDefinition<Boolean> {
 
         if (defaultValue != null) {
             // use any of the default values id
-            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
+            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULT.id());
             writeValue(defaultValue, _outputStream);
         }
 

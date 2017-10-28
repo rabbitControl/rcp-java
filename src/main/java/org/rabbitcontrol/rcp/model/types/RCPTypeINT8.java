@@ -38,16 +38,16 @@ public class RCPTypeINT8 extends RCPTypeNumber<Byte> {
 
             switch (property) {
 
-                case DEFAULTVALUE:
+                case DEFAULT:
                     type.setDefaultValue(_io.readS1());
                     break;
-                case MIN:
+                case MINIMUM:
                     type.setMin(_io.readS1());
                     break;
-                case MAX:
+                case MAXIMUM:
                     type.setMax(_io.readS1());
                     break;
-                case MULT:
+                case MULTIPLEOF:
                     type.setMultipleof(_io.readS1());
                     break;
 
