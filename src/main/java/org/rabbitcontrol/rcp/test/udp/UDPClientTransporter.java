@@ -34,7 +34,7 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
                                                                         SocketException,
                                                                         UnknownHostException {
 
-        clientSocket = new DatagramSocket();
+        clientSocket = new DatagramSocket(10000);
 
         address = InetAddress.getByName(_address);
         port = _port;
