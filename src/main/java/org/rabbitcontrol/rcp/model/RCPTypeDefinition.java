@@ -1,9 +1,8 @@
 package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.RCPTypes.Datatype;
-import org.rabbitcontrol.rcp.model.RCPTypes.TypeDefinition;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.types.*;
 
 import java.io.IOException;
@@ -55,7 +54,7 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
     public static RCPTypeDefinition<?> parse(final KaitaiStream _io) throws RCPDataErrorException {
 
         // read mandatory type
-        final Datatype typeid = Datatype.byId(_io.readU1());
+        final RcpTypes.Datatype typeid = RcpTypes.Datatype.byId(_io.readU1());
 
         if (typeid == null) {
             throw new RCPDataErrorException();
@@ -65,7 +64,7 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
 
         switch (typeid) {
 
-            case BOOL:
+            case BOOLEAN:
                 type = RCPTypeBOOL.parse(_io);
                 break;
 
@@ -102,11 +101,11 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
                 break;
 
             // string
-            case TSTR:
+            case TINY_STRING:
                 break;
-            case SSTR:
+            case SHORT_STRING:
                 break;
-            case LSTR:
+            case STRING:
                 type = RCPTypeSTRING.parse(_io);
                 break;
         }
@@ -119,12 +118,12 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
     }
 
     //------------------------------------------------------------
-    private final Datatype typeid;
+    private final RcpTypes.Datatype typeid;
 
     private T defaultValue;
 
     //------------------------------------------------------------
-    public RCPTypeDefinition(final RCPTypes.Datatype _typeid) {
+    public RCPTypeDefinition(final RcpTypes.Datatype _typeid) {
 
         typeid = _typeid;
     }
@@ -138,7 +137,8 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
         _outputStream.write((int)typeid.id());
 
         if (defaultValue != null) {
-            _outputStream.write((int)TypeDefinition.DEFAULTVALUE.id());
+            // use any of the default values id
+            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULTVALUE.id());
             writeValue(defaultValue, _outputStream);
         }
     }
@@ -149,7 +149,7 @@ public abstract class RCPTypeDefinition<T> implements RCPWritable {
 //    public abstract void update(RCPTypeDefinition<?> _othertype);
 
     //------------------------------------------------------------
-    public Datatype getTypeid() {
+    public RcpTypes.Datatype getTypeid() {
 
         return typeid;
     }

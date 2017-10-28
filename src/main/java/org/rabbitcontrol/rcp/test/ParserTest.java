@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp.test;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.types.RCPTypeINT16;
 
 import java.io.*;
@@ -33,7 +34,7 @@ public class ParserTest {
             System.out.println(packet.getCmd());
 
             // create a packet
-            final RCPPacket newP = new RCPPacket(RCPTypes.Command.UPDATE);
+            final RCPPacket newP = new RCPPacket(RcpTypes.Command.UPDATE);
             newP.setTimestamp(1234);
 
             final RCPParameter<Short> param = new RCPParameter<>(12,

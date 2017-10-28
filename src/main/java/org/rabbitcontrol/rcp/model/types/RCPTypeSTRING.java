@@ -3,7 +3,7 @@ package org.rabbitcontrol.rcp.model.types;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
-import org.rabbitcontrol.rcp.model.RCPTypes.*;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class RCPTypeSTRING extends RCPTypeDefinition<String> {
         // parse optionals
         while (true) {
 
-            final TypeDefinition dataid = TypeDefinition.byId(_io.readU1());
+            final StringProperty dataid = StringProperty.byId(_io.readU1());
 
             if (dataid == null) {
                 break;
@@ -45,7 +45,7 @@ public class RCPTypeSTRING extends RCPTypeDefinition<String> {
 
     public RCPTypeSTRING() {
 
-        super(Datatype.LSTR);
+        super(Datatype.STRING);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class RCPTypeSTRING extends RCPTypeDefinition<String> {
         super.write(_outputStream);
 
         // finalize typedefinition with terminator
-        _outputStream.write((int)Packet.TERMINATOR.id());
+        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     @Override

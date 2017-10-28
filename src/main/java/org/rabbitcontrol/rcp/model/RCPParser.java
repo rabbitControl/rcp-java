@@ -14,6 +14,8 @@ import java.nio.charset.Charset;
  */
 public class RCPParser {
 
+    public static final int TERMINATOR = 0;
+
     public static void writeTinyString(
             final String _string, final OutputStream _outputStream) throws IOException {
 

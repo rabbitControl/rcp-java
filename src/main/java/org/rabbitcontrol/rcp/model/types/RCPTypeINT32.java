@@ -1,9 +1,9 @@
 package org.rabbitcontrol.rcp.model.types;
 
-import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
+import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.RCPTypes;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,12 +23,12 @@ public class RCPTypeINT32 extends RCPTypeNumber<Integer> {
 
             int          did    = _io.readU1();
 
-            if (did == RCPTypes.Packet.TERMINATOR.id()) {
+            if (did == RCPParser.TERMINATOR) {
                 // terminator
                 break;
             }
 
-            final RCPTypes.TypeNumber dataid = RCPTypes.TypeNumber.byId(did);
+            final RcpTypes.NumberProperty dataid = RcpTypes.NumberProperty.byId(did);
 
             if (dataid == null) {
                 throw new RCPDataErrorException();
@@ -59,7 +59,7 @@ public class RCPTypeINT32 extends RCPTypeNumber<Integer> {
     }
 
     public RCPTypeINT32() {
-        super(RCPTypes.Datatype.INT32);
+        super(RcpTypes.Datatype.INT32);
     }
 
     @Override

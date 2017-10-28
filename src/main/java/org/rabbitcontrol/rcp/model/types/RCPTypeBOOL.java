@@ -1,9 +1,10 @@
 package org.rabbitcontrol.rcp.model.types;
 
-import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
-import org.rabbitcontrol.rcp.model.RCPTypes.*;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.RCPParser;
+import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,12 +20,12 @@ public class RCPTypeBOOL extends RCPTypeDefinition<Boolean> {
 
             int          did    = _io.readU1();
 
-            if (did == Packet.TERMINATOR.id()) {
+            if (did == RCPParser.TERMINATOR) {
                 // terminator
                 break;
             }
 
-            final TypeDefinition dataid = TypeDefinition.byId(did);
+            final RcpTypes.BooleanProperty dataid = RcpTypes.BooleanProperty.byId(did);
 
             if (dataid == null) {
                 throw new RCPDataErrorException();
@@ -47,7 +48,7 @@ public class RCPTypeBOOL extends RCPTypeDefinition<Boolean> {
 
     public RCPTypeBOOL() {
 
-        super(Datatype.BOOL);
+        super(RcpTypes.Datatype.BOOLEAN);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class RCPTypeBOOL extends RCPTypeDefinition<Boolean> {
         super.write(_outputStream);
 
         // finalize typedefinition with terminator
-        _outputStream.write((int)Packet.TERMINATOR.id());
+        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     @Override

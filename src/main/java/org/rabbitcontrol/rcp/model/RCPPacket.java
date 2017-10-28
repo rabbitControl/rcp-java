@@ -1,7 +1,7 @@
 package org.rabbitcontrol.rcp.model;
 
-import org.rabbitcontrol.rcp.model.RCPTypes.Command;
-import org.rabbitcontrol.rcp.model.RCPTypes.Packet;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import io.kaitai.struct.KaitaiStream;
@@ -28,6 +28,7 @@ public class RCPPacket implements RCPWritable {
     public static RCPPacket parse(final KaitaiStream _io) throws RCPUnsupportedFeatureException,
                                                                  RCPDataErrorException {
 
+        // get mandatory
         final Command cmd = Command.byId(_io.readU1());
 
         if (cmd == null) {
@@ -39,21 +40,21 @@ public class RCPPacket implements RCPWritable {
         // read packet options
         while (!_io.isEof()) {
 
-            final int did = _io.readU1();
+            final int property_id = _io.readU1();
 
-            if (did == Packet.TERMINATOR.id()) {
+            if (property_id == RCPParser.TERMINATOR) {
                 // terminator
                 break;
             }
 
-            final Packet dataid = Packet.byId(did);
+            final Packet property = Packet.byId(property_id);
 
-            if (dataid == null) {
+            if (property == null) {
                 // wrong data id... skip whole packet?
                 throw new RCPDataErrorException();
             }
 
-            switch (dataid) {
+            switch (property) {
                 case DATA:
 
                     if (packet.getData() != null) {
@@ -70,8 +71,8 @@ public class RCPPacket implements RCPWritable {
                         case UPDATE:
                             // expect parameter
                             packet.setData(RCPParameter.parse(_io));
-
                             break;
+
                         case VERSION:
                             // version: expect meta
                             // TODO: implement
@@ -79,9 +80,11 @@ public class RCPPacket implements RCPWritable {
                     }
 
                     break;
+
                 case ID:
                     packet.setPacketId(_io.readU4be());
                     break;
+
                 case TIMESTAMP:
                     packet.setTimestamp(_io.readU8be());
                     break;
@@ -95,8 +98,10 @@ public class RCPPacket implements RCPWritable {
     }
 
     //--------------------------------------------------------
+    // mandatory
     private final Command cmd;
 
+    // options
     private Long packetId;
 
     private Long timestamp;
@@ -150,7 +155,7 @@ public class RCPPacket implements RCPWritable {
         }
 
         // finalize packet with terminator
-        _outputStream.write((int)Packet.TERMINATOR.id());
+        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     //--------------------------------------------------------

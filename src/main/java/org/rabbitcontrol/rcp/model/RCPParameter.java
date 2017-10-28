@@ -1,8 +1,9 @@
 package org.rabbitcontrol.rcp.model;
 
+import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,6 +15,9 @@ import java.util.Map;
  */
 public class RCPParameter<T> implements RCPWritable {
 
+    // TODO:
+    // update listener
+
     //------------------------------------------------------------
     //
     public static RCPParameter<?> parse(final KaitaiStream _io) throws
@@ -21,38 +25,38 @@ public class RCPParameter<T> implements RCPWritable {
                                                                 RCPDataErrorException {
 
         // get mandatory id
-        final int paramId = _io.readS4be();
+        final int parameter_id = _io.readS4be();
         // get mandatory type
-        final RCPTypeDefinition<?> type = RCPTypeDefinition.parse(_io);
+        final RCPTypeDefinition<?> type_definition = RCPTypeDefinition.parse(_io);
 
-        final RCPParameter<?> parameter = new RCPParameter<>(paramId, type);
+        final RCPParameter<?> parameter = new RCPParameter<>(parameter_id, type_definition);
 
         // get options from the stream
         while (true) {
 
             // get data-id
-            int did = _io.readU1();
+            int property_id = _io.readU1();
 
-            if (did == RCPTypes.Packet.TERMINATOR.id()) {
+            if (property_id == RCPParser.TERMINATOR) {
                 // terminator
                 break;
             }
 
-            final RCPTypes.Parameter dataid = RCPTypes.Parameter.byId(did);
+            final RcpTypes.Parameter property = RcpTypes.Parameter.byId(property_id);
 
-            if (dataid == null) {
+            if (property == null) {
                 break;
             }
 
-            switch (dataid) {
+            switch (property) {
                 case VALUE:
                     System.out.println("we should set the value...");
 
-                    RCPTypes.Datatype d = type.getTypeid();
+                    RcpTypes.Datatype d = type_definition.getTypeid();
 
                     switch (d) {
 
-                        case BOOL:
+                        case BOOLEAN:
                             ((RCPParameter<Boolean>)parameter).setValue(_io.readS1() > 0);
                             break;
                         case INT8:
@@ -85,12 +89,12 @@ public class RCPParameter<T> implements RCPWritable {
                         case FLOAT64:
                             ((RCPParameter<Double>)parameter).setValue(_io.readF8be());
                             break;
-                        case TSTR:
+                        case TINY_STRING:
                             break;
-                        case SSTR:
+                        case SHORT_STRING:
                             break;
-                        case LSTR:
-                            final RCPTypes.LongString longString = new RCPTypes.LongString(_io);
+                        case STRING:
+                            final RcpTypes.LongString longString = new RcpTypes.LongString(_io);
                             ((RCPParameter<String>)parameter).setValue(longString.data());
                             break;
                     }
@@ -98,12 +102,12 @@ public class RCPParameter<T> implements RCPWritable {
                     break;
 
                 case LABEL:
-                    final RCPTypes.TinyString tinyString = new RCPTypes.TinyString(_io);
+                    final RcpTypes.TinyString tinyString = new RcpTypes.TinyString(_io);
                     parameter.setLabel(tinyString.data());
                     break;
 
                 case DESCRIPTION:
-                    final RCPTypes.ShortString shortString = new RCPTypes.ShortString(_io);
+                    final RcpTypes.ShortString shortString = new RcpTypes.ShortString(_io);
                     parameter.setDescription(shortString.data());
                     break;
 
@@ -116,7 +120,7 @@ public class RCPParameter<T> implements RCPWritable {
                     throw new RCPUnsupportedFeatureException();
 
                 case USERDATA:
-                    final RCPTypes.Userdata ud = new RCPTypes.Userdata(_io);
+                    final RcpTypes.Userdata ud = new RcpTypes.Userdata(_io);
                     parameter.setUserdata(ud.data());
                     break;
             }
@@ -172,33 +176,33 @@ public class RCPParameter<T> implements RCPWritable {
 
         // write all optionals
         if (value != null) {
-            _outputStream.write((int)RCPTypes.Parameter.VALUE.id());
+            _outputStream.write((int)RcpTypes.Parameter.VALUE.id());
             type.writeValue(value, _outputStream);
         }
 
         if (label != null) {
-            _outputStream.write((int)RCPTypes.Parameter.LABEL.id());
+            _outputStream.write((int)RcpTypes.Parameter.LABEL.id());
             RCPParser.writeTinyString(label, _outputStream);
         }
 
         if (description != null) {
-            _outputStream.write((int)RCPTypes.Parameter.DESCRIPTION.id());
+            _outputStream.write((int)RcpTypes.Parameter.DESCRIPTION.id());
             RCPParser.writeShortString(description, _outputStream);
         }
 
         if (order != null) {
-            _outputStream.write((int)RCPTypes.Parameter.ORDER.id());
+            _outputStream.write((int)RcpTypes.Parameter.ORDER.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(order).array());
         }
 
         if (userdata != null) {
-            _outputStream.write((int)RCPTypes.Parameter.USERDATA.id());
+            _outputStream.write((int)RcpTypes.Parameter.USERDATA.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(userdata.length).array());
             _outputStream.write(userdata);
         }
 
         // finalize parameter with terminator
-        _outputStream.write((int)RCPTypes.Packet.TERMINATOR.id());
+        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     //------------------------------------------------------------

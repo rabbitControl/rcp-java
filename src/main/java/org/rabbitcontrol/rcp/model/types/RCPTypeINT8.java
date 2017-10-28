@@ -1,7 +1,8 @@
 package org.rabbitcontrol.rcp.model.types;
 
+import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
-import org.rabbitcontrol.rcp.model.RCPTypes.*;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import io.kaitai.struct.KaitaiStream;
 
@@ -20,20 +21,22 @@ public class RCPTypeINT8 extends RCPTypeNumber<Byte> {
         // parse optionals
         while (true) {
 
-            int did = _io.readU1();
+            int prop_id = _io.readU1();
 
-            if (did == Packet.TERMINATOR.id()) {
+            if (prop_id == RCPParser.TERMINATOR) {
                 // terminator
                 break;
             }
 
-            final TypeNumber dataid = TypeNumber.byId(did);
+            final NumberProperty property = NumberProperty.byId(prop_id);
 
-            if (dataid == null) {
+            //NumberProperty
+
+            if (property == null) {
                 throw new RCPDataErrorException();
             }
 
-            switch (dataid) {
+            switch (property) {
 
                 case DEFAULTVALUE:
                     type.setDefaultValue(_io.readS1());
@@ -49,7 +52,7 @@ public class RCPTypeINT8 extends RCPTypeNumber<Byte> {
                     break;
 
                 default:
-                    parseOption(type, dataid, _io);
+                    parseOption(type, property, _io);
             }
 
         }

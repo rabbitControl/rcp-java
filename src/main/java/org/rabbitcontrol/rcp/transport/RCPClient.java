@@ -1,7 +1,7 @@
 package org.rabbitcontrol.rcp.transport;
 
 import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.RCPTypes.Command;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 
 public class RCPClient extends RCPBase {
 

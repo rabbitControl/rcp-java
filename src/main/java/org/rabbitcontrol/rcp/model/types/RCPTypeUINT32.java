@@ -1,7 +1,8 @@
 package org.rabbitcontrol.rcp.model.types;
 
+import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RCPTypeDefinition;
-import org.rabbitcontrol.rcp.model.RCPTypes.*;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import io.kaitai.struct.KaitaiStream;
 
@@ -23,12 +24,12 @@ public class RCPTypeUINT32 extends RCPTypeNumber<Long> {
 
             int did = _io.readU1();
 
-            if (did == Packet.TERMINATOR.id()) {
+            if (did == RCPParser.TERMINATOR) {
                 // terminator
                 break;
             }
 
-            final TypeNumber dataid = TypeNumber.byId(did);
+            final NumberProperty dataid = NumberProperty.byId(did);
 
             if (dataid == null) {
                 throw new RCPDataErrorException();
