@@ -4,7 +4,6 @@ import io.kaitai.struct.KaitaiStream;
 import io.netty.util.internal.ConcurrentSet;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.interfaces.ITypeDefinition;
@@ -95,17 +94,17 @@ public abstract class Parameter implements IParameter {
 
     //------------------------
     // change listener
-    private Set<LABEL_CHANGED> labelChangeListener = new ConcurrentSet<LABEL_CHANGED>();
+    private final Set<LABEL_CHANGED> labelChangeListener = new ConcurrentSet<LABEL_CHANGED>();
 
-    private Set<DESCRIPTION_CHANGED>
+    private final Set<DESCRIPTION_CHANGED>
             descriptionChangeListener
             = new ConcurrentSet<DESCRIPTION_CHANGED>();
 
-    private Set<ORDER_CHANGED> orderChangeListener = new ConcurrentSet<ORDER_CHANGED>();
+    private final Set<ORDER_CHANGED> orderChangeListener = new ConcurrentSet<ORDER_CHANGED>();
 
-    private Set<USERDATA_CHANGED> userdataChangeListener = new ConcurrentSet<USERDATA_CHANGED>();
+    private final Set<USERDATA_CHANGED> userdataChangeListener = new ConcurrentSet<USERDATA_CHANGED>();
 
-    private Set<PARENT_CHANGED> parentChangeListener = new ConcurrentSet<PARENT_CHANGED>();
+    private final Set<PARENT_CHANGED> parentChangeListener = new ConcurrentSet<PARENT_CHANGED>();
 
 
     //------------------------------------------------------------
@@ -140,13 +139,13 @@ public abstract class Parameter implements IParameter {
                 break;
             }
 
-            final RcpTypes.Parameter property = RcpTypes.Parameter.byId(property_id);
+            final ParameterOptions option = ParameterOptions.byId(property_id);
 
-            if (property == null) {
+            if (option == null) {
                 break;
             }
 
-            switch (property) {
+            switch (option) {
 
                 case LABEL:
                     final TinyString tinyString = new TinyString(_io);
@@ -194,29 +193,29 @@ public abstract class Parameter implements IParameter {
         // write options
 
         if (label != null) {
-            _outputStream.write((int)RcpTypes.Parameter.LABEL.id());
+            _outputStream.write((int)ParameterOptions.LABEL.id());
             RCPParser.writeTinyString(label, _outputStream);
         }
 
         if (description != null) {
-            _outputStream.write((int)RcpTypes.Parameter.DESCRIPTION.id());
+            _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
             RCPParser.writeShortString(description, _outputStream);
         }
 
         if (order != null) {
-            _outputStream.write((int)RcpTypes.Parameter.ORDER.id());
+            _outputStream.write((int)ParameterOptions.ORDER.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(order).array());
         }
 
         if (parentId != null) {
-            _outputStream.write((int)RcpTypes.Parameter.PARENT.id());
+            _outputStream.write((int)ParameterOptions.PARENT.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(parentId.intValue()).array());
         }
 
         // TODO: write widget
 
         if (userdata != null) {
-            _outputStream.write((int)RcpTypes.Parameter.USERDATA.id());
+            _outputStream.write((int)ParameterOptions.USERDATA.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(userdata.length).array());
             _outputStream.write(userdata);
         }

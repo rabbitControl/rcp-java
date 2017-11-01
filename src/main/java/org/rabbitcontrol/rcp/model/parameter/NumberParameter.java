@@ -1,11 +1,11 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
+import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.ParameterOptions;
 import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
 import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
-import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.types.NumberDefinition;
 
 public class NumberParameter<T extends Number> extends ValueParameter<T> implements
@@ -37,9 +37,9 @@ public class NumberParameter<T extends Number> extends ValueParameter<T> impleme
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        final RcpTypes.Parameter property = RcpTypes.Parameter.byId(_propertyId);
+        final ParameterOptions option = ParameterOptions.byId(_propertyId);
 
-        switch (property) {
+        switch (option) {
             case VALUE:
                 Datatype d = typeDefinition.getDatatype();
 

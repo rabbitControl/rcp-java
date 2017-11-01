@@ -15,21 +15,55 @@ public class RcpTypes extends KaitaiStruct {
         return new RcpTypes(new KaitaiStream(fileName));
     }
 
-    public enum StringProperty {
+    public enum EnumOptions {
+        DEFAULT(48),
+        ENTRIES(49);
+
+        private final long id;
+        EnumOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, EnumOptions> byId = new HashMap<Long, EnumOptions>(2);
+        static {
+            for (EnumOptions e : EnumOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static EnumOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum WidgetOptions {
+        TYPE(80),
+        ENABLED(81),
+        VISIBLE(82),
+        LABEL_VISIBLE(83),
+        VALUE_VISIBLE(84),
+        LABEL_POSITION(85);
+
+        private final long id;
+        WidgetOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, WidgetOptions> byId = new HashMap<Long, WidgetOptions>(6);
+        static {
+            for (WidgetOptions e : WidgetOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static WidgetOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum ColorOptions {
         DEFAULT(48);
 
         private final long id;
-        StringProperty(long id) { this.id = id; }
+        ColorOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, StringProperty> byId = new HashMap<Long, StringProperty>(1);
+        private static final Map<Long, ColorOptions> byId = new HashMap<Long, ColorOptions>(1);
         static {
-            for (StringProperty e : StringProperty.values())
+            for (ColorOptions e : ColorOptions.values())
                 byId.put(e.id(), e);
         }
-        public static StringProperty byId(long id) { return byId.get(id); }
+        public static ColorOptions byId(long id) { return byId.get(id); }
     }
 
-    public enum Parameter {
+    public enum ParameterOptions {
         VALUE(32),
         LABEL(33),
         DESCRIPTION(34),
@@ -39,79 +73,64 @@ public class RcpTypes extends KaitaiStruct {
         USERDATA(38);
 
         private final long id;
-        Parameter(long id) { this.id = id; }
+        ParameterOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Parameter> byId = new HashMap<Long, Parameter>(7);
+        private static final Map<Long, ParameterOptions> byId = new HashMap<Long, ParameterOptions>(7);
         static {
-            for (Parameter e : Parameter.values())
+            for (ParameterOptions e : ParameterOptions.values())
                 byId.put(e.id(), e);
         }
-        public static Parameter byId(long id) { return byId.get(id); }
+        public static ParameterOptions byId(long id) { return byId.get(id); }
     }
 
-    public enum DynamicArrayProperty {
-        DEFAULT(48);
-
-        private final long id;
-        DynamicArrayProperty(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, DynamicArrayProperty> byId = new HashMap<Long, DynamicArrayProperty>(1);
-        static {
-            for (DynamicArrayProperty e : DynamicArrayProperty.values())
-                byId.put(e.id(), e);
-        }
-        public static DynamicArrayProperty byId(long id) { return byId.get(id); }
-    }
-
-    public enum BooleanProperty {
-        DEFAULT(48);
-
-        private final long id;
-        BooleanProperty(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, BooleanProperty> byId = new HashMap<Long, BooleanProperty>(1);
-        static {
-            for (BooleanProperty e : BooleanProperty.values())
-                byId.put(e.id(), e);
-        }
-        public static BooleanProperty byId(long id) { return byId.get(id); }
-    }
-
-    public enum EnumProperty {
+    public enum VectorOptions {
         DEFAULT(48),
-        ENTRIES(49);
+        MINIMUM(49),
+        MAXIMUM(50),
+        MULTIPLEOF(51),
+        SCALE(52),
+        UNIT(53);
 
         private final long id;
-        EnumProperty(long id) { this.id = id; }
+        VectorOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, EnumProperty> byId = new HashMap<Long, EnumProperty>(2);
+        private static final Map<Long, VectorOptions> byId = new HashMap<Long, VectorOptions>(6);
         static {
-            for (EnumProperty e : EnumProperty.values())
+            for (VectorOptions e : VectorOptions.values())
                 byId.put(e.id(), e);
         }
-        public static EnumProperty byId(long id) { return byId.get(id); }
+        public static VectorOptions byId(long id) { return byId.get(id); }
     }
 
-    public enum Widget {
-        TYPE(80),
-        ENABLED(81),
-        VISIBLE(82),
-        LABEL_VISIBLE(83),
-        VALUE_VISIBLE(84),
-        LABEL_POSITION(85);
+    public enum CompoundOptions {
+        DEFAULT(48);
 
         private final long id;
-        Widget(long id) { this.id = id; }
+        CompoundOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Widget> byId = new HashMap<Long, Widget>(6);
+        private static final Map<Long, CompoundOptions> byId = new HashMap<Long, CompoundOptions>(1);
         static {
-            for (Widget e : Widget.values())
+            for (CompoundOptions e : CompoundOptions.values())
                 byId.put(e.id(), e);
         }
-        public static Widget byId(long id) { return byId.get(id); }
+        public static CompoundOptions byId(long id) { return byId.get(id); }
     }
 
-    public enum WidgetType {
+    public enum BooleanOptions {
+        DEFAULT(48);
+
+        private final long id;
+        BooleanOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, BooleanOptions> byId = new HashMap<Long, BooleanOptions>(1);
+        static {
+            for (BooleanOptions e : BooleanOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static BooleanOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum Widgettype {
         TEXTBOX(16),
         NUMBERBOX(17),
         BUTTON(18),
@@ -126,28 +145,14 @@ public class RcpTypes extends KaitaiStruct {
         XYFIELD(31);
 
         private final long id;
-        WidgetType(long id) { this.id = id; }
+        Widgettype(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, WidgetType> byId = new HashMap<Long, WidgetType>(12);
+        private static final Map<Long, Widgettype> byId = new HashMap<Long, Widgettype>(12);
         static {
-            for (WidgetType e : WidgetType.values())
+            for (Widgettype e : Widgettype.values())
                 byId.put(e.id(), e);
         }
-        public static WidgetType byId(long id) { return byId.get(id); }
-    }
-
-    public enum CompoundProperty {
-        DEFAULT(48);
-
-        private final long id;
-        CompoundProperty(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, CompoundProperty> byId = new HashMap<Long, CompoundProperty>(1);
-        static {
-            for (CompoundProperty e : CompoundProperty.values())
-                byId.put(e.id(), e);
-        }
-        public static CompoundProperty byId(long id) { return byId.get(id); }
+        public static Widgettype byId(long id) { return byId.get(id); }
     }
 
     public enum Command {
@@ -186,18 +191,18 @@ public class RcpTypes extends KaitaiStruct {
         public static NumberScale byId(long id) { return byId.get(id); }
     }
 
-    public enum FixedArrayProperty {
+    public enum DynamicArrayOptions {
         DEFAULT(48);
 
         private final long id;
-        FixedArrayProperty(long id) { this.id = id; }
+        DynamicArrayOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, FixedArrayProperty> byId = new HashMap<Long, FixedArrayProperty>(1);
+        private static final Map<Long, DynamicArrayOptions> byId = new HashMap<Long, DynamicArrayOptions>(1);
         static {
-            for (FixedArrayProperty e : FixedArrayProperty.values())
+            for (DynamicArrayOptions e : DynamicArrayOptions.values())
                 byId.put(e.id(), e);
         }
-        public static FixedArrayProperty byId(long id) { return byId.get(id); }
+        public static DynamicArrayOptions byId(long id) { return byId.get(id); }
     }
 
     public enum LabelPosition {
@@ -218,53 +223,18 @@ public class RcpTypes extends KaitaiStruct {
         public static LabelPosition byId(long id) { return byId.get(id); }
     }
 
-    public enum VectorProperty {
-        DEFAULT(48),
-        MINIMUM(49),
-        MAXIMUM(50),
-        MULTIPLEOF(51),
-        SCALE(52),
-        UNIT(53);
-
-        private final long id;
-        VectorProperty(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, VectorProperty> byId = new HashMap<Long, VectorProperty>(6);
-        static {
-            for (VectorProperty e : VectorProperty.values())
-                byId.put(e.id(), e);
-        }
-        public static VectorProperty byId(long id) { return byId.get(id); }
-    }
-
-    public enum ColorProperty {
+    public enum StringOptions {
         DEFAULT(48);
 
         private final long id;
-        ColorProperty(long id) { this.id = id; }
+        StringOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, ColorProperty> byId = new HashMap<Long, ColorProperty>(1);
+        private static final Map<Long, StringOptions> byId = new HashMap<Long, StringOptions>(1);
         static {
-            for (ColorProperty e : ColorProperty.values())
+            for (StringOptions e : StringOptions.values())
                 byId.put(e.id(), e);
         }
-        public static ColorProperty byId(long id) { return byId.get(id); }
-    }
-
-    public enum Metadata {
-        VERSION(26),
-        CAPABILITIES(27),
-        COMMANDS(28);
-
-        private final long id;
-        Metadata(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, Metadata> byId = new HashMap<Long, Metadata>(3);
-        static {
-            for (Metadata e : Metadata.values())
-                byId.put(e.id(), e);
-        }
-        public static Metadata byId(long id) { return byId.get(id); }
+        public static StringOptions byId(long id) { return byId.get(id); }
     }
 
     public enum Datatype {
@@ -322,23 +292,7 @@ public class RcpTypes extends KaitaiStruct {
         public static Datatype byId(long id) { return byId.get(id); }
     }
 
-    public enum Packet {
-        ID(16),
-        TIMESTAMP(17),
-        DATA(18);
-
-        private final long id;
-        Packet(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, Packet> byId = new HashMap<Long, Packet>(3);
-        static {
-            for (Packet e : Packet.values())
-                byId.put(e.id(), e);
-        }
-        public static Packet byId(long id) { return byId.get(id); }
-    }
-
-    public enum NumberProperty {
+    public enum NumberOptions {
         DEFAULT(48),
         MINIMUM(49),
         MAXIMUM(50),
@@ -347,14 +301,60 @@ public class RcpTypes extends KaitaiStruct {
         UNIT(53);
 
         private final long id;
-        NumberProperty(long id) { this.id = id; }
+        NumberOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, NumberProperty> byId = new HashMap<Long, NumberProperty>(6);
+        private static final Map<Long, NumberOptions> byId = new HashMap<Long, NumberOptions>(6);
         static {
-            for (NumberProperty e : NumberProperty.values())
+            for (NumberOptions e : NumberOptions.values())
                 byId.put(e.id(), e);
         }
-        public static NumberProperty byId(long id) { return byId.get(id); }
+        public static NumberOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum MetadataOptions {
+        VERSION(26),
+        CAPABILITIES(27),
+        COMMANDS(28);
+
+        private final long id;
+        MetadataOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, MetadataOptions> byId = new HashMap<Long, MetadataOptions>(3);
+        static {
+            for (MetadataOptions e : MetadataOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static MetadataOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum PacketOptions {
+        ID(16),
+        TIMESTAMP(17),
+        DATA(18);
+
+        private final long id;
+        PacketOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, PacketOptions> byId = new HashMap<Long, PacketOptions>(3);
+        static {
+            for (PacketOptions e : PacketOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static PacketOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum FixedArrayOptions {
+        DEFAULT(48);
+
+        private final long id;
+        FixedArrayOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, FixedArrayOptions> byId = new HashMap<Long, FixedArrayOptions>(1);
+        static {
+            for (FixedArrayOptions e : FixedArrayOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static FixedArrayOptions byId(long id) { return byId.get(id); }
     }
 
     public RcpTypes(KaitaiStream _io) {

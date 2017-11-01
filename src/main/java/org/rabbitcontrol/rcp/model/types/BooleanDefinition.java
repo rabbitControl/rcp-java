@@ -1,12 +1,11 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.BooleanProperty;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.BooleanOptions;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.DefaultDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,13 +28,13 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
                 break;
             }
 
-            final BooleanProperty dataid = BooleanProperty.byId(did);
+            final BooleanOptions option = BooleanOptions.byId(did);
 
-            if (dataid == null) {
+            if (option == null) {
                 throw new RCPDataErrorException();
             }
 
-            switch (dataid) {
+            switch (option) {
 
                 case DEFAULT:
                     type.setDefault((_io.readU1() > 0));
@@ -61,14 +60,14 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        BooleanProperty property = BooleanProperty.byId(_propertyId);
+        BooleanOptions option = BooleanOptions.byId(_propertyId);
 
-        if (property == null) {
+        if (option == null) {
             return false;
         }
 
 
-        switch (property) {
+        switch (option) {
             case DEFAULT:
                 setDefault(_io.readS1() != 0);
                 return true;
@@ -91,7 +90,7 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
 
         if (getDefault() != null) {
             // use any of the default values id
-            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULT.id());
+            _outputStream.write((int)BooleanOptions.DEFAULT.id());
             writeValue(getDefault(), _outputStream);
         }
 

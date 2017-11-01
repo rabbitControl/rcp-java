@@ -1,8 +1,8 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.LongString;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.ParameterOptions;
 import org.rabbitcontrol.rcp.model.types.StringDefinition;
 
 public class StringParameter extends ValueParameter<String> {
@@ -17,9 +17,9 @@ public class StringParameter extends ValueParameter<String> {
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        final RcpTypes.Parameter property = RcpTypes.Parameter.byId(_propertyId);
+        final ParameterOptions option = ParameterOptions.byId(_propertyId);
 
-        switch (property) {
+        switch (option) {
             case VALUE:
                 final LongString longString = new LongString(_io);
                 setValue(longString.data());

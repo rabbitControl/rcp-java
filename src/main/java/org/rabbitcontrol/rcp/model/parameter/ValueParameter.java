@@ -2,8 +2,9 @@ package org.rabbitcontrol.rcp.model.parameter;
 
 import io.netty.util.internal.ConcurrentSet;
 import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
-import org.rabbitcontrol.rcp.model.interfaces.*;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.ParameterOptions;
+import org.rabbitcontrol.rcp.model.interfaces.IDefaultDefinition;
+import org.rabbitcontrol.rcp.model.interfaces.IValueParameter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,7 +24,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     //------------------------------------------------------------
     //------------------------------------------------------------
     // mandatory
-    private DefaultDefinition<T> typeDefinition;
+    private final DefaultDefinition<T> typeDefinition;
 
     // optional
     private T value;
@@ -31,7 +32,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     //------------------------
     // change listener
 
-    private Set<VALUE_CHANGED<T>> valueChangeListener = new ConcurrentSet<VALUE_CHANGED<T>>();
+    private final Set<VALUE_CHANGED<T>> valueChangeListener = new ConcurrentSet<VALUE_CHANGED<T>>();
 
 
     //------------------------------------------------------------
@@ -43,6 +44,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         typeDefinition = _typeDefinition;
     }
 
+    @Override
     public IValueParameter<T> cloneEmpty() {
         return (IValueParameter<T>)ParameterFactory.createParameter((int)id, typeDefinition.getDatatype());
     }
@@ -59,7 +61,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
         // write all optionals
         if (value != null) {
-            _outputStream.write((int)RcpTypes.Parameter.VALUE.id());
+            _outputStream.write((int)ParameterOptions.VALUE.id());
             typeDefinition.writeValue(value, _outputStream);
         }
 

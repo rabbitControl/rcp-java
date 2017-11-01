@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberProperty;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberOptions;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,14 +25,14 @@ public class Float32Definition extends NumberDefinition<Float> {
             return true;
         }
 
-        NumberProperty property = NumberProperty.byId(_propertyId);
+        NumberOptions option = NumberOptions.byId(_propertyId);
 
-        if (property == null) {
+        if (option == null) {
             return false;
         }
 
 
-        switch (property) {
+        switch (option) {
             case DEFAULT:
                 setDefault(_io.readF4be());
                 return true;

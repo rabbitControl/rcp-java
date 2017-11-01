@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberProperty;
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberOptions;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,7 +25,7 @@ public class Int16Definition extends NumberDefinition<Short> {
             return true;
         }
 
-        NumberProperty property = NumberProperty.byId(_propertyId);
+        NumberOptions property = NumberOptions.byId(_propertyId);
 
         if (property == null) {
             return false;

@@ -1,11 +1,10 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
-import org.rabbitcontrol.rcp.model.DefaultDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -93,13 +92,13 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         // handle option scale, unit
 
-        RcpTypes.NumberProperty property = RcpTypes.NumberProperty.byId(_propertyId);
+        NumberOptions option = NumberOptions.byId(_propertyId);
 
-        if (property == null) {
+        if (option == null) {
             return false;
         }
 
-        switch (property) {
+        switch (option) {
             case SCALE:
                 setScale(NumberScale.byId(_io.readU1()));
                 return true;
@@ -126,33 +125,33 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         if (getDefault() != null) {
             // use any of the default values id
-            _outputStream.write((int)RcpTypes.BooleanProperty.DEFAULT.id());
+            _outputStream.write((int)NumberOptions.DEFAULT.id());
             writeValue(getDefault(), _outputStream);
         }
 
         // write other options
         if (getMinimum() != null) {
-            _outputStream.write((int)NumberProperty.MINIMUM.id());
+            _outputStream.write((int)NumberOptions.MINIMUM.id());
             writeValue(minimum, _outputStream);
         }
 
         if (getMaximum() != null) {
-            _outputStream.write((int)NumberProperty.MAXIMUM.id());
+            _outputStream.write((int)NumberOptions.MAXIMUM.id());
             writeValue(maximum, _outputStream);
         }
 
         if (getMultipleof() != null) {
-            _outputStream.write((int)NumberProperty.MULTIPLEOF.id());
+            _outputStream.write((int)NumberOptions.MULTIPLEOF.id());
             writeValue(multipleof, _outputStream);
         }
 
         if (scale != null) {
-            _outputStream.write((int)NumberProperty.SCALE.id());
+            _outputStream.write((int)NumberOptions.SCALE.id());
             _outputStream.write((int)scale.id());
         }
 
         if (unit != null) {
-            _outputStream.write((int)NumberProperty.UNIT.id());
+            _outputStream.write((int)NumberOptions.UNIT.id());
             RCPParser.writeTinyString(unit, _outputStream);
         }
 

@@ -20,13 +20,13 @@ public class StringDefinition extends DefaultDefinition<String> {
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        StringProperty property = StringProperty.byId(_propertyId);
+        StringOptions option = StringOptions.byId(_propertyId);
 
-        if (property == null) {
+        if (option == null) {
             return false;
         }
 
-        switch (property) {
+        switch (option) {
             case DEFAULT:
                 LongString longString = new LongString(_io);
                 setDefault(longString.data());
@@ -50,7 +50,7 @@ public class StringDefinition extends DefaultDefinition<String> {
 
         if (getDefault() != null) {
             // use any of the default values id
-            _outputStream.write((int)BooleanProperty.DEFAULT.id());
+            _outputStream.write((int)StringOptions.DEFAULT.id());
             writeValue(getDefault(), _outputStream);
         }
 
