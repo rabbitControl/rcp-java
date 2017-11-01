@@ -1,5 +1,7 @@
 package org.rabbitcontrol.rcp.model;
 
+import org.rabbitcontrol.rcp.model.interfaces.IParameter;
+
 /**
  * Created by inx on 30/11/16.
  */
@@ -7,28 +9,16 @@ public interface RCPCommands {
 
     //------------------------------------------------------------
     //
-    String INIT = "init";
-
-    String VERSION = "version";
-
-    String ADD = "add";
-
-    String REMOVE = "remove";
-
-    String UPDATE = "update";
-
-    //------------------------------------------------------------
-    //
     interface Add {
-        void added(RCPParameter<?> _value);
+        void added(IParameter _value);
     }
 
     interface Remove {
-        void removed(RCPParameter<?> _value);
+        void removed(IParameter _value);
     }
 
     interface Update {
-        void updated(RCPParameter<?> _value);
+        void updated(IParameter _value);
     }
 
     interface Init {

@@ -63,9 +63,9 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
 
                 // parse that
                 try {
-                    final RCPPacket toiPacket = RCPPacket.parse(new KaitaiStream(data));
+                    final Packet toiPacket = Packet.parse(new KaitaiStream(data));
 
-                    received(toiPacket);
+                    received(toiPacket, this);
                 }
                 catch (RCPUnsupportedFeatureException _e) {
                     _e.printStackTrace();
@@ -86,10 +86,10 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
 
 
     @Override
-    public void send(final RCPPacket _packet) {
+    public void send(final Packet _packet) {
 
         try {
-            final byte[] data = RCPPacket.serialize(_packet);
+            final byte[] data = Packet.serialize(_packet);
 
             final DatagramPacket sendPacket = new DatagramPacket(data, data.length, address, port);
 
@@ -116,9 +116,9 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
 //    }
 
     @Override
-    public void received(final RCPPacket _packet) {
+    public void received(final Packet _packet, final RCPTransporter _transporter) {
         if (listener != null) {
-            listener.received(_packet);
+            listener.received(_packet, this);
         }
     }
 }

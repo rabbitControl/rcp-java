@@ -57,7 +57,7 @@ public class RCPParser {
     }
 
     //----------------------------------------------------------------
-    public static RCPPacket fromFile(final String fileName) throws
+    public static Packet fromFile(final String fileName) throws
                                                             IOException,
                                                             RCPUnsupportedFeatureException,
                                                             RCPDataErrorException {
@@ -65,10 +65,10 @@ public class RCPParser {
         final KaitaiStream _io = new KaitaiStream(fileName);
 
         // we read from a file: no magic expected
-        //        _io.ensureFixedContents(RCPPacket.TOI_MAGIC);
+        //        _io.ensureFixedContents(Packet.TOI_MAGIC);
 
         // got magic parse packet
-        final RCPPacket packet = RCPPacket.parse(_io);
+        final Packet packet = Packet.parse(_io);
 
         return packet;
     }

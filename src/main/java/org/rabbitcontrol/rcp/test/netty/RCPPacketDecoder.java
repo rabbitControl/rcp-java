@@ -15,7 +15,7 @@
  */
 package org.rabbitcontrol.rcp.test.netty;
 
-import org.rabbitcontrol.rcp.model.RCPPacket;
+import org.rabbitcontrol.rcp.model.Packet;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import io.kaitai.struct.KaitaiStream;
 import io.netty.buffer.ByteBuf;
@@ -60,7 +60,7 @@ public class RCPPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         }
 
         try {
-            final RCPPacket packet = RCPPacket.parse(new KaitaiStream(data));
+            final Packet packet = Packet.parse(new KaitaiStream(data));
             out.add(packet);
         }
         catch (final RCPUnsupportedFeatureException _e) {

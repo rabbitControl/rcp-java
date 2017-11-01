@@ -5,4 +5,11 @@ package org.rabbitcontrol.rcp.model.exceptions;
  */
 public class RCPUnsupportedFeatureException extends Throwable {
 
+    public RCPUnsupportedFeatureException() {
+
+    }
+
+    public RCPUnsupportedFeatureException(final String _s) {
+        super(_s);
+    }
 }

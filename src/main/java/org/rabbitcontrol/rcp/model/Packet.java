@@ -4,7 +4,6 @@ import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -12,11 +11,11 @@ import java.nio.ByteBuffer;
 /**
  * Created by inx on 13/06/17.
  */
-public class RCPPacket implements RCPWritable {
+public class Packet implements RCPWritable {
 
     public static final byte[] TOI_MAGIC = { 4, 15, 5, 9 };
 
-    public static byte[] serialize(final RCPPacket _packet) throws IOException {
+    public static byte[] serialize(final Packet _packet) throws IOException {
 
         byte[] result = null;
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -35,7 +34,7 @@ public class RCPPacket implements RCPWritable {
         return result;
     }
 
-    public static RCPPacket parse(final KaitaiStream _io) throws
+    public static Packet parse(final KaitaiStream _io) throws
                                                           RCPUnsupportedFeatureException,
                                                           RCPDataErrorException {
 
@@ -46,7 +45,7 @@ public class RCPPacket implements RCPWritable {
             throw new RCPDataErrorException();
         }
 
-        final RCPPacket packet = new RCPPacket(cmd);
+        final Packet packet = new Packet(cmd);
 
         // read packet options
         while (!_io.isEof()) {
@@ -58,7 +57,8 @@ public class RCPPacket implements RCPWritable {
                 break;
             }
 
-            final Packet property = Packet.byId(property_id);
+            final org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet
+                    property = org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet.byId(property_id);
 
             if (property == null) {
                 // wrong data id... skip whole packet?
@@ -81,7 +81,7 @@ public class RCPPacket implements RCPWritable {
                         case REMOVE:
                         case UPDATE:
                             // expect parameter
-                            packet.setData(RCPParameter.parse(_io));
+                            packet.setData(Parameter.parse(_io));
                             break;
 
                         case VERSION:
@@ -121,12 +121,12 @@ public class RCPPacket implements RCPWritable {
 
     //--------------------------------------------------------
     //--------------------------------------------------------
-    public RCPPacket(final Command _cmd) {
+    public Packet(final Command _cmd) {
 
         this(_cmd, null);
     }
 
-    public RCPPacket(final Command _cmd, final RCPWritable _data) {
+    public Packet(final Command _cmd, final RCPWritable _data) {
 
         cmd = _cmd;
         data = _data;
@@ -150,17 +150,17 @@ public class RCPPacket implements RCPWritable {
         _outputStream.write((int)cmd.id());
 
         if (packetId != null) {
-            _outputStream.write((int)Packet.ID.id());
+            _outputStream.write((int)org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet.ID.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(packetId.intValue()).array());
         }
 
         if (timestamp != null) {
-            _outputStream.write((int)Packet.TIMESTAMP.id());
+            _outputStream.write((int)org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet.TIMESTAMP.id());
             _outputStream.write(ByteBuffer.allocate(8).putLong(timestamp).array());
         }
 
         if (data != null) {
-            _outputStream.write((int)Packet.DATA.id());
+            _outputStream.write((int)org.rabbitcontrol.rcp.model.gen.RcpTypes.Packet.DATA.id());
             data.write(_outputStream);
         }
 

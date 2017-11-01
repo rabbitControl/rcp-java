@@ -22,7 +22,8 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.rabbitcontrol.rcp.model.RCPPacket;
+import org.rabbitcontrol.rcp.model.Packet;
+import org.rabbitcontrol.rcp.transport.RCPTransporter;
 import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
 import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
 
@@ -58,25 +59,25 @@ public final class TCPServerTransporterNetty implements RCPTransporterNetty {
 
     ChannelHandlerContext lastCtx;
 
-    public void received(final ChannelHandlerContext ctx, final RCPPacket _packet) {
+    public void received(final ChannelHandlerContext ctx, final Packet _packet) {
 
         lastCtx = ctx;
-        received(_packet);
+        received(_packet, this);
 
         // done
         lastCtx = null;
     }
 
     @Override
-    public void received(final RCPPacket _packet) {
+    public void received(final Packet _packet, final RCPTransporter _transporter) {
         if (listener != null) {
-            listener.received(_packet);
+            listener.received(_packet, this);
         }
     }
 
 
     @Override
-    public void send(final RCPPacket _packet) {
+    public void send(final Packet _packet) {
         // TODO
     }
 

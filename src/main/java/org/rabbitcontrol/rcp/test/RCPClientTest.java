@@ -1,9 +1,10 @@
 package org.rabbitcontrol.rcp.test;
 
+import org.rabbitcontrol.rcp.model.Parameter;
 import org.rabbitcontrol.rcp.model.RCPCommands.*;
-import org.rabbitcontrol.rcp.model.RCPParameter;
-import org.rabbitcontrol.rcp.model.types.RCPTypeNumber;
-import org.rabbitcontrol.rcp.model.types.RCPTypeSTRING;
+import org.rabbitcontrol.rcp.model.interfaces.IParameter;
+import org.rabbitcontrol.rcp.model.parameter.NumberParameter;
+import org.rabbitcontrol.rcp.model.parameter.StringParameter;
 import org.rabbitcontrol.rcp.test.websocket.client.WebsocketClientTransporter;
 import org.rabbitcontrol.rcp.transport.RCPClient;
 
@@ -78,42 +79,37 @@ public class RCPClientTest implements Add, Remove, Update {
 
     public void updateValue() {
 
-        final Map<Integer, RCPParameter<?>> cache = rcp.getValueCache();
+        final Map<Integer, Parameter> cache = rcp.getValueCache();
 
         if (!cache.isEmpty()) {
 
             final Object[] objs = cache.keySet().toArray();
 
-            final RCPParameter<?> parameter = cache.get(objs[0]);
+            final IParameter parameter = cache.get(objs[0]);
 
-            final RCPParameter<?> newParam = parameter.cloneEmpty();
+            if (parameter instanceof StringParameter) {
 
-            if (parameter.getType() instanceof RCPTypeSTRING) {
-
-                final RCPParameter<String> stringParam = (RCPParameter<String>)newParam;
+                final StringParameter stringParam = (StringParameter)parameter;
 
                 if (stringParam.getValue() == null) {
-                    stringParam.setValue("");
+                    stringParam.setValue("-");
+                } else {
+                    stringParam.setValue(stringParam.getValue() + "-");
                 }
-                stringParam.setValue(stringParam.getValue() + "-");
             }
-            else if (parameter.getType() instanceof RCPTypeNumber) {
-                ((RCPParameter<Number>)newParam).setValue(count++);
+            else if (parameter instanceof NumberParameter) {
+                ((NumberParameter)parameter).setValue(count++);
             }
-
-            rcp.update(newParam);
-
         }
         else {
             System.err.println("no values");
         }
-
     }
 
     //------------------------------------------------------------
     //
     @Override
-    public void added(final RCPParameter<?> _value) {
+    public void added(final IParameter _value) {
 
         System.out.println("client: added: " + _value.getId());
         //        toi.dumpCache();
@@ -121,7 +117,7 @@ public class RCPClientTest implements Add, Remove, Update {
     }
 
     @Override
-    public void updated(final RCPParameter<?> _value) {
+    public void updated(final IParameter _value) {
 
         System.out.println("client: updated: " + _value.getId());
         //        toi.dumpCache();
@@ -129,7 +125,7 @@ public class RCPClientTest implements Add, Remove, Update {
     }
 
     @Override
-    public void removed(final RCPParameter<?> _value) {
+    public void removed(final IParameter _value) {
 
         System.out.println("client: removed: " + _value.getId());
         //        toi.dumpCache();

@@ -1,9 +1,12 @@
 package org.rabbitcontrol.rcp.test;
 
-import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.types.*;
+import org.rabbitcontrol.rcp.model.ParameterFactory;
+import org.rabbitcontrol.rcp.model.RCPCommands;
+import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
+import org.rabbitcontrol.rcp.model.interfaces.IParameter;
+import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.test.websocket.server.WebsocketServerTransporterNetty;
-import org.rabbitcontrol.rcp.transport.RCPServer;
+import org.rabbitcontrol.rcp.transport.RabbitServer;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -11,6 +14,7 @@ import java.security.cert.CertificateException;
 public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     public static boolean doAutoUpdate = true;
+
 
     //------------------------------------------------------------
     //
@@ -29,7 +33,7 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
                         while (!Thread.interrupted()) {
 
                             try {
-                                Thread.sleep(500);
+                                Thread.sleep(5000);
                                 test.updateVar2();
                             }
                             catch (final InterruptedException _e) {
@@ -54,23 +58,25 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     //------------------------------------------------------------
     //
-    private final RCPServer toi;
+    private final RabbitServer rabbit;
 
-    private final RCPParameter<String> theValueString;
+    private final StringParameter theValueString;
 
-    private final RCPParameter<Double> theValueDouble;
+    private INumberParameter<Double> theValueDouble;
 
-    private final RCPParameter<Integer> theValueInt;
+    private final INumberParameter<Integer> theValueInt;
 
-    private final RCPParameter<Boolean> theValueBool;
+    private final BooleanParameter theValueBool;
 
-    private final RCPParameterNumber<Long> theValueLong;
+    private final INumberParameter<Long> theValueLong;
 
     private int counter;
 
     //------------------------------------------------------------
     //
     public RCPServerTest() throws IOException, CertificateException, InterruptedException {
+
+
 
         // a udp transporter
         //        final UDPServerTransporter transporter = new UDPServerTransporter(8181);
@@ -83,67 +89,109 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         final WebsocketServerTransporterNetty transporter = new WebsocketServerTransporterNetty(
                 10000);
 
-        // create toi
-        toi = new RCPServer(transporter);
-        toi.setUpdateListener(this);
-        toi.setInitListener(this);
+        // create rabbit
+        rabbit = new RabbitServer(transporter);
+
+        rabbit.setUpdateListener(this);
+        rabbit.setInitListener(this);
 
         // create values
-        theValueString = new RCPParameter<String>(1, new RCPTypeSTRING());
+        theValueString = ParameterFactory.createStringParameter(1);
         theValueString.setValue("This is a text encoded in utf-8. let's test it: ¬”#£œæýýý‘");
         theValueString.setDescription("test description 2");
         theValueString.setLabel("text label");
         theValueString.setUserdata("some user data?".getBytes());
 
-        theValueDouble = new RCPParameter<Double>(2, new RCPTypeFLOAT64(0.D, 10.D));
+        theValueString.getTypeDefinition().setDefault("defaultstring");
+
+//        theValueString.addLabelChangeListener(new RCPParameter.LABEL_CHANGED() {
+//
+//            @Override
+//            public void labelChanged(final String newValue, final String oldValue) {
+//
+//                System.out.println("label changed!! : " + oldValue + " -> " + newValue);
+//            }
+//        });
+//
+//        theValueString.addValueChangeListener(new RCPParameter.VALUE_CHANGED<String>() {
+//
+//            @Override
+//            public void valueChanged(final String newValue, final String oldValue) {
+//
+//                System.out.println("label changed!! : " + oldValue + " -> " + newValue);
+//            }
+//        });
+//
+//
+//        theValueString.setLabel("new label");
+
+
+
+        theValueDouble = ParameterFactory.createNumberParameter(2, Double.class);
+
+        theValueDouble.getTypeDefinition().setMaximum(1.D);
+
+
         theValueDouble.setLabel("a double");
         theValueDouble.setDescription("double description");
         theValueDouble.setValue(3.14);
 
-        theValueInt = new RCPParameter<Integer>(3, new RCPTypeINT32());
+//        theValueDouble.addValueChangeListener(new RCPParameter.VALUE_CHANGED<Double>() {
+//
+//            @Override
+//            public void valueChanged(final Double newValue, final Double oldValue) {
+//                System.out.println("double value changed!! : " + oldValue + " -> " + newValue);
+//            }
+//        });
+
+
+        theValueInt = ParameterFactory.createNumberParameter(3, Integer.class);
         theValueInt.setLabel("INT LABEL");
         theValueInt.setValue(333);
 
-        theValueBool = new RCPParameter<Boolean>(4, new RCPTypeBOOL());
+        theValueBool = ParameterFactory.createBooleanParameter(4);
         theValueBool.setLabel("toggle button");
         theValueBool.setValue(true);
 
-        theValueLong = new RCPParameterNumber<Long>(5, new RCPTypeINT64());
+        theValueLong = ParameterFactory.createNumberParameter(5, Long.class);
         theValueLong.setValue((long)10);
         theValueLong.setLabel("a long number");
 
-        // add the values to toi
-        toi.add(theValueString);
-        toi.add(theValueDouble);
-        toi.add(theValueInt);
-        toi.add(theValueBool);
+        // addParameter the values to rabbit
+        rabbit.addParameter(theValueDouble);
+        rabbit.addParameter(theValueString);
+        rabbit.addParameter(theValueInt);
+        rabbit.addParameter(theValueBool);
     }
+
 
     public void updateVar1() {
 
-        RCPParameter<Long> newVal = theValueLong.cloneEmpty();
-        newVal.setValue(theValueLong.getValue() + 1);
+        //rcp.beginParamterUpdate();
+        //rcp.endParamterUpdate();
+        //theValueLong.setValueMore().setLabelMore().setOrder();
 
-        toi.update(newVal);
+//        RCPParameterNumber<Long> newVal = theValueLong.cloneEmpty();
+//        newVal.setValue(theValueLong.getValue() + 1);
+//
+//        rabbit.update(newVal);
     }
 
     public void updateVar2() {
-
-        RCPParameter<String> newVal = theValueString.cloneEmpty();
-
-        newVal.setValue("content: " + counter++);
-        toi.update(newVal);
+        theValueString.setValue("content: " + counter++);
     }
 
     //------------------------------------------------------------
     //
     @Override
-    public void updated(final RCPParameter<?> _value) {
+    public void updated(final IParameter _value) {
 
         // updated from client
-        System.out.println("server: updated: " + _value.getId() + " : " + _value.getValue());
-
-        toi.dumpCache();
+//        System.out.println("server: updated: " + _value.getId() + " : " + _value.getValue());
+//
+//        rabbit.dumpCache();
+        System.out.println("server update:");
+        _value.dump();
     }
 
     @Override

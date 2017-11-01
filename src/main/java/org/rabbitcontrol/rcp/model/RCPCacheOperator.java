@@ -4,5 +4,5 @@ import java.util.Map;
 
 public interface RCPCacheOperator {
 
-    void operate(final Map<Integer, RCPParameter<?>> valueCache);
+    void operate(final Map<Integer, Parameter> valueCache);
 }

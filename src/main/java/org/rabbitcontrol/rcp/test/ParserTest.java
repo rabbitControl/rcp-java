@@ -3,8 +3,6 @@ package org.rabbitcontrol.rcp.test;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
-import org.rabbitcontrol.rcp.model.types.RCPTypeINT16;
 
 import java.io.*;
 
@@ -29,49 +27,92 @@ public class ParserTest {
 
         try {
 
-            final RCPPacket packet = RCPParser.fromFile(file.getAbsolutePath());
+            // init array with file length
+            byte[] bytes_from_file = new byte[(int) file.length()];
 
-            System.out.println(packet.getCmd());
-
-            // create a packet
-            final RCPPacket newP = new RCPPacket(RcpTypes.Command.UPDATE);
-            newP.setTimestamp(1234);
-
-            final RCPParameter<Short> param = new RCPParameter<Short>(12,
-                                                                      new RCPTypeINT16((short)33,
-                                                                                       (short)10,
-                                                                                       (short)100));
-
-            param.setLabel("a short value");
-            param.setDescription("longer description");
-            param.setOrder(-1);
-            param.setValue((short)55);
-
-            newP.setData(param);
-
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            FileInputStream fis = new FileInputStream(file);
             try {
-                newP.write(os);
-
-                final byte[] the_bytes = os.toByteArray();
-
-                System.out.println("generate packet:\n" + bytesToHex(the_bytes));
-
-                try {
-                    final OutputStream fs = new FileOutputStream(file.getParent() +
-                                                                 File.separator +
-                                                                 "_generated.rcp");
-                    os.writeTo(fs);
-
-                    fs.close();
-
-                } catch (FileNotFoundException _e) {
-                    _e.printStackTrace();
-                }
+                fis.read(bytes_from_file); //read file into bytes[]
             } finally {
-                os.close();
+                fis.close();
             }
 
+            // parse
+            final Packet packet = RCPParser.fromFile(file.getAbsolutePath());
+
+            // serialize packet
+            final byte[] the_bytes = Packet.serialize(packet);
+
+            // compare length
+            if (bytes_from_file.length != the_bytes.length) {
+                System.err.println("length missmatch");
+                return;
+            }
+
+            // compare byte by byte
+            for (int i=0; i<the_bytes.length; i++) {
+
+                byte fb = bytes_from_file[i];
+                byte b = the_bytes[i];
+
+                if (fb != b) {
+                    System.err.println("byte missmatch at index: " + i);
+                    return;
+                }
+            }
+
+            // all good
+            System.out.println("bytematch!");
+
+
+            return;
+
+
+
+//            System.out.println(packet.getCmd());
+//
+//            // create a packet
+//            final Packet newP = new Packet(RcpTypes.Command.UPDATE);
+//            newP.setTimestamp(1234);
+//
+//
+//            final INumberParameter<Short> param = ParameterFactory.createNumberParameter(12,
+//                                                                                         Short.class);
+//            param.getTypeDefinition().setDefault((short)33);
+//            param.getTypeDefinition().setMin(10);
+//            param.getTypeDefinition().setMax(100);
+//
+//
+//            param.setLabel("a short value");
+//            param.setDescription("longer description");
+//            param.setOrder(-1);
+//            param.setValue((short)55);
+//
+//            newP.setData(param);
+//
+//            ByteArrayOutputStream os = new ByteArrayOutputStream();
+//            try {
+//                newP.write(os);
+//
+//                final byte[] the_bytes = os.toByteArray();
+//
+//                System.out.println("generate packet:\n" + bytesToHex(the_bytes));
+//
+//                try {
+//                    final OutputStream fs = new FileOutputStream(file.getParent() +
+//                                                                 File.separator +
+//                                                                 "_generated.rcp");
+//                    os.writeTo(fs);
+//
+//                    fs.close();
+//
+//                } catch (FileNotFoundException _e) {
+//                    _e.printStackTrace();
+//                }
+//            } finally {
+//                os.close();
+//            }
+//
         }
         catch (IOException _e) {
             _e.printStackTrace();

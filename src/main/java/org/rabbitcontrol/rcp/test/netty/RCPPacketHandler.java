@@ -17,9 +17,9 @@ package org.rabbitcontrol.rcp.test.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.rabbitcontrol.rcp.model.RCPPacket;
+import org.rabbitcontrol.rcp.model.Packet;
 
-public class RCPPacketHandler extends SimpleChannelInboundHandler<RCPPacket> {
+public class RCPPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     private final RCPTransporterNetty listener;
 
@@ -48,11 +48,11 @@ public class RCPPacketHandler extends SimpleChannelInboundHandler<RCPPacket> {
     }
 
     @Override
-    protected void channelRead0(final ChannelHandlerContext ctx, final RCPPacket toiPacket) throws
+    protected void channelRead0(final ChannelHandlerContext ctx, final Packet rcpPacket) throws
                                                                                       Exception {
 
         if (listener != null) {
-            listener.received(toiPacket);
+            listener.received(rcpPacket, listener);
         }
 
     }

@@ -72,7 +72,7 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
                 if (!clients.contains(receivePacket.getAddress())) {
                     // FIXME: bad idea to store those "clients" - we never know when they go away
-                    // add client anyway - ignore advice and go on
+                    // addParameter client anyway - ignore advice and go on
                     clients.add(receivePacket.getAddress());
                 }
 
@@ -80,9 +80,9 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
                 // parse that
                 try {
-                    final RCPPacket toiPacket = RCPPacket.parse(new KaitaiStream(data));
+                    final Packet toiPacket = Packet.parse(new KaitaiStream(data));
 
-                    received(toiPacket);
+                    received(toiPacket, this);
                 }
                 catch (RCPUnsupportedFeatureException _e) {
                     _e.printStackTrace();
@@ -102,10 +102,10 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
 
     @Override
-    public void send(final RCPPacket _packet) {
+    public void send(final Packet _packet) {
 
         try {
-            final byte[] data = RCPPacket.serialize(_packet);
+            final byte[] data = Packet.serialize(_packet);
 
             for (final InetAddress _inetAddress : clients) {
 //                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
@@ -138,9 +138,9 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
     }
 
     @Override
-    public void received(final RCPPacket _packet) {
+    public void received(final Packet _packet, final RCPTransporter _transporter) {
         if (listener != null) {
-            listener.received(_packet);
+            listener.received(_packet, this);
         }
     }
 

@@ -15,14 +15,14 @@
  */
 package org.rabbitcontrol.rcp.test.netty;
 
-import org.rabbitcontrol.rcp.model.RCPPacket;
+import org.rabbitcontrol.rcp.model.Packet;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 
 import java.util.List;
 
-public class RCPPacketEncoder extends MessageToMessageEncoder<RCPPacket> {
+public class RCPPacketEncoder extends MessageToMessageEncoder<Packet> {
 
 
     public RCPPacketEncoder() {
@@ -30,9 +30,9 @@ public class RCPPacketEncoder extends MessageToMessageEncoder<RCPPacket> {
 
     @Override
     protected void encode(
-            final ChannelHandlerContext ctx, final RCPPacket msg, final List<Object> out) throws
+            final ChannelHandlerContext ctx, final Packet msg, final List<Object> out) throws
                                                                                           Exception {
 
-        out.add(Unpooled.wrappedBuffer(RCPPacket.serialize(msg)));
+        out.add(Unpooled.wrappedBuffer(Packet.serialize(msg)));
     }
 }

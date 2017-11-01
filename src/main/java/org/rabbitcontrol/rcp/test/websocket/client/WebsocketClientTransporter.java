@@ -7,8 +7,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import org.rabbitcontrol.rcp.model.RCPPacket;
+import org.rabbitcontrol.rcp.model.Packet;
 import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
+import org.rabbitcontrol.rcp.transport.RCPTransporter;
 import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
 
 import java.net.URI;
@@ -84,15 +85,15 @@ public class WebsocketClientTransporter implements RCPTransporterNetty {
     }
 
     @Override
-    public void received(final RCPPacket _packet) {
+    public void received(final Packet _packet, final RCPTransporter _transporter) {
 
         if (listener != null) {
-            listener.received(_packet);
+            listener.received(_packet, this);
         }
     }
 
     @Override
-    public void send(final RCPPacket _packet) {
+    public void send(final Packet _packet) {
 
         if (ch.isOpen() && ch.isWritable()) {
             ch.writeAndFlush(_packet);
@@ -110,7 +111,7 @@ public class WebsocketClientTransporter implements RCPTransporterNetty {
 
     @Override
     public void received(
-            final ChannelHandlerContext ctx, final RCPPacket _packet) {
+            final ChannelHandlerContext ctx, final Packet _packet) {
 
     }
 
