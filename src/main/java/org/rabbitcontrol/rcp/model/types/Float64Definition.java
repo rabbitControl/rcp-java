@@ -51,6 +51,12 @@ public class Float64Definition extends NumberDefinition<Double> {
     }
 
     @Override
+    public Double readValue(final KaitaiStream _io) {
+
+        return _io.readF8be();
+    }
+
+    @Override
     public void writeValue(final Double _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 

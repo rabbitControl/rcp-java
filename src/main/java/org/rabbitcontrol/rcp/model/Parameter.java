@@ -7,6 +7,7 @@ import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.interfaces.ITypeDefinition;
+import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,12 +32,46 @@ public abstract class Parameter implements IParameter {
             throw new RCPDataErrorException();
         }
 
-        final Parameter param = (Parameter)ParameterFactory.createParameter(parameter_id, datatype);
+
+        final Parameter param;
+
+        // handle certain datatypes...
+        if (datatype == Datatype.FIXED_ARRAY) {
+
+            // create ArrayDefinition
+            final ArrayDefinition<?> array_def = ArrayDefinition.parse(_io);
+
+            param = ParameterFactory.createArrayParameter(parameter_id, array_def);
+
+            // !! type definition options already parsed
+
+        } else if (datatype == Datatype.DYNAMIC_ARRAY) {
+
+            // read mandatory sub-type
+            param = null;
+
+        } else if (datatype == Datatype.COMPOUND) {
+
+            // read mandatory sub-types
+            param = null;
+
+        } else {
+            // implicitly create typeDefinition
+            param = (Parameter)ParameterFactory.createParameter(parameter_id, datatype);
+
+            // parse type options and
+            if (param != null) {
+                param.parseTypeOptions(_io);
+            }
+        }
+
 
         if (param != null) {
+            // !! parse only parameter options
             param.parseOptions(_io);
             return param;
         }
+
 
         throw new RCPUnsupportedFeatureException("no such feature: " + datatype);
     }
@@ -121,18 +156,22 @@ public abstract class Parameter implements IParameter {
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);
 
+    private void parseTypeOptions(final KaitaiStream _io) throws RCPDataErrorException {
+        typeDefinition.parseOptions(_io);
+    }
+
     private void parseOptions(final KaitaiStream _io) throws
                                                       RCPDataErrorException,
                                                       RCPUnsupportedFeatureException {
 
-        //!! first parse typedefinition options
-        typeDefinition.parseOptions(_io);
+        // !! attention: this only parses parameter options
+        // !! parse typedefinition options before
 
         // get options from the stream
         while (true) {
 
             // get data-id
-            int property_id = _io.readU1();
+            final int property_id = _io.readU1();
 
             if (property_id == RCPParser.TERMINATOR) {
                 // terminator
@@ -222,7 +261,7 @@ public abstract class Parameter implements IParameter {
     }
 
 
-    public void update(IParameter _parameter) {
+    public void update(final IParameter _parameter) {
 
     }
 

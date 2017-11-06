@@ -50,6 +50,12 @@ public class UInt16Definition extends NumberDefinition<Integer> {
     }
 
     @Override
+    public Integer readValue(final KaitaiStream _io) {
+
+        return _io.readU2be();
+    }
+
+    @Override
     public void writeValue(final Integer _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 

@@ -51,6 +51,12 @@ public class Float32Definition extends NumberDefinition<Float> {
     }
 
     @Override
+    public Float readValue(final KaitaiStream _io) {
+
+        return _io.readF4be();
+    }
+
+    @Override
     public void writeValue(final Float _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 

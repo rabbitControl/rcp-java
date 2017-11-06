@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 
@@ -20,7 +19,7 @@ public class StringDefinition extends DefaultDefinition<String> {
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        StringOptions option = StringOptions.byId(_propertyId);
+        final StringOptions option = StringOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -28,12 +27,19 @@ public class StringDefinition extends DefaultDefinition<String> {
 
         switch (option) {
             case DEFAULT:
-                LongString longString = new LongString(_io);
+                final LongString longString = new LongString(_io);
                 setDefault(longString.data());
                 return true;
         }
 
         return false;
+    }
+
+    @Override
+    public String readValue(final KaitaiStream _io) {
+
+        final LongString longString = new LongString(_io);
+        return longString.data();
     }
 
     @Override

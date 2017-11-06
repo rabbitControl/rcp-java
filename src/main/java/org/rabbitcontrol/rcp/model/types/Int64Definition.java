@@ -50,6 +50,12 @@ public class Int64Definition extends NumberDefinition<Long> {
     }
 
     @Override
+    public Long readValue(final KaitaiStream _io) {
+
+        return _io.readS8be();
+    }
+
+    @Override
     public void writeValue(final Long _value, final OutputStream _outputStream) throws IOException {
 
         _outputStream.write(ByteBuffer.allocate(8).putLong(_value).array());

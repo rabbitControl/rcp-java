@@ -5,6 +5,7 @@ import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.ParameterOptions;
 import org.rabbitcontrol.rcp.model.interfaces.IDefaultDefinition;
 import org.rabbitcontrol.rcp.model.interfaces.IValueParameter;
+import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;

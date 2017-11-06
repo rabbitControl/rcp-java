@@ -49,6 +49,12 @@ public class UInt8Definition extends NumberDefinition<Short> {
     }
 
     @Override
+    public Short readValue(final KaitaiStream _io) {
+
+        return (short)_io.readU1();
+    }
+
+    @Override
     public void writeValue(final Short _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 

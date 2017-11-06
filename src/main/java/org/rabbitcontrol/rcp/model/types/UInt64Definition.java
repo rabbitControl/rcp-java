@@ -50,6 +50,12 @@ public class UInt64Definition extends NumberDefinition<Long> {
     }
 
     @Override
+    public Long readValue(final KaitaiStream _io) {
+
+        return _io.readU8be();
+    }
+
+    @Override
     public void writeValue(final Long _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 

@@ -4,6 +4,7 @@ import org.rabbitcontrol.rcp.model.exceptions.TypeMissmatch;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.parameter.*;
+import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 
 public class ParameterFactory {
 
@@ -30,6 +31,9 @@ public class ParameterFactory {
 
             case GROUP:
                 return new GroupParameter(_id);
+
+            case FIXED_ARRAY:
+
 
         }
 
@@ -88,6 +92,12 @@ public class ParameterFactory {
     public static StringParameter createStringParameter(final int _id) {
 
         return new StringParameter(_id);
+    }
+
+    public static <T> ArrayParameter<T> createArrayParameter(final int _id, ArrayDefinition<T>
+            _definition) {
+
+        return new ArrayParameter<T>(_id, _definition);
     }
 
 }

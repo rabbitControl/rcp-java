@@ -50,6 +50,12 @@ public class Int32Definition extends NumberDefinition<Integer> {
     }
 
     @Override
+    public Integer readValue(final KaitaiStream _io) {
+
+        return _io.readS4be();
+    }
+
+    @Override
     public void writeValue(final Integer _value, final OutputStream _outputStream) throws IOException {
 
         _outputStream.write(ByteBuffer.allocate(4).putInt(_value).array());

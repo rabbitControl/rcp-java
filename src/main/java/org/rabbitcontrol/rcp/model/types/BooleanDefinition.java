@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.BooleanOptions;
@@ -74,6 +73,11 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
         }
 
         return false;
+    }
+
+    @Override
+    public Boolean readValue(final KaitaiStream _io) {
+        return _io.readS1() != 0;
     }
 
     @Override

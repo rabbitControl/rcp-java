@@ -49,6 +49,12 @@ public class Int8Definition extends NumberDefinition<Byte> {
     }
 
     @Override
+    public Byte readValue(final KaitaiStream _io) {
+
+        return _io.readS1();
+    }
+
+    @Override
     public void writeValue(final Byte _value, final OutputStream _outputStream) throws IOException {
 
         _outputStream.write(_value);

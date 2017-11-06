@@ -2,9 +2,9 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
+import org.rabbitcontrol.rcp.model.TypeDefinition;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.TypeDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;

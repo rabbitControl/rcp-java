@@ -50,6 +50,12 @@ public class Int16Definition extends NumberDefinition<Short> {
     }
 
     @Override
+    public Short readValue(final KaitaiStream _io) {
+
+        return _io.readS2be();
+    }
+
+    @Override
     public void writeValue(final Short _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 

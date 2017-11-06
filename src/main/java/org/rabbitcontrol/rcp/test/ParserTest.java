@@ -46,6 +46,10 @@ public class ParserTest {
             // compare length
             if (bytes_from_file.length != the_bytes.length) {
                 System.err.println("length missmatch");
+
+                System.err.println("origin: " + bytesToHex(bytes_from_file));
+                System.err.println("parsed: " + bytesToHex(the_bytes));
+
                 return;
             }
 
@@ -57,6 +61,9 @@ public class ParserTest {
 
                 if (fb != b) {
                     System.err.println("byte missmatch at index: " + i);
+
+                    System.err.println("origin: " + bytesToHex(bytes_from_file));
+                    System.err.println("parsed: " + bytesToHex(the_bytes));
                     return;
                 }
             }

@@ -21,7 +21,7 @@ public abstract class TypeDefinition implements ITypeDefinition {
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);
 
-    final void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {
+    public final void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {
 
         // get options from the stream
         while (true) {

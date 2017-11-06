@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
