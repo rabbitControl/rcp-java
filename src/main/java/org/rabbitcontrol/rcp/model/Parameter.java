@@ -12,7 +12,6 @@ import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.Objects;
 import java.util.Set;
 
 public abstract class Parameter implements IParameter {
