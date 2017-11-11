@@ -1,6 +1,7 @@
 package org.rabbitcontrol.rcp.test.websocket.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -95,17 +96,17 @@ public final class WebsocketServerTransporterNetty implements RCPTransporterNett
     }
 
     @Override
-    public void send(final byte[] _packet) {
+    public void send(final byte[] _data) {
 
         if (lastCtx != null) {
 
-            lastCtx.channel().writeAndFlush(_packet);
+            lastCtx.channel().writeAndFlush(Unpooled.wrappedBuffer(_data));
         }
         else {
             // send to all
             System.out.println(" ->> send to all");
 
-            allClients.writeAndFlush(_packet);
+            allClients.writeAndFlush(Unpooled.wrappedBuffer(_data));
         }
     }
 

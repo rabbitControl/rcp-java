@@ -1,6 +1,7 @@
 package org.rabbitcontrol.rcp.test.websocket.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -96,7 +97,7 @@ public class WebsocketClientTransporter implements RCPTransporterNetty {
     public void send(final byte[] _packet) {
 
         if (ch.isOpen() && ch.isWritable()) {
-            ch.writeAndFlush(_packet);
+            ch.writeAndFlush(Unpooled.wrappedBuffer(_packet));
         }
         else {
             System.err.println("channel not open or not writeable");
