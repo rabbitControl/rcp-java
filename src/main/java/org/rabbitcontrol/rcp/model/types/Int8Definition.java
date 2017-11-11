@@ -57,7 +57,11 @@ public class Int8Definition extends NumberDefinition<Byte> {
     @Override
     public void writeValue(final Byte _value, final OutputStream _outputStream) throws IOException {
 
-        _outputStream.write(_value);
+        if (_value != null) {
+            _outputStream.write(_value);
+        } else {
+            _outputStream.write(0);
+        }
     }
 
     //------------------------------------------------------------

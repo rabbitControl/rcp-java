@@ -12,6 +12,7 @@ import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class Parameter implements IParameter {
@@ -112,20 +113,25 @@ public abstract class Parameter implements IParameter {
 
     // optional
     protected String label;
+    private boolean labelChanged;
 
     protected String description;
+    private boolean descriptionChanged;
 
     protected Integer order;
+    private boolean orderChanged;
 
     // TODO:
     // this should rather be a Parameter??
     protected Long parentId;
+    private boolean parentIdChanged;
 
     protected Parameter parent;
 
     // widget
 
     protected byte[] userdata;
+    private boolean userdataChanged;
 
     //------------------------
     // change listener
@@ -227,36 +233,126 @@ public abstract class Parameter implements IParameter {
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write options
 
+        //
+        // label
+        //
         if (label != null) {
+
+            if (all || labelChanged) {
+
+                _outputStream.write((int)ParameterOptions.LABEL.id());
+                RCPParser.writeTinyString(label, _outputStream);
+
+                // leave changed flag untouched, if writing all
+                if (!all) {
+                    labelChanged = false;
+                }
+            }
+
+
+        } else if (labelChanged) {
+            // send default value
             _outputStream.write((int)ParameterOptions.LABEL.id());
-            RCPParser.writeTinyString(label, _outputStream);
+            RCPParser.writeTinyString("", _outputStream);
+
+            labelChanged = false;
         }
 
+        //
+        // description
+        //
         if (description != null) {
+
+            if (all || descriptionChanged) {
+
+                _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
+                RCPParser.writeShortString(description, _outputStream);
+
+                if (!all) {
+                    descriptionChanged = false;
+                }
+            }
+        } else if (descriptionChanged) {
+
             _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
-            RCPParser.writeShortString(description, _outputStream);
+            RCPParser.writeShortString("", _outputStream);
+
+            descriptionChanged = false;
         }
 
+        //
+        // order
+        //
         if (order != null) {
+
+            if (all || orderChanged) {
+
+                _outputStream.write((int)ParameterOptions.ORDER.id());
+                _outputStream.write(ByteBuffer.allocate(4).putInt(order).array());
+
+                if (!all) {
+                    orderChanged = false;
+                }
+            }
+        } else if (orderChanged) {
+
             _outputStream.write((int)ParameterOptions.ORDER.id());
-            _outputStream.write(ByteBuffer.allocate(4).putInt(order).array());
+            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
+
+            orderChanged = false;
         }
 
+
+        //
+        // parentId
+        //
         if (parentId != null) {
+
+            if (all || parentIdChanged) {
+
+                _outputStream.write((int)ParameterOptions.PARENT.id());
+                _outputStream.write(ByteBuffer.allocate(4).putInt(parentId.intValue()).array());
+
+                if (!all) {
+                    parentIdChanged = false;
+                }
+            }
+        } else if (parentIdChanged) {
+
             _outputStream.write((int)ParameterOptions.PARENT.id());
-            _outputStream.write(ByteBuffer.allocate(4).putInt(parentId.intValue()).array());
+            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
+
+            parentIdChanged = false;
         }
 
         // TODO: write widget
 
+
+        //
+        // userdata
+        //
         if (userdata != null) {
+
+            if (all || userdataChanged) {
+
+                _outputStream.write((int)ParameterOptions.USERDATA.id());
+                _outputStream.write(ByteBuffer.allocate(4).putInt(userdata.length).array());
+                _outputStream.write(userdata);
+
+                if (!all) {
+                    userdataChanged = false;
+                }
+            }
+        } else if (userdataChanged) {
+
             _outputStream.write((int)ParameterOptions.USERDATA.id());
-            _outputStream.write(ByteBuffer.allocate(4).putInt(userdata.length).array());
-            _outputStream.write(userdata);
+            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
+
+            userdataChanged = false;
         }
     }
 
@@ -391,7 +487,12 @@ public abstract class Parameter implements IParameter {
     @Override
     public void setLabel(final String _label) {
 
+        if ((label == _label) || ((label != null) && label.equals(_label))) {
+            return;
+        }
+
         label = _label;
+        labelChanged = true;
 
         for (final LABEL_CHANGED label_changed : labelChangeListener) {
             label_changed.labelChanged(label);
@@ -407,7 +508,13 @@ public abstract class Parameter implements IParameter {
     @Override
     public void setDescription(final String _description) {
 
+        if ((description == _description) ||
+            ((description != null) && description.equals(_description))) {
+            return;
+        }
+
         description = _description;
+        descriptionChanged = true;
 
         for (final DESCRIPTION_CHANGED description_changed : descriptionChangeListener) {
             description_changed.descriptionChanged(description);
@@ -423,7 +530,12 @@ public abstract class Parameter implements IParameter {
     @Override
     public void setOrder(final int _order) {
 
+        if ((order != null) && (order == _order)) {
+            return;
+        }
+
         order = _order;
+        orderChanged = true;
 
         for (final ORDER_CHANGED order_changed : orderChangeListener) {
             order_changed.orderChanged(order);
@@ -439,7 +551,12 @@ public abstract class Parameter implements IParameter {
     @Override
     public void setParentId(final int _parentId) {
 
+        if ((parentId != null) && (parentId == (long)_parentId)) {
+            return;
+        }
+
         parentId = (long)_parentId;
+        parentIdChanged = true;
 
         // TODO resolve Parent Parameter
 
@@ -457,7 +574,12 @@ public abstract class Parameter implements IParameter {
     @Override
     public void setUserdata(final byte[] _userdata) {
 
+        if ((userdata == _userdata) || ((userdata != null) && userdata.equals(_userdata))) {
+            return;
+        }
+
         userdata = _userdata;
+        userdataChanged = true;
 
         for (final USERDATA_CHANGED userdata_changed : userdataChangeListener) {
             userdata_changed.userdataChanged(userdata);

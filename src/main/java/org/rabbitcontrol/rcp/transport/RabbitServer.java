@@ -1,15 +1,12 @@
 package org.rabbitcontrol.rcp.transport;
 
-import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.Parameter.DESCRIPTION_CHANGED;
-import org.rabbitcontrol.rcp.model.Parameter.LABEL_CHANGED;
+import org.rabbitcontrol.rcp.model.Packet;
+import org.rabbitcontrol.rcp.model.RCPCacheOperator;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
-import org.rabbitcontrol.rcp.model.interfaces.IValueParameter;
-import org.rabbitcontrol.rcp.model.parameter.ValueParameter;
-import org.rabbitcontrol.rcp.model.parameter.ValueParameter.VALUE_CHANGED;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -62,11 +59,11 @@ public class RabbitServer extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, Parameter> valueCache) {
+            public void operate(final Map<Integer, IParameter> valueCache) {
 
                 if (!valueCache.containsKey(_value.getId())) {
                     // added
-                    valueCache.put(_value.getId(), (Parameter)_value);
+                    valueCache.put(_value.getId(), _value);
                 }
                 else {
 
@@ -82,61 +79,97 @@ public class RabbitServer extends RCPBase {
 
 
         // register callbacks
-        final Parameter parameter = (Parameter)_value;
-
-        parameter.addLabelChangeListener(new LABEL_CHANGED() {
-
-            @Override
-            public void labelChanged(final String newValue) {
-
-                final IParameter emptyParam = parameter.cloneEmpty();
-                emptyParam.setLabel(newValue);
-
-                // send update
-                update(emptyParam);
-            }
-        });
-
-        parameter.addDescriptionChangedListener(new DESCRIPTION_CHANGED() {
-
-            @Override
-            public void descriptionChanged(final String newValue) {
-
-                final IParameter emptyParam = parameter.cloneEmpty();
-                emptyParam.setDescription(newValue);
-
-                // send update
-                update(emptyParam);
-            }
-        });
-
-
-        if (parameter instanceof ValueParameter) {
-
-            ((ValueParameter)parameter).addValueChangeListener(new VALUE_CHANGED() {
-
-                @Override
-                public void valueChanged(final Object newValue) {
-
-                    final IValueParameter<?> emptyParam = ((ValueParameter)parameter).cloneEmpty();
-                    emptyParam.setObjectValue(newValue);
-
-                    update(emptyParam);
-                }
-            });
-
-        }
+//        final Parameter parameter = (Parameter)_value;
+//
+//        parameter.addLabelChangeListener(new LABEL_CHANGED() {
+//
+//            @Override
+//            public void labelChanged(final String newValue) {
+//
+//                final IParameter emptyParam = parameter.cloneEmpty();
+//                emptyParam.setLabel(newValue);
+//
+//                // send update
+//                update(emptyParam);
+//            }
+//        });
+//
+//        parameter.addDescriptionChangedListener(new DESCRIPTION_CHANGED() {
+//
+//            @Override
+//            public void descriptionChanged(final String newValue) {
+//
+//                final IParameter emptyParam = parameter.cloneEmpty();
+//                emptyParam.setDescription(newValue);
+//
+//                // send update
+//                update(emptyParam);
+//            }
+//        });
+//
+//
+//        if (parameter instanceof ValueParameter) {
+//
+//            ((ValueParameter)parameter).addValueChangeListener(new VALUE_CHANGED() {
+//
+//                @Override
+//                public void valueChanged(final Object newValue) {
+//
+//                    final IValueParameter<?> emptyParam = ((ValueParameter)parameter).cloneEmpty();
+//                    emptyParam.setObjectValue(newValue);
+//
+//                    update(emptyParam);
+//                }
+//            });
+//
+//        }
 
 
         // send add to all
         if (!transporterList.isEmpty()) {
             // TODO: send to all clients
             final Packet packet = new Packet(Command.ADD, _value);
+            try {
+                final byte[] data = Packet.serialize(packet, true);
 
-            for (final RCPTransporter transporter : transporterList) {
-                transporter.send(packet);
+                for (final RCPTransporter transporter : transporterList) {
+                    transporter.send(data);
+                }
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
             }
         }
+    }
+
+    public void updateParameters(final IParameter ... _values) {
+
+        List<Packet> packets = new ArrayList<Packet>();
+
+        for (IParameter parameter : _values) {
+
+            final Packet packet = new Packet(Command.UPDATE, parameter);
+            packets.add(packet);
+
+            try {
+                final byte[] data = Packet.serialize(packet, false);
+
+                for (final RCPTransporter transporter : transporterList) {
+                    System.out.println("update : " + parameter.getId());
+                    transporter.send(data);
+                }
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
+            }
+
+        }
+
+        // TODO
+        // we probably want to send all the parameters at once...
+        // if transport packet size allows it
+
+
     }
 
     /**
@@ -162,11 +195,16 @@ public class RabbitServer extends RCPBase {
 
             // transport value
             final Packet packet = new Packet(Command.UPDATE, _value);
-            for (final RCPTransporter transporter : transporterList) {
+            try {
+                final byte[] data = Packet.serialize(packet, false);
 
-                System.out.println("update : " + _value.getId());
-
-                transporter.send(packet);
+                for (final RCPTransporter transporter : transporterList) {
+                    System.out.println("update : " + _value.getId());
+                    transporter.send(data);
+                }
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
             }
         }
     }
@@ -177,7 +215,7 @@ public class RabbitServer extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, Parameter> valueCache) {
+            public void operate(final Map<Integer, IParameter> valueCache) {
 
                 if (valueCache.containsKey(_value.getId())) {
                     // removed
@@ -191,10 +229,17 @@ public class RabbitServer extends RCPBase {
 
         if (!transporterList.isEmpty()) {
             final Packet packet = new Packet(Command.REMOVE, _value);
+            try {
+                byte[] data = Packet.serialize(packet, false);
 
-            for (final RCPTransporter transporter : transporterList) {
-                transporter.send(packet);
+                for (final RCPTransporter transporter : transporterList) {
+                    transporter.send(data);
+                }
             }
+            catch (IOException _e) {
+                _e.printStackTrace();
+            }
+
         }
     }
 
@@ -247,16 +292,22 @@ public class RabbitServer extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, Parameter> valueCache) {
+            public void operate(final Map<Integer, IParameter> valueCache) {
 
                 // init with all values
-                for (final Entry<Integer, Parameter> entry : valueCache.entrySet()) {
+                for (final Entry<Integer, IParameter> entry : valueCache.entrySet()) {
 
                     System.out.println("sending ::: " + entry.getValue().getDescription());
 
                     final Packet packet = new Packet(Command.ADD, entry.getValue());
+                    try {
+                        final byte[] data = Packet.serialize(packet, true);
+                        _transporter.send(data);
+                    }
+                    catch (IOException _e) {
+                        _e.printStackTrace();
+                    }
 
-                    _transporter.send(packet);
                 }
 
             }

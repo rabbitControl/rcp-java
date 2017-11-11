@@ -29,6 +29,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     // optional
     private T value;
+    private boolean valueChanged;
 
     //------------------------
     // change listener
@@ -52,22 +53,36 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory id
         _outputStream.write(ByteBuffer.allocate(4).putInt((int)id).array());
 
         // write mandatory typeDefinition
-        typeDefinition.write(_outputStream);
+        typeDefinition.write(_outputStream, all);
 
         // write all optionals
         if (value != null) {
+
+            if (all || valueChanged) {
+
+                _outputStream.write((int)ParameterOptions.VALUE.id());
+                typeDefinition.writeValue(value, _outputStream);
+
+                if (!all) {
+                    valueChanged = false;
+                }
+            }
+        } else if (valueChanged) {
+
             _outputStream.write((int)ParameterOptions.VALUE.id());
-            typeDefinition.writeValue(value, _outputStream);
+            typeDefinition.writeValue(typeDefinition.getDefault(), _outputStream);
+
+            valueChanged = false;
         }
 
         // write other options
-        super.write(_outputStream);
+        super.write(_outputStream, all);
 
         // finalize parameter with terminator
         _outputStream.write(RCPParser.TERMINATOR);
@@ -125,7 +140,12 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     @Override
     public void setValue(final T _value) {
 
+        if ((value == _value) || ((value != null) && value.equals(_value))) {
+            return;
+        }
+
         value = _value;
+        valueChanged = true;
 
         for (final VALUE_CHANGED<T> value_changed : valueChangeListener) {
             value_changed.valueChanged(value);
@@ -136,7 +156,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     public void setObjectValue(final Object _value) {
 
         try {
-            value = (T)_value;
+            setValue((T)_value);
         } catch (ClassCastException _e) {
             _e.printStackTrace();
         }

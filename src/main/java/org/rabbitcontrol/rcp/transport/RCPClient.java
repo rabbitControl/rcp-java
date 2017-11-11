@@ -1,9 +1,12 @@
 package org.rabbitcontrol.rcp.transport;
 
 import org.rabbitcontrol.rcp.model.*;
+import org.rabbitcontrol.rcp.model.RCPCommands.Add;
+import org.rabbitcontrol.rcp.model.RCPCommands.Remove;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class RCPClient extends RCPBase {
@@ -11,9 +14,9 @@ public class RCPClient extends RCPBase {
     private RCPTransporter  transporter;
 
     // callback objects
-    private RCPCommands.Add addListener;
+    private Add addListener;
 
-    private RCPCommands.Remove removeListener;
+    private Remove removeListener;
 
     //------------------------------------------------------------
     //
@@ -33,12 +36,12 @@ public class RCPClient extends RCPBase {
 
     //------------------------------------------------------------
     //
-    public void setAddListener(final RCPCommands.Add _listener) {
+    public void setAddListener(final Add _listener) {
 
         addListener = _listener;
     }
 
-    public void setRemoveListener(final RCPCommands.Remove _listener) {
+    public void setRemoveListener(final Remove _listener) {
 
         removeListener = _listener;
     }
@@ -70,7 +73,12 @@ public class RCPClient extends RCPBase {
             final Packet packet = new Packet(Command.UPDATE, _value);
 
             System.out.println("client update: " + _value.getId());
-            transporter.send(packet);
+            try {
+                transporter.send(Packet.serialize(packet, false));
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
+            }
         }
     }
 
@@ -82,7 +90,7 @@ public class RCPClient extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, Parameter> valueCache) {
+            public void operate(final Map<Integer, IParameter> valueCache) {
                 // clear cache?
                 valueCache.clear();
             }
@@ -91,7 +99,12 @@ public class RCPClient extends RCPBase {
         if (transporter != null) {
             // send to all clients
             final Packet packet = new Packet(Command.INITIALIZE);
-            transporter.send(packet);
+            try {
+                transporter.send(Packet.serialize(packet, false));
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
+            }
         }
     }
 
@@ -136,11 +149,11 @@ public class RCPClient extends RCPBase {
                     operateOnCache(new RCPCacheOperator() {
 
                         @Override
-                        public void operate(final Map<Integer, Parameter> valueCache) {
+                        public void operate(final Map<Integer, IParameter> valueCache) {
                             // added to value cache?
-                            if (!valueCache.containsKey((int)val.getId())) {
+                            if (!valueCache.containsKey(val.getId())) {
 
-                                valueCache.put((int)val.getId(), (Parameter)val);
+                                valueCache.put(val.getId(), val);
 
                                 // inform listener
                                 if (addListener != null) {
@@ -165,8 +178,8 @@ public class RCPClient extends RCPBase {
                     operateOnCache(new RCPCacheOperator() {
 
                         @Override
-                        public void operate(final Map<Integer, Parameter> valueCache) {
-                            if (valueCache.containsKey((int)val.getId())) {
+                        public void operate(final Map<Integer, IParameter> valueCache) {
+                            if (valueCache.containsKey(val.getId())) {
                                 final IParameter removed = valueCache.remove(val.getId());
 
                                 // inform listener
@@ -188,11 +201,13 @@ public class RCPClient extends RCPBase {
                     operateOnCache(new RCPCacheOperator() {
 
                         @Override
-                        public void operate(final Map<Integer, Parameter> valueCache) {
+                        public void operate(final Map<Integer, IParameter> valueCache) {
                             //updated value cache?
-                            final Parameter cached = valueCache.get((int)val.getId());
+                            final IParameter cached = valueCache.get(val.getId());
                             if (cached != null) {
-                                cached.update(val);
+
+                                // TODO!!
+                                //cached.update(val);
 
                                 // inform listener
                                 if (updateListener != null) {

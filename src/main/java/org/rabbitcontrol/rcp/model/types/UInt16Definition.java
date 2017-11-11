@@ -59,7 +59,11 @@ public class UInt16Definition extends NumberDefinition<Integer> {
     public void writeValue(final Integer _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
-        _outputStream.write(ByteBuffer.allocate(2).putShort(_value.shortValue()).array());
+        if (_value != null) {
+            _outputStream.write(ByteBuffer.allocate(2).putShort(_value.shortValue()).array());
+        } else {
+            _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
+        }
     }
 
     //------------------------------------------------------------

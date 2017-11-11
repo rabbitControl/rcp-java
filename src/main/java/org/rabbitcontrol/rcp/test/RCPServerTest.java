@@ -1,15 +1,18 @@
 package org.rabbitcontrol.rcp.test;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.rabbitcontrol.rcp.model.ParameterFactory;
 import org.rabbitcontrol.rcp.model.RCPCommands;
 import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
+import org.rabbitcontrol.rcp.model.types.*;
 import org.rabbitcontrol.rcp.test.websocket.server.WebsocketServerTransporterNetty;
 import org.rabbitcontrol.rcp.transport.RabbitServer;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
@@ -125,6 +128,13 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 //
 //        theValueString.setLabel("new label");
 
+        DefaultDefinition<Boolean> bl = new BooleanDefinition();
+        DefaultDefinition<List<Boolean>> d          = new ArrayDefinition<Boolean>(bl, 4);
+        ArrayDefinition<Boolean>         def        = new ArrayDefinition((DefaultDefinition<List<Boolean>>)d, 4);
+        final ArrayParameter<Boolean>    arrayParam = ParameterFactory.createArrayParameter(12, def);
+
+
+
 
 
         theValueDouble = ParameterFactory.createNumberParameter(2, Double.class);
@@ -179,6 +189,9 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     public void updateVar2() {
         theValueString.setValue("content: " + counter++);
+        theValueDouble.setValue((double)counter);
+
+        rabbit.updateParameters(theValueString, theValueDouble);
     }
 
     //------------------------------------------------------------

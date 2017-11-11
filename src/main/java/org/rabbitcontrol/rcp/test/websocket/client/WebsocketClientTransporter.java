@@ -93,7 +93,7 @@ public class WebsocketClientTransporter implements RCPTransporterNetty {
     }
 
     @Override
-    public void send(final Packet _packet) {
+    public void send(final byte[] _packet) {
 
         if (ch.isOpen() && ch.isWritable()) {
             ch.writeAndFlush(_packet);

@@ -59,7 +59,11 @@ public class UInt32Definition extends NumberDefinition<Long> {
     public void writeValue(final Long _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
-        _outputStream.write(ByteBuffer.allocate(4).putInt(_value.intValue()).array());
+        if (_value != null) {
+            _outputStream.write(ByteBuffer.allocate(4).putInt(_value.intValue()).array());
+        } else {
+            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
+        }
     }
 
     //------------------------------------------------------------

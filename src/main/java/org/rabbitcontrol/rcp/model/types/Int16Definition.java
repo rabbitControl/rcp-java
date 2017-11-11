@@ -59,7 +59,11 @@ public class Int16Definition extends NumberDefinition<Short> {
     public void writeValue(final Short _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
-        _outputStream.write(ByteBuffer.allocate(2).putShort(_value).array());
+        if (_value != null) {
+            _outputStream.write(ByteBuffer.allocate(2).putShort(_value).array());
+        } else {
+            _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
+        }
     }
 
     //------------------------------------------------------------

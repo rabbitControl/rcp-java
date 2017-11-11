@@ -127,28 +127,69 @@ public class ArrayDefinition<T> extends DefaultDefinition<List<T>> {
     public void writeValue(final List<T> _value, final OutputStream _outputStream) throws
                                                                                    IOException {
 
-        for (final T t : _value) {
-            subtype.writeValue(t, _outputStream);
+        if (_value != null) {
+
+            // check size...
+            if (_value.size() == arrayLength) {
+
+                for (final T t : _value) {
+                    subtype.writeValue(t, _outputStream);
+                }
+
+            } else {
+                // error!!
+                // we have to write something!!
+                // TODO: handle if _value.size() > arrayLength (truncate list...)
+
+                for (int i=0; i<arrayLength; i++) {
+                    subtype.writeValue(subtype.getDefault(), _outputStream);
+                }
+            }
+
+        } else {
+
+            // we have to write something
+            for (int i=0; i<arrayLength; i++) {
+                subtype.writeValue(subtype.getDefault(), _outputStream);
+            }
+
         }
+
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
         // write subtype
-        subtype.write(_outputStream);
+        subtype.write(_outputStream, all);
 
         // write length (4byte)
         _outputStream.write(ByteBuffer.allocate(4).putInt((int)arrayLength).array());
 
         // write options
         if (getDefault() != null) {
-            // use any of the default values id
+
+            if (all || defaultValueChanged) {
+
+                // use any of the default values id
+                _outputStream.write((int)StringOptions.DEFAULT.id());
+                writeValue(getDefault(), _outputStream);
+
+                if (!all) {
+                    defaultValueChanged = false;
+                }
+            }
+        } else if (defaultValueChanged) {
+
             _outputStream.write((int)StringOptions.DEFAULT.id());
-            writeValue(getDefault(), _outputStream);
+
+            // write list of subtype default values
+            writeValue(null, _outputStream);
+
+            defaultValueChanged = false;
         }
 
         // finalize with terminator

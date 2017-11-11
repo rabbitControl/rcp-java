@@ -23,7 +23,7 @@ public class Bytetest {
         try {
             //os.write(ByteBuffer.allocate(4).putInt((int)id).array());
 
-            parameter.write(os);
+            parameter.write(os, true);
 
             byte[] the_bytes = os.toByteArray();
 

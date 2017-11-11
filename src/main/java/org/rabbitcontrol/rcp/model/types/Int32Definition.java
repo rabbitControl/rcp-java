@@ -58,7 +58,11 @@ public class Int32Definition extends NumberDefinition<Integer> {
     @Override
     public void writeValue(final Integer _value, final OutputStream _outputStream) throws IOException {
 
-        _outputStream.write(ByteBuffer.allocate(4).putInt(_value).array());
+        if (_value != null) {
+            _outputStream.write(ByteBuffer.allocate(4).putInt(_value).array());
+        } else {
+            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
+        }
     }
 
     //------------------------------------------------------------

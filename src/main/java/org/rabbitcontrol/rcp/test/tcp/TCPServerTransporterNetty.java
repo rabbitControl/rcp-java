@@ -77,7 +77,7 @@ public final class TCPServerTransporterNetty implements RCPTransporterNetty {
 
 
     @Override
-    public void send(final Packet _packet) {
+    public void send(final byte[] _packet) {
         // TODO
     }
 

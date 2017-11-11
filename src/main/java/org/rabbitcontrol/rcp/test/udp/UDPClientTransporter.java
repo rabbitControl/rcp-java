@@ -86,12 +86,12 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
 
 
     @Override
-    public void send(final Packet _packet) {
+    public void send(final byte[] _data) {
 
         try {
-            final byte[] data = Packet.serialize(_packet);
+            //final byte[] data = Packet.serialize(_packet, false);
 
-            final DatagramPacket sendPacket = new DatagramPacket(data, data.length, address, port);
+            final DatagramPacket sendPacket = new DatagramPacket(_data, _data.length, address, port);
 
             clientSocket.send(sendPacket);
         }

@@ -1,9 +1,5 @@
 package org.rabbitcontrol.rcp.test.websocket.server;
 
-import org.rabbitcontrol.rcp.transport.RCPTransporter;
-import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
-import org.rabbitcontrol.rcp.model.Packet;
-import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
@@ -14,6 +10,10 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.rabbitcontrol.rcp.model.Packet;
+import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
+import org.rabbitcontrol.rcp.transport.RCPTransporter;
+import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
@@ -95,7 +95,7 @@ public final class WebsocketServerTransporterNetty implements RCPTransporterNett
     }
 
     @Override
-    public void send(final Packet _packet) {
+    public void send(final byte[] _packet) {
 
         if (lastCtx != null) {
 

@@ -3,7 +3,6 @@ package org.rabbitcontrol.rcp.model;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.PacketOptions;
 
@@ -17,17 +16,14 @@ public class Packet implements RCPWritable {
 
     public static final byte[] TOI_MAGIC = { 4, 15, 5, 9 };
 
-    public static byte[] serialize(final Packet _packet) throws IOException {
+    public static byte[] serialize(final Packet _packet, boolean all) throws IOException {
 
         byte[] result = null;
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         try {
-            _packet.write(os);
+            _packet.write(os, all);
             result = os.toByteArray();
-        }
-        catch (IOException _e) {
-            _e.printStackTrace();
         }
         finally {
             os.close();
@@ -134,18 +130,29 @@ public class Packet implements RCPWritable {
     }
 
     //--------------------------------------------------------
-    public void write(final boolean _magic, final OutputStream _outputStream) throws IOException {
-
+    public void write(final boolean _magic,
+                      final OutputStream _outputStream,
+                      boolean all) throws IOException
+    {
         if (_magic) {
             // write magic
             _outputStream.write(TOI_MAGIC);
         }
 
-        write(_outputStream);
+        write(_outputStream, all);
+    }
+
+
+
+    public void write(final OutputStream _outputStream) throws IOException {
+        // default: send only changed values
+        write(_outputStream, false);
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, boolean all) throws IOException {
+
+        // ignore flag "all" for packets... packets are short living objects
 
         // write mandatory command
         _outputStream.write((int)cmd.id());
@@ -162,7 +169,7 @@ public class Packet implements RCPWritable {
 
         if (data != null) {
             _outputStream.write((int)PacketOptions.DATA.id());
-            data.write(_outputStream);
+            data.write(_outputStream, all);
         }
 
         // finalize packet with terminator

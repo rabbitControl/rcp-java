@@ -60,7 +60,11 @@ public class Float32Definition extends NumberDefinition<Float> {
     public void writeValue(final Float _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
-        _outputStream.write(ByteBuffer.allocate(4).putFloat(_value).array());
+        if (_value != null) {
+            _outputStream.write(ByteBuffer.allocate(4).putFloat(_value).array());
+        } else {
+            _outputStream.write(ByteBuffer.allocate(4).putFloat(0).array());
+        }
     }
 
     //------------------------------------------------------------

@@ -58,7 +58,11 @@ public class UInt8Definition extends NumberDefinition<Short> {
     public void writeValue(final Short _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
-        _outputStream.write(_value.byteValue());
+        if (_value != null) {
+            _outputStream.write(_value.byteValue());
+        } else {
+            _outputStream.write(0);
+        }
     }
 
     //------------------------------------------------------------

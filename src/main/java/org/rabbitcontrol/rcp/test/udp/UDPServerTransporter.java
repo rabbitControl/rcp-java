@@ -102,31 +102,26 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
 
     @Override
-    public void send(final Packet _packet) {
+    public void send(final byte[] _data) {
 
-        try {
-            final byte[] data = Packet.serialize(_packet);
+        //final byte[] data = Packet.serialize(_packet, false);
 
-            for (final InetAddress _inetAddress : clients) {
+        for (final InetAddress _inetAddress : clients) {
 //                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
 //                                   "" + new String
 //                                           (data));
 
-                final DatagramPacket sendPacket = new DatagramPacket(data,
-                                                                     data.length,
-                                                                     _inetAddress,
-                                                                     targetPort);
+            final DatagramPacket sendPacket = new DatagramPacket(_data,
+                                                                 _data.length,
+                                                                 _inetAddress,
+                                                                 targetPort);
 
-                try {
-                    socket.send(sendPacket);
-                }
-                catch (final IOException _e) {
-                    _e.printStackTrace();
-                }
+            try {
+                socket.send(sendPacket);
             }
-        }
-        catch (final IOException _e) {
-            _e.printStackTrace();
+            catch (final IOException _e) {
+                _e.printStackTrace();
+            }
         }
 
     }

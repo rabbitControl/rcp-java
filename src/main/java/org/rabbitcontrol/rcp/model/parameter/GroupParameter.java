@@ -35,7 +35,7 @@ public class GroupParameter extends Parameter {
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory id
         _outputStream.write(ByteBuffer.allocate(4).putInt((int)id).array());

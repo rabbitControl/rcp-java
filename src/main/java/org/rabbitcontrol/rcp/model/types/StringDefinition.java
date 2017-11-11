@@ -45,19 +45,40 @@ public class StringDefinition extends DefaultDefinition<String> {
     @Override
     public void writeValue(final String _value, final OutputStream _outputStream) throws
                                                                                   IOException {
-        RCPParser.writeLongString(_value, _outputStream);
+        if (_value != null) {
+            RCPParser.writeLongString(_value, _outputStream);
+        } else {
+            RCPParser.writeLongString("", _outputStream);
+        }
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
+        //
+        // default
+        //
         if (getDefault() != null) {
-            // use any of the default values id
+
+            if (all || defaultValueChanged) {
+
+                // use any of the default values id
+                _outputStream.write((int)StringOptions.DEFAULT.id());
+                writeValue(getDefault(), _outputStream);
+
+                if (!all) {
+                    defaultValueChanged = false;
+                }
+            }
+        } else if (defaultValueChanged) {
+
             _outputStream.write((int)StringOptions.DEFAULT.id());
-            writeValue(getDefault(), _outputStream);
+            writeValue(null, _outputStream);
+
+            defaultValueChanged = false;
         }
 
         // finalize with terminator

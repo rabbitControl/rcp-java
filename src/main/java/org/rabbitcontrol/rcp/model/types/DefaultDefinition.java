@@ -70,6 +70,7 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
     //------------------------------------------------------------
     // optional
     private T defaultValue;
+    protected boolean defaultValueChanged;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -100,6 +101,12 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
 
     @Override
     public void setDefault(final T _default) {
+
+        if ((defaultValue == _default) || ((defaultValue != null) && defaultValue.equals(_default))) {
+            return;
+        }
+
         defaultValue = _default;
+        defaultValueChanged = true;
     }
 }

@@ -41,7 +41,7 @@ public class ParserTest {
             final Packet packet = RCPParser.fromFile(file.getAbsolutePath());
 
             // serialize packet
-            final byte[] the_bytes = Packet.serialize(packet);
+            final byte[] the_bytes = Packet.serialize(packet, true);
 
             // compare length
             if (bytes_from_file.length != the_bytes.length) {

@@ -79,7 +79,7 @@ public class RCPClientTest implements Add, Remove, Update {
 
     public void updateValue() {
 
-        final Map<Integer, Parameter> cache = rcp.getValueCache();
+        final Map<Integer, IParameter> cache = rcp.getValueCache();
 
         if (!cache.isEmpty()) {
 

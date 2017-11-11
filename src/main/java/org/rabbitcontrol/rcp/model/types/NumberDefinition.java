@@ -70,14 +70,19 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     // optional
     //----------------------------------------------------
     private T minimum;
+    private boolean minimumChanged;
 
     private T maximum;
+    private boolean maximumChanged;
 
     private T multipleof;
+    private boolean multipleofChanged;
 
     private NumberScale scale;
+    private boolean scaleChanged;
 
     private String unit;
+    private boolean unitChanged;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -117,41 +122,145 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
+        //
+        // default
+        //
         if (getDefault() != null) {
-            // use any of the default values id
+
+            if (all || defaultValueChanged) {
+
+                // use any of the default values id
+                _outputStream.write((int)NumberOptions.DEFAULT.id());
+                writeValue(getDefault(), _outputStream);
+
+                if (!all) {
+                    defaultValueChanged = false;
+                }
+            }
+        } else if (defaultValueChanged) {
+
             _outputStream.write((int)NumberOptions.DEFAULT.id());
-            writeValue(getDefault(), _outputStream);
+            writeValue(null, _outputStream);
+
+            defaultValueChanged = false;
         }
+
 
         // write other options
+
+        //
+        // minimum
+        //
         if (getMinimum() != null) {
+
+            if (all || minimumChanged) {
+
+                _outputStream.write((int)NumberOptions.MINIMUM.id());
+                writeValue(minimum, _outputStream);
+
+                if (!all) {
+                    minimumChanged = false;
+                }
+            }
+        } else if (minimumChanged) {
+
             _outputStream.write((int)NumberOptions.MINIMUM.id());
-            writeValue(minimum, _outputStream);
+            writeValue(null, _outputStream);
+
+            minimumChanged = false;
         }
 
+        //
+        // maximum
+        //
         if (getMaximum() != null) {
+
+            if (all || maximumChanged) {
+
+                _outputStream.write((int)NumberOptions.MAXIMUM.id());
+                writeValue(maximum, _outputStream);
+
+                if (!all) {
+                    maximumChanged = false;
+                }
+            }
+        } else if (maximumChanged) {
+
             _outputStream.write((int)NumberOptions.MAXIMUM.id());
-            writeValue(maximum, _outputStream);
+            writeValue(null, _outputStream);
+
+            maximumChanged = false;
         }
 
+        //
+        // multipleof
+        //
         if (getMultipleof() != null) {
+
+            if (all || multipleofChanged) {
+
+                _outputStream.write((int)NumberOptions.MULTIPLEOF.id());
+                writeValue(multipleof, _outputStream);
+
+                if (!all) {
+                    multipleofChanged = false;
+                }
+            }
+        } else if (multipleofChanged) {
+
             _outputStream.write((int)NumberOptions.MULTIPLEOF.id());
-            writeValue(multipleof, _outputStream);
+            writeValue(null, _outputStream);
+
+            multipleofChanged = false;
         }
 
+        //
+        // scale
+        //
         if (scale != null) {
+
+            if (all || scaleChanged) {
+
+                _outputStream.write((int)NumberOptions.SCALE.id());
+                _outputStream.write((int)scale.id());
+
+                if (!all) {
+                    scaleChanged = false;
+                }
+            }
+        } else if (scaleChanged) {
+
             _outputStream.write((int)NumberOptions.SCALE.id());
-            _outputStream.write((int)scale.id());
+            _outputStream.write((int)NumberScale.LINEAR.id());
+
+            scaleChanged = false;
         }
 
+        //
+        // unit
+        //
         if (unit != null) {
+
+            if (all || unitChanged) {
+
+                _outputStream.write((int)NumberOptions.UNIT.id());
+                RCPParser.writeTinyString(unit, _outputStream);
+
+                if (!all) {
+                    unitChanged = false;
+                }
+            }
+        } else if (unitChanged) {
+
             _outputStream.write((int)NumberOptions.UNIT.id());
-            RCPParser.writeTinyString(unit, _outputStream);
+            RCPParser.writeTinyString("", _outputStream);
+
+            unitChanged = false;
         }
 
         // finalize with terminator
@@ -193,13 +302,18 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     @Override
     public void setMinimum(final T _minimum) {
 
+        if ((minimum == _minimum) || ((minimum != null) && minimum.equals(_minimum))) {
+            return;
+        }
+
         minimum = _minimum;
+        minimumChanged = true;
     }
 
     @Override
     public void setMin(final Number _minimum) {
 
-        minimum = toType(_minimum);
+        setMinimum(toType(_minimum));
     }
 
     @Override
@@ -211,13 +325,18 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     @Override
     public void setMaximum(final T _maximum) {
 
+        if ((maximum == _maximum) || ((maximum != null) && maximum.equals(_maximum))) {
+            return;
+        }
+
         maximum = _maximum;
+        maximumChanged = true;
     }
 
     @Override
     public void setMax(final Number _maximum) {
 
-        maximum = toType(_maximum);
+        setMaximum(toType(_maximum));
     }
 
     @Override
@@ -229,13 +348,17 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     @Override
     public void setMultipleof(final T _multipleof) {
 
+        if ((multipleof == _multipleof) || (multipleof != null && multipleof.equals(_multipleof))) {
+            return;
+        }
+
         multipleof = _multipleof;
+        multipleofChanged = true;
     }
 
     @Override
     public void setMult(final Number _multipleof) {
-
-        multipleof = toType(_multipleof);
+        setMultipleof(toType(_multipleof));
     }
 
     @Override
@@ -247,7 +370,12 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     @Override
     public void setScale(final NumberScale _scale) {
 
+        if ((scale == _scale) || ((scale != null) && scale.equals(_scale))) {
+            return;
+        }
+
         scale = _scale;
+        scaleChanged = true;
     }
 
     @Override
@@ -259,6 +387,11 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     @Override
     public void setUnit(final String _unit) {
 
+        if ((unit == _unit) || ((unit != null) && unit.equals(_unit))) {
+            return;
+        }
+
         unit = _unit;
+        unitChanged = true;
     }
 }

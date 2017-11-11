@@ -60,7 +60,11 @@ public class Float64Definition extends NumberDefinition<Double> {
     public void writeValue(final Double _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
-        _outputStream.write(ByteBuffer.allocate(8).putDouble(_value).array());
+        if (_value != null) {
+            _outputStream.write(ByteBuffer.allocate(8).putDouble(_value).array());
+        } else {
+            _outputStream.write(ByteBuffer.allocate(8).putDouble(0).array());
+        }
     }
 
     //------------------------------------------------------------

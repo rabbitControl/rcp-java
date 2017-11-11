@@ -33,6 +33,6 @@ public class RCPPacketEncoder extends MessageToMessageEncoder<Packet> {
             final ChannelHandlerContext ctx, final Packet msg, final List<Object> out) throws
                                                                                           Exception {
 
-        out.add(Unpooled.wrappedBuffer(Packet.serialize(msg)));
+        out.add(Unpooled.wrappedBuffer(Packet.serialize(msg, false)));
     }
 }

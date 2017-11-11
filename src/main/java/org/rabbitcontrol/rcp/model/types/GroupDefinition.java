@@ -50,7 +50,7 @@ public class GroupDefinition extends TypeDefinition {
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory datatype
         _outputStream.write((int)getDatatype().id());

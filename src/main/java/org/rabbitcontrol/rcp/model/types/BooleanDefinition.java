@@ -83,19 +83,37 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
     @Override
     public void writeValue(final Boolean _value, final OutputStream _outputStream) throws
                                                                                    IOException {
-        _outputStream.write(_value ? 1 : 0);
+        if (_value != null) {
+            _outputStream.write(_value ? 1 : 0);
+        } else {
+            _outputStream.write(0);
+        }
     }
 
     @Override
-    public void write(final OutputStream _outputStream) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
         if (getDefault() != null) {
-            // use any of the default values id
+
+            if (all || defaultValueChanged) {
+
+                // use any of the default values id
+                _outputStream.write((int)BooleanOptions.DEFAULT.id());
+                writeValue(getDefault(), _outputStream);
+
+                if (!all) {
+                    defaultValueChanged = false;
+                }
+            }
+        } else if (defaultValueChanged) {
+
             _outputStream.write((int)BooleanOptions.DEFAULT.id());
-            writeValue(getDefault(), _outputStream);
+            writeValue(false, _outputStream);
+
+            defaultValueChanged = false;
         }
 
         // finalize with terminator

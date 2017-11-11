@@ -1,6 +1,7 @@
 package org.rabbitcontrol.rcp.transport;
 
 import org.rabbitcontrol.rcp.model.*;
+import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 
 import java.util.Collections;
 import java.util.Map;
@@ -14,7 +15,9 @@ public abstract class RCPBase implements RCPTransporterListener {
 
     //------------------------------------------------------------
     //
-    private final Map<Integer, Parameter> valueCache = new ConcurrentHashMap<Integer, Parameter>();
+    private final Map<Integer, IParameter>
+            valueCache
+            = new ConcurrentHashMap<Integer, IParameter>();
 
     // callback objects
     protected RCPCommands.Update updateListener;
@@ -23,7 +26,7 @@ public abstract class RCPBase implements RCPTransporterListener {
 
     //------------------------------------------------------------
     //
-    public Map<Integer, Parameter> getValueCache() {
+    public Map<Integer, IParameter> getValueCache() {
         return Collections.unmodifiableMap(valueCache);
     }
 
@@ -38,7 +41,7 @@ public abstract class RCPBase implements RCPTransporterListener {
     //
     public void dumpCache() {
 
-        for (final Map.Entry<Integer, Parameter> entry : valueCache.entrySet()) {
+        for (final Map.Entry<Integer, IParameter> entry : valueCache.entrySet()) {
 
             System.out.println("------");
             entry.getValue().dump();
