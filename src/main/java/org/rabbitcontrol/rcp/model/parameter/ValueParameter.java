@@ -1,10 +1,10 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
+import io.kaitai.struct.KaitaiStream;
 import io.netty.util.internal.ConcurrentSet;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.ParameterOptions;
-import org.rabbitcontrol.rcp.model.interfaces.IDefaultDefinition;
-import org.rabbitcontrol.rcp.model.interfaces.IValueParameter;
+import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 
 import java.io.IOException;
@@ -51,6 +51,19 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         return (IValueParameter<T>)ParameterFactory.createParameter((int)id, typeDefinition.getDatatype());
     }
 
+    @Override
+    protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
+
+        final ParameterOptions option = ParameterOptions.byId(_propertyId);
+
+        switch (option) {
+            case VALUE:
+                setValue(typeDefinition.readValue(_io));
+                return true;
+        }
+
+        return false;
+    }
 
     @Override
     public void write(final OutputStream _outputStream, final boolean all) throws IOException {
