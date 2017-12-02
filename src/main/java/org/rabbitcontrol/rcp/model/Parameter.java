@@ -358,6 +358,31 @@ public abstract class Parameter implements IParameter {
 
     public void update(final IParameter _parameter) {
 
+        // set fields directly, no change-flag ist set!
+
+        if (_parameter.getLabel() != null) {
+            label = _parameter.getLabel();
+        }
+
+        if (_parameter.getDescription() != null) {
+            description = _parameter.getDescription();
+        }
+
+        if (_parameter.getOrder() != null) {
+            order = _parameter.getOrder();
+        }
+
+        if (_parameter.getParentId() != null) {
+            parentId = (long)_parameter.getParentId();
+
+            // TODO: resolve parent parameter
+        }
+
+        // TODO: widget
+
+        if (_parameter.getUserdata() != null) {
+            userdata = _parameter.getUserdata();
+        }
     }
 
     @Override
@@ -543,6 +568,8 @@ public abstract class Parameter implements IParameter {
 
     @Override
     public Integer getParentId() {
+
+        if (parentId == null) return null;
 
         return (int)(long)parentId;
     }

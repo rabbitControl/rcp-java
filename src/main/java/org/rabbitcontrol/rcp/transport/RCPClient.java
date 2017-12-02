@@ -5,6 +5,7 @@ import org.rabbitcontrol.rcp.model.RCPCommands.Add;
 import org.rabbitcontrol.rcp.model.RCPCommands.Remove;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
+import org.rabbitcontrol.rcp.model.parameter.ValueParameter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -206,8 +207,7 @@ public class RCPClient extends RCPBase {
                             final IParameter cached = valueCache.get(val.getId());
                             if (cached != null) {
 
-                                // TODO!!
-                                //cached.update(val);
+                                ((ValueParameter)cached).update(val);
 
                                 // inform listener
                                 if (updateListener != null) {

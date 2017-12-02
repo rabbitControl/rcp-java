@@ -10,6 +10,7 @@ import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class ValueParameter<T> extends Parameter implements IValueParameter<T> {
@@ -174,5 +175,94 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
             _e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void update(final IParameter _parameter) {
+
+        // TODO: figure out if we need to check id/datatype before setting data
+//        if (id != _parameter.getId()) {
+//            System.err.println("don't updated unmatching id");
+//            return;
+//        }
+//
+//        // compare datatypes...
+//        if ((_parameter.getTypeDefinition() != null) &&
+//            (typeDefinition.getDatatype() != _parameter.getTypeDefinition().getDatatype())) {
+//            System.err.println("not updated unmatching types: " +
+//                               typeDefinition.getDatatype() +
+//                               " != " +
+//                               _parameter.getTypeDefinition().getDatatype());
+//            return;
+//        }
+
+
+        // set fields directly, no change-flag ist set!
+
+
+        if (_parameter instanceof ValueParameter) {
+
+            final Object otherValue = ((ValueParameter)_parameter).getValue();
+
+            if (otherValue != null) {
+
+                try {
+                    value = (T)value.getClass().cast(otherValue);
+                }
+                catch (final ClassCastException e) {
+
+                    if ((value instanceof Number) && (otherValue instanceof Number)) {
+
+                        if (value instanceof Integer) {
+                            value = (T)new Integer(((Number)otherValue).intValue());
+                        }
+                        else if (value instanceof Short) {
+                            value = (T)new Short(((Number)otherValue).shortValue());
+                        }
+                        else if (value instanceof Byte) {
+                            value = (T)new Byte(((Number)otherValue).byteValue());
+                        }
+                        else if (value instanceof Long) {
+                            value = (T)new Long(((Number)otherValue).longValue());
+                        }
+                        else if (value instanceof Float) {
+                            value = (T)new Float(((Number)otherValue).floatValue());
+                        }
+                        else if (value instanceof Double) {
+                            value = (T)new Double(((Number)otherValue).doubleValue());
+                        }
+
+                    }
+                    else if (value instanceof Map) {
+
+                        //TODO: do this better
+
+                        if (otherValue instanceof Map) {
+
+                            ((Map)value).clear();
+
+
+                            for (Object key : ((Map)otherValue).keySet()) {
+                                ((Map)value).put(key, ((Map)otherValue).get(key));
+                            }
+
+                        }
+                        else {
+                            System.err.println("other value is not a map");
+                        }
+
+                    }
+                    else {
+                        System.err.println("cannot updated value from type: " +
+                                           value.getClass().getName() +
+                                           " other: " +
+                                           otherValue.getClass().getName());
+                    }
+                }
+
+            }
+        }
+
+        super.update(_parameter);
     }
 }

@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.transport;
 
-import org.rabbitcontrol.rcp.model.Packet;
-import org.rabbitcontrol.rcp.model.RCPCacheOperator;
+import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
@@ -255,17 +254,11 @@ public class RabbitServer extends RCPBase {
 
         if (_packet.getCmd() == Command.UPDATE) {
 
-            final IParameter val = (IParameter)_packet.getData();
-
-            if (updateListener != null) {
-                updateListener.updated(val);
-            }
-
-            // update all clients...
-            update(val);
+            _update(_packet);
         }
         else if (_packet.getCmd() == Command.VERSION) {
 
+            // TODO:
             // try to convert to version object
             System.out.println("version object yet to be specified");
         }
@@ -274,6 +267,8 @@ public class RabbitServer extends RCPBase {
             if (_packet.getData() != null) {
                 // TODO: send full description of only one parameter
                 final IParameter val = (IParameter)_packet.getData();
+
+                // get value from cache, and send it...
             }
 
             _init(_packet, _transporter);
@@ -282,8 +277,43 @@ public class RabbitServer extends RCPBase {
 
             System.err.println("not implemented command: " + _packet.getCmd());
         }
+    }
+
+
+    private void _update(final Packet _packet) {
+
+        final IParameter val = (IParameter)_packet.getData();
+
+        operateOnCache(new RCPCacheOperator() {
+
+            @Override
+            public void operate(final Map<Integer, IParameter> valueCache) {
+
+                //updated value cache?
+                final IParameter cached = valueCache.get(val.getId());
+                if (cached != null) {
+
+                    // update cached
+                    ((Parameter)cached).update(val);
+
+                    // call listeners with cached...
+                    if (updateListener != null) {
+                        updateListener.updated(cached);
+                    }
+                }
+                else {
+                    System.err.println("client: updated: no value in value cache - " +
+                                       "ignoring");
+                }
+            }
+        });
+
+        // update all clients...
+        // TODO: filter out the client who sent the update!
+        update(val);
 
     }
+
 
     private void _init(final Packet _packet, final RCPTransporter _transporter) {
 
