@@ -40,6 +40,18 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
                 definition =  new StringDefinition();
                 break;
 
+            case RGB:
+                definition = new RGBDefinition();
+                break;
+
+            case RGBA:
+                definition = new RGBADefinition();
+                break;
+
+            case ENUM:
+                definition = new EnumDefinition();
+                break;
+
             case GROUP:
                 // no default definition...
 

@@ -29,6 +29,15 @@ public class ParameterFactory {
             case STRING:
                 return new StringParameter(_id);
 
+            case RGB:
+                return new RGBParameter(_id);
+
+            case RGBA:
+                return new RGBAParameter(_id);
+
+            case ENUM:
+                return new EnumParameter(_id);
+
             case GROUP:
                 return new GroupParameter(_id);
 

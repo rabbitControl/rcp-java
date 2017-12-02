@@ -6,6 +6,7 @@ import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.StringOptions;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -63,6 +64,15 @@ public class ArrayDefinition<T> extends DefaultDefinition<List<T>> {
 
             case STRING:
                 return new ArrayDefinition<String>((DefaultDefinition<String>)_sub_type, _size);
+
+            case ENUM:
+                return new ArrayDefinition<Long>((DefaultDefinition<Long>)_sub_type, _size);
+
+            case RGB:
+                return new ArrayDefinition<Color>((DefaultDefinition<Color>)_sub_type, _size);
+
+            case RGBA:
+                return new ArrayDefinition<Color>((DefaultDefinition<Color>)_sub_type, _size);
 
             case FIXED_ARRAY:
                 return new ArrayDefinition<ArrayDefinition<?>>(
