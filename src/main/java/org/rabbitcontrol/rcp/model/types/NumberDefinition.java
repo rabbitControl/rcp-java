@@ -11,7 +11,7 @@ import java.io.OutputStream;
 public abstract class NumberDefinition<T extends Number> extends DefaultDefinition<T> implements
                                                                              INumberDefinition<T> {
 
-    public static <T extends Number> NumberDefinition<T> create(Datatype _datatype) {
+    public static <T extends Number> NumberDefinition<T> create(final Datatype _datatype) {
 
         switch (_datatype) {
 
@@ -96,7 +96,7 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         // handle option scale, unit
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -267,7 +267,7 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
-    private T toType(Number _number) {
+    private T toType(final Number _number) {
 
         if (getDefault() instanceof Byte) {
             return (T)(Byte)_number.byteValue();

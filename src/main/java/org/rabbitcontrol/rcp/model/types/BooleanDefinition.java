@@ -2,7 +2,6 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.BooleanOptions;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
 
@@ -10,44 +9,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class BooleanDefinition extends DefaultDefinition<Boolean> {
-
-    //------------------------------------------------------------
-    //------------------------------------------------------------
-    public static BooleanDefinition parse(final KaitaiStream _io) throws RCPDataErrorException {
-
-        final BooleanDefinition type = new BooleanDefinition();
-
-        // parse optionals
-        while (true) {
-
-            int          did    = _io.readU1();
-
-            if (did == RCPParser.TERMINATOR) {
-                // terminator
-                break;
-            }
-
-            final BooleanOptions option = BooleanOptions.byId(did);
-
-            if (option == null) {
-                throw new RCPDataErrorException();
-            }
-
-            switch (option) {
-
-                case DEFAULT:
-                    type.setDefault((_io.readU1() > 0));
-                    break;
-
-                default:
-                    throw new RCPDataErrorException();
-            }
-
-        }
-
-        return type;
-    }
-
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -59,7 +20,7 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        BooleanOptions option = BooleanOptions.byId(_propertyId);
+        final BooleanOptions option = BooleanOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -68,7 +29,7 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
 
         switch (option) {
             case DEFAULT:
-                setDefault(_io.readS1() != 0);
+                setDefault(readValue(_io));
                 return true;
         }
 
@@ -111,7 +72,7 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
         } else if (defaultValueChanged) {
 
             _outputStream.write((int)BooleanOptions.DEFAULT.id());
-            writeValue(false, _outputStream);
+            writeValue(null, _outputStream);
 
             defaultValueChanged = false;
         }

@@ -9,9 +9,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-/**
- * Created by inx on 13/06/17.
- */
 public class RCPParser {
 
     public static final int TERMINATOR = 0;
