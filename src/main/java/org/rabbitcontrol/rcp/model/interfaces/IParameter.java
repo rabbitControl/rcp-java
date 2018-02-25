@@ -2,11 +2,13 @@ package org.rabbitcontrol.rcp.model.interfaces;
 
 import org.rabbitcontrol.rcp.model.RCPWritable;
 
+import java.nio.ByteBuffer;
+
 public interface IParameter extends RCPWritable {
 
     //--------------------------------
     // mandatory
-    int getId();
+    ByteBuffer getId();
 
     ITypeDefinition getTypeDefinition();
 

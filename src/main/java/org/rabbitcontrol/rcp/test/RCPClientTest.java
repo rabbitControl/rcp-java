@@ -10,6 +10,7 @@ import org.rabbitcontrol.rcp.transport.RCPClient;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -79,7 +80,7 @@ public class RCPClientTest implements Add, Remove, Update {
 
     public void updateValue() {
 
-        final Map<Integer, IParameter> cache = rcp.getValueCache();
+        final Map<ByteBuffer, IParameter> cache = rcp.getValueCache();
 
         if (!cache.isEmpty()) {
 
@@ -110,6 +111,11 @@ public class RCPClientTest implements Add, Remove, Update {
     //
     @Override
     public void added(final IParameter _value) {
+
+        //create ui
+        //create adapter(parameter)
+        // ui.setupdatelistern(adapter, client)
+
 
         System.out.println("client: added: " + _value.getId());
         //        toi.dumpCache();

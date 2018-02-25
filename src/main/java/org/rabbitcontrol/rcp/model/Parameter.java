@@ -23,8 +23,9 @@ public abstract class Parameter implements IParameter {
                                                           RCPDataErrorException {
 
         // get mandatory id
-        // read as signed int, this is correct
-        final int parameter_id = _io.readS4be();
+        final Id id_obj = new Id(_io);
+        final byte[] parameter_id = id_obj.data();
+
         // read mandatory typeDefinition
         final Datatype datatype = Datatype.byId(_io.readU1());
 
@@ -41,7 +42,7 @@ public abstract class Parameter implements IParameter {
             // create ArrayDefinition
             final ArrayDefinition<?> array_def = ArrayDefinition.parse(_io);
 
-            param = ParameterFactory.createArrayParameter(parameter_id, array_def);
+            param = ParameterFactory.createArrayParameter(ByteBuffer.wrap(parameter_id), array_def);
 
             // !! type definition options already parsed
 
@@ -106,7 +107,7 @@ public abstract class Parameter implements IParameter {
     //------------------------------------------------------------
     //------------------------------------------------------------
     // mandatory
-    protected final long id;
+    protected final ByteBuffer id;
 
     protected final TypeDefinition typeDefinition;
 
@@ -149,14 +150,14 @@ public abstract class Parameter implements IParameter {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public Parameter(final int _id, final TypeDefinition _typeDefinition) {
+    public Parameter(final ByteBuffer _id, final TypeDefinition _typeDefinition) {
 
         id = _id;
         typeDefinition = _typeDefinition;
     }
 
     public IParameter cloneEmpty() {
-        return ParameterFactory.createParameter((int)id, typeDefinition.getDatatype());
+        return ParameterFactory.createParameter(id, typeDefinition.getDatatype());
     }
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);
@@ -491,9 +492,9 @@ public abstract class Parameter implements IParameter {
     //------------------------------------------------------------
 
     @Override
-    public int getId() {
+    public ByteBuffer getId() {
 
-        return (int)id;
+        return id;
     }
 
     @Override

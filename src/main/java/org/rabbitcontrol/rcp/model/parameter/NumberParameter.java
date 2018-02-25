@@ -6,6 +6,8 @@ import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.types.NumberDefinition;
 
+import java.nio.ByteBuffer;
+
 public class NumberParameter<T extends Number> extends ValueParameter<T> implements
                                                                          INumberParameter<T> {
 
@@ -16,7 +18,7 @@ public class NumberParameter<T extends Number> extends ValueParameter<T> impleme
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public NumberParameter(final int _id, Datatype _datatype) {
+    public NumberParameter(final ByteBuffer _id, Datatype _datatype) {
 
         // create correct
         super(_id, (DefaultDefinition<T>)NumberDefinition.create(_datatype));

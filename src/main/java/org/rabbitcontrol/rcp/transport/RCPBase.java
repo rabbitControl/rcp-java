@@ -1,8 +1,10 @@
 package org.rabbitcontrol.rcp.transport;
 
-import org.rabbitcontrol.rcp.model.*;
+import org.rabbitcontrol.rcp.model.RCPCacheOperator;
+import org.rabbitcontrol.rcp.model.RCPCommands;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,9 +17,9 @@ public abstract class RCPBase implements RCPTransporterListener {
 
     //------------------------------------------------------------
     //
-    private final Map<Integer, IParameter>
+    protected final Map<ByteBuffer, IParameter>
             valueCache
-            = new ConcurrentHashMap<Integer, IParameter>();
+            = new ConcurrentHashMap<ByteBuffer, IParameter>();
 
     // callback objects
     protected RCPCommands.Update updateListener;
@@ -26,7 +28,7 @@ public abstract class RCPBase implements RCPTransporterListener {
 
     //------------------------------------------------------------
     //
-    public Map<Integer, IParameter> getValueCache() {
+    public Map<ByteBuffer, IParameter> getValueCache() {
         return Collections.unmodifiableMap(valueCache);
     }
 
@@ -41,7 +43,7 @@ public abstract class RCPBase implements RCPTransporterListener {
     //
     public void dumpCache() {
 
-        for (final Map.Entry<Integer, IParameter> entry : valueCache.entrySet()) {
+        for (final Map.Entry<ByteBuffer, IParameter> entry : valueCache.entrySet()) {
 
             System.out.println("------");
             entry.getValue().dump();

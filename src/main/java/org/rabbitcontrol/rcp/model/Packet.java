@@ -89,10 +89,6 @@ public class Packet implements RCPWritable {
 
                     break;
 
-                case ID:
-                    packet.setPacketId(_io.readU4be());
-                    break;
-
                 case TIMESTAMP:
                     packet.setTimestamp(_io.readU8be());
                     break;
@@ -110,8 +106,6 @@ public class Packet implements RCPWritable {
     private final Command cmd;
 
     // options
-    private Long packetId;
-
     private Long timestamp;
 
     private RCPWritable data;
@@ -157,11 +151,6 @@ public class Packet implements RCPWritable {
         // write mandatory command
         _outputStream.write((int)cmd.id());
 
-        if (packetId != null) {
-            _outputStream.write((int)PacketOptions.ID.id());
-            _outputStream.write(ByteBuffer.allocate(4).putInt(packetId.intValue()).array());
-        }
-
         if (timestamp != null) {
             _outputStream.write((int)PacketOptions.TIMESTAMP.id());
             _outputStream.write(ByteBuffer.allocate(8).putLong(timestamp).array());
@@ -181,16 +170,6 @@ public class Packet implements RCPWritable {
     public Command getCmd() {
 
         return cmd;
-    }
-
-    public Long getPacketId() {
-
-        return packetId;
-    }
-
-    public void setPacketId(final long _packetId) {
-
-        packetId = _packetId;
     }
 
     public Long getTimestamp() {

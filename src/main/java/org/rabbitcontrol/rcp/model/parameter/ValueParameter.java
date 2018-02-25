@@ -22,14 +22,14 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         void valueChanged(final T newValue);
     }
 
-
     //------------------------------------------------------------
     //------------------------------------------------------------
     // mandatory
     private final DefaultDefinition<T> typeDefinition;
 
     // optional
-    private T value;
+    private T       value;
+
     private boolean valueChanged;
 
     //------------------------
@@ -37,10 +37,9 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     private final Set<VALUE_CHANGED<T>> valueChangeListener = new ConcurrentSet<VALUE_CHANGED<T>>();
 
-
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public ValueParameter(final int _id, final DefaultDefinition<T> _typeDefinition) {
+    public ValueParameter(final ByteBuffer _id, final DefaultDefinition<T> _typeDefinition) {
 
         super(_id, _typeDefinition);
 
@@ -49,7 +48,9 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     @Override
     public IValueParameter<T> cloneEmpty() {
-        return (IValueParameter<T>)ParameterFactory.createParameter((int)id, typeDefinition.getDatatype());
+
+        return (IValueParameter<T>)ParameterFactory.createParameter(id,
+                                                                    typeDefinition.getDatatype());
     }
 
     @Override
@@ -70,7 +71,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory id
-        _outputStream.write(ByteBuffer.allocate(4).putInt((int)id).array());
+        _outputStream.write(id.array().length);
+        _outputStream.write(id.array());
 
         // write mandatory typeDefinition
         typeDefinition.write(_outputStream, all);
@@ -87,7 +89,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
                     valueChanged = false;
                 }
             }
-        } else if (valueChanged) {
+        }
+        else if (valueChanged) {
 
             _outputStream.write((int)ParameterOptions.VALUE.id());
             typeDefinition.writeValue(typeDefinition.getDefault(), _outputStream);
@@ -136,7 +139,6 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         valueChangeListener.clear();
     }
 
-
     //------------------------------------------------------------
     //------------------------------------------------------------
     @Override
@@ -171,7 +173,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
         try {
             setValue((T)_value);
-        } catch (ClassCastException _e) {
+        }
+        catch (ClassCastException _e) {
             _e.printStackTrace();
         }
 
@@ -181,24 +184,23 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     public void update(final IParameter _parameter) {
 
         // TODO: figure out if we need to check id/datatype before setting data
-//        if (id != _parameter.getId()) {
-//            System.err.println("don't updated unmatching id");
-//            return;
-//        }
-//
-//        // compare datatypes...
-//        if ((_parameter.getTypeDefinition() != null) &&
-//            (typeDefinition.getDatatype() != _parameter.getTypeDefinition().getDatatype())) {
-//            System.err.println("not updated unmatching types: " +
-//                               typeDefinition.getDatatype() +
-//                               " != " +
-//                               _parameter.getTypeDefinition().getDatatype());
-//            return;
-//        }
-
+        //        if (id != _parameter.getId()) {
+        //            System.err.println("don't updated unmatching id");
+        //            return;
+        //        }
+        //
+        //        // compare datatypes...
+        //        if ((_parameter.getTypeDefinition() != null) &&
+        //            (typeDefinition.getDatatype() != _parameter.getTypeDefinition().getDatatype
+        // ())) {
+        //            System.err.println("not updated unmatching types: " +
+        //                               typeDefinition.getDatatype() +
+        //                               " != " +
+        //                               _parameter.getTypeDefinition().getDatatype());
+        //            return;
+        //        }
 
         // set fields directly, no change-flag ist set!
-
 
         if (_parameter instanceof ValueParameter) {
 
@@ -240,7 +242,6 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
                         if (otherValue instanceof Map) {
 
                             ((Map)value).clear();
-
 
                             for (Object key : ((Map)otherValue).keySet()) {
                                 ((Map)value).put(key, ((Map)otherValue).get(key));

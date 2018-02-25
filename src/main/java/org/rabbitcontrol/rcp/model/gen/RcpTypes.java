@@ -1,18 +1,18 @@
-// This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
-
 package org.rabbitcontrol.rcp.model.gen;
 
-import io.kaitai.struct.KaitaiStream;
-import io.kaitai.struct.KaitaiStruct;
+// This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
+import io.kaitai.struct.ByteBufferKaitaiStream;
+import io.kaitai.struct.KaitaiStruct;
+import io.kaitai.struct.KaitaiStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import java.nio.charset.Charset;
 
 public class RcpTypes extends KaitaiStruct {
     public static RcpTypes fromFile(String fileName) throws IOException {
-        return new RcpTypes(new KaitaiStream(fileName));
+        return new RcpTypes(new ByteBufferKaitaiStream(fileName));
     }
 
     public enum EnumOptions {
@@ -223,6 +223,23 @@ public class RcpTypes extends KaitaiStruct {
         public static LabelPosition byId(long id) { return byId.get(id); }
     }
 
+    public enum ClientStatus {
+        DISCONNECTED(0),
+        CONNECTED(1),
+        VERSION_MISSMATCH(2),
+        OK(3);
+
+        private final long id;
+        ClientStatus(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, ClientStatus> byId = new HashMap<Long, ClientStatus>(4);
+        static {
+            for (ClientStatus e : ClientStatus.values())
+                byId.put(e.id(), e);
+        }
+        public static ClientStatus byId(long id) { return byId.get(id); }
+    }
+
     public enum StringOptions {
         DEFAULT(48);
 
@@ -249,42 +266,29 @@ public class RcpTypes extends KaitaiStruct {
         UINT64(24),
         FLOAT32(25),
         FLOAT64(26),
-        VECTOR2I8(27),
-        VECTOR2I16(28),
-        VECTOR2I32(29),
-        VECTOR2I64(30),
-        VECTOR2F32(31),
-        VECTOR2F64(32),
-        VECTOR3I8(33),
-        VECTOR3I16(34),
-        VECTOR3I32(35),
-        VECTOR3I64(36),
-        VECTOR3F32(37),
-        VECTOR3F64(38),
-        VECTOR4I8(39),
-        VECTOR4I16(40),
-        VECTOR4I32(41),
-        VECTOR4I64(42),
-        VECTOR4F32(43),
-        VECTOR4F64(44),
-        TINY_STRING(45),
-        SHORT_STRING(46),
-        STRING(47),
-        RGB(48),
-        RGBA(49),
-        ENUM(50),
-        FIXED_ARRAY(51),
-        DYNAMIC_ARRAY(52),
-        IMAGE(54),
-        BANG(55),
-        TIME(56),
-        GROUP(57),
-        COMPOUND(58);
+        VECTOR2I32(27),
+        VECTOR2F32(28),
+        VECTOR3I32(29),
+        VECTOR3F32(30),
+        VECTOR4I32(31),
+        VECTOR4F32(32),
+        STRING(33),
+        RGB(34),
+        RGBA(35),
+        ENUM(36),
+        FIXED_ARRAY(37),
+        DYNAMIC_ARRAY(38),
+        BANG(39),
+        GROUP(40),
+        COMPOUND(41),
+        URI(42),
+        IPV4(43),
+        IPV6(44);
 
         private final long id;
         Datatype(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(42);
+        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(29);
         static {
             for (Datatype e : Datatype.values())
                 byId.put(e.id(), e);
@@ -328,14 +332,13 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum PacketOptions {
-        ID(16),
         TIMESTAMP(17),
         DATA(18);
 
         private final long id;
         PacketOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, PacketOptions> byId = new HashMap<Long, PacketOptions>(3);
+        private static final Map<Long, PacketOptions> byId = new HashMap<Long, PacketOptions>(2);
         static {
             for (PacketOptions e : PacketOptions.values())
                 byId.put(e.id(), e);
@@ -358,75 +361,32 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public RcpTypes(KaitaiStream _io) {
-        super(_io);
-        this._root = this;
-        _read();
+        this(_io, null, null);
     }
 
     public RcpTypes(KaitaiStream _io, KaitaiStruct _parent) {
-        super(_io);
-        this._parent = _parent;
-        this._root = this;
-        _read();
+        this(_io, _parent, null);
     }
 
     public RcpTypes(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
         super(_io);
         this._parent = _parent;
-        this._root = _root;
+        this._root = _root == null ? this : _root;
         _read();
     }
     private void _read() {
     }
-    public static class TinyString extends KaitaiStruct {
-        public static TinyString fromFile(String fileName) throws IOException {
-            return new TinyString(new KaitaiStream(fileName));
-        }
-
-        public TinyString(KaitaiStream _io) {
-            super(_io);
-            _read();
-        }
-
-        public TinyString(KaitaiStream _io, KaitaiStruct _parent) {
-            super(_io);
-            this._parent = _parent;
-            _read();
-        }
-
-        public TinyString(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
-            super(_io);
-            this._parent = _parent;
-            this._root = _root;
-            _read();
-        }
-        private void _read() {
-            this.myLen = this._io.readU1();
-            this.data = new String(this._io.readBytes(myLen()), Charset.forName("UTF-8"));
-        }
-        private int myLen;
-        private String data;
-        private RcpTypes _root;
-        private KaitaiStruct _parent;
-        public int myLen() { return myLen; }
-        public String data() { return data; }
-        public RcpTypes _root() { return _root; }
-        public KaitaiStruct _parent() { return _parent; }
-    }
     public static class ShortString extends KaitaiStruct {
         public static ShortString fromFile(String fileName) throws IOException {
-            return new ShortString(new KaitaiStream(fileName));
+            return new ShortString(new ByteBufferKaitaiStream(fileName));
         }
 
         public ShortString(KaitaiStream _io) {
-            super(_io);
-            _read();
+            this(_io, null, null);
         }
 
         public ShortString(KaitaiStream _io, KaitaiStruct _parent) {
-            super(_io);
-            this._parent = _parent;
-            _read();
+            this(_io, _parent, null);
         }
 
         public ShortString(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
@@ -448,20 +408,49 @@ public class RcpTypes extends KaitaiStruct {
         public RcpTypes _root() { return _root; }
         public KaitaiStruct _parent() { return _parent; }
     }
+    public static class Userdata extends KaitaiStruct {
+        public static Userdata fromFile(String fileName) throws IOException {
+            return new Userdata(new ByteBufferKaitaiStream(fileName));
+        }
+
+        public Userdata(KaitaiStream _io) {
+            this(_io, null, null);
+        }
+
+        public Userdata(KaitaiStream _io, KaitaiStruct _parent) {
+            this(_io, _parent, null);
+        }
+
+        public Userdata(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
+            super(_io);
+            this._parent = _parent;
+            this._root = _root;
+            _read();
+        }
+        private void _read() {
+            this.myLen = this._io.readU4be();
+            this.data = this._io.readBytes(myLen());
+        }
+        private long myLen;
+        private byte[] data;
+        private RcpTypes _root;
+        private KaitaiStruct _parent;
+        public long myLen() { return myLen; }
+        public byte[] data() { return data; }
+        public RcpTypes _root() { return _root; }
+        public KaitaiStruct _parent() { return _parent; }
+    }
     public static class LongString extends KaitaiStruct {
         public static LongString fromFile(String fileName) throws IOException {
-            return new LongString(new KaitaiStream(fileName));
+            return new LongString(new ByteBufferKaitaiStream(fileName));
         }
 
         public LongString(KaitaiStream _io) {
-            super(_io);
-            _read();
+            this(_io, null, null);
         }
 
         public LongString(KaitaiStream _io, KaitaiStruct _parent) {
-            super(_io);
-            this._parent = _parent;
-            _read();
+            this(_io, _parent, null);
         }
 
         public LongString(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
@@ -483,38 +472,67 @@ public class RcpTypes extends KaitaiStruct {
         public RcpTypes _root() { return _root; }
         public KaitaiStruct _parent() { return _parent; }
     }
-    public static class Userdata extends KaitaiStruct {
-        public static Userdata fromFile(String fileName) throws IOException {
-            return new Userdata(new KaitaiStream(fileName));
+    public static class Id extends KaitaiStruct {
+        public static Id fromFile(String fileName) throws IOException {
+            return new Id(new ByteBufferKaitaiStream(fileName));
         }
 
-        public Userdata(KaitaiStream _io) {
-            super(_io);
-            _read();
+        public Id(KaitaiStream _io) {
+            this(_io, null, null);
         }
 
-        public Userdata(KaitaiStream _io, KaitaiStruct _parent) {
-            super(_io);
-            this._parent = _parent;
-            _read();
+        public Id(KaitaiStream _io, KaitaiStruct _parent) {
+            this(_io, _parent, null);
         }
 
-        public Userdata(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
+        public Id(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
             super(_io);
             this._parent = _parent;
             this._root = _root;
             _read();
         }
         private void _read() {
-            this.myLen = this._io.readU4be();
+            this.myLen = this._io.readU1();
             this.data = this._io.readBytes(myLen());
         }
-        private long myLen;
+        private int myLen;
         private byte[] data;
         private RcpTypes _root;
         private KaitaiStruct _parent;
-        public long myLen() { return myLen; }
+        public int myLen() { return myLen; }
         public byte[] data() { return data; }
+        public RcpTypes _root() { return _root; }
+        public KaitaiStruct _parent() { return _parent; }
+    }
+    public static class TinyString extends KaitaiStruct {
+        public static TinyString fromFile(String fileName) throws IOException {
+            return new TinyString(new ByteBufferKaitaiStream(fileName));
+        }
+
+        public TinyString(KaitaiStream _io) {
+            this(_io, null, null);
+        }
+
+        public TinyString(KaitaiStream _io, KaitaiStruct _parent) {
+            this(_io, _parent, null);
+        }
+
+        public TinyString(KaitaiStream _io, KaitaiStruct _parent, RcpTypes _root) {
+            super(_io);
+            this._parent = _parent;
+            this._root = _root;
+            _read();
+        }
+        private void _read() {
+            this.myLen = this._io.readU1();
+            this.data = new String(this._io.readBytes(myLen()), Charset.forName("UTF-8"));
+        }
+        private int myLen;
+        private String data;
+        private RcpTypes _root;
+        private KaitaiStruct _parent;
+        public int myLen() { return myLen; }
+        public String data() { return data; }
         public RcpTypes _root() { return _root; }
         public KaitaiStruct _parent() { return _parent; }
     }

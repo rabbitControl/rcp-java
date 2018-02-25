@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public class UInt32Definition extends NumberDefinition<Long> {
+public class UInt32Definition extends NumberDefinition<Integer> {
+
+    public static long getUnsigned(int _value) {
+        return ((long) _value) & 0xffffffffL;
+    }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -33,16 +37,16 @@ public class UInt32Definition extends NumberDefinition<Long> {
 
         switch (option) {
             case DEFAULT:
-                setDefault(_io.readU4be());
+                setDefault((int)_io.readU4be());
                 return true;
             case MINIMUM:
-                setMinimum(_io.readU4be());
+                setMinimum((int)_io.readU4be());
                 return true;
             case MAXIMUM:
-                setMaximum(_io.readU4be());
+                setMaximum((int)_io.readU4be());
                 return true;
             case MULTIPLEOF:
-                setMultipleof(_io.readU4be());
+                setMultipleof((int)_io.readU4be());
                 return true;
         }
 
@@ -50,17 +54,17 @@ public class UInt32Definition extends NumberDefinition<Long> {
     }
 
     @Override
-    public Long readValue(final KaitaiStream _io) {
+    public Integer readValue(final KaitaiStream _io) {
 
-        return _io.readU4be();
+        return (int)_io.readU4be();
     }
 
     @Override
-    public void writeValue(final Long _value, final OutputStream _outputStream) throws
+    public void writeValue(final Integer _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
         if (_value != null) {
-            _outputStream.write(ByteBuffer.allocate(4).putInt(_value.intValue()).array());
+            _outputStream.write(ByteBuffer.allocate(4).putInt(_value).array());
         } else {
             _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
         }
@@ -71,19 +75,19 @@ public class UInt32Definition extends NumberDefinition<Long> {
     @Override
     public void setMin(final Number _value) {
 
-        setMinimum((long)_value.intValue());
+        setMinimum(_value.intValue());
     }
 
     @Override
     public void setMax(final Number _value) {
 
-        setMaximum((long)_value.intValue());
+        setMaximum(_value.intValue());
     }
 
     @Override
     public void setMult(final Number _value) {
 
-        setMultipleof((long)_value.intValue());
+        setMultipleof(_value.intValue());
     }
 
 }

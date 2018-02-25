@@ -15,12 +15,12 @@
  */
 package org.rabbitcontrol.rcp.test.netty;
 
-import org.rabbitcontrol.rcp.model.Packet;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import io.kaitai.struct.KaitaiStream;
+import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import org.rabbitcontrol.rcp.model.Packet;
+import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -60,7 +60,7 @@ public class RCPPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         }
 
         try {
-            final Packet packet = Packet.parse(new KaitaiStream(data));
+            final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
             out.add(packet);
         }
         catch (final RCPUnsupportedFeatureException _e) {

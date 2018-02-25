@@ -6,13 +6,14 @@ import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.Map.Entry;
 
 /**
  * Created by inx on 30/11/16.
  */
-public class RabbitServer extends RCPBase {
+public class RCPServer extends RCPBase {
 
     private final List<RCPTransporter> transporterList = new ArrayList<RCPTransporter>();
 
@@ -22,7 +23,7 @@ public class RabbitServer extends RCPBase {
 
     //------------------------------------------------------------
     //
-    public RabbitServer(final RCPTransporter _transporter) {
+    public RCPServer(final RCPTransporter _transporter) {
 
         addTransporter(_transporter);
     }
@@ -40,7 +41,7 @@ public class RabbitServer extends RCPBase {
         if (transporterList.contains(_transporter)) {
             transporterList.remove(_transporter);
 
-            // TODO: shutdown transporterList
+            // TODO: shutdown transporter
         }
     }
 
@@ -55,24 +56,36 @@ public class RabbitServer extends RCPBase {
     //
     public void addParameter(final IParameter _value) {
 
+        if (valueCache.containsKey(_value.getId())) {
+
+            if (valueCache.get(_value.getId()) != _value) {
+                System.err.println("different object with same ID!!!");
+            }
+            else {
+                System.out.println("already added value with this id - ignore");
+            }
+
+            return;
+        }
+
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, IParameter> valueCache) {
+            public void operate(final Map<ByteBuffer, IParameter> valueCache) {
 
                 if (!valueCache.containsKey(_value.getId())) {
                     // added
                     valueCache.put(_value.getId(), _value);
                 }
-                else {
-
-                    if (valueCache.get(_value.getId()) != _value) {
-                        System.err.println("different object with same ID!!!");
-                    }
-                    else {
-                        System.out.println("already added value with this id - ignore");
-                    }
-                }
+//                else {
+//
+//                    if (valueCache.get(_value.getId()) != _value) {
+//                        System.err.println("different object with same ID!!!");
+//                    }
+//                    else {
+//                        System.out.println("already added value with this id - ignore");
+//                    }
+//                }
             }
         });
 
@@ -214,7 +227,7 @@ public class RabbitServer extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, IParameter> valueCache) {
+            public void operate(final Map<ByteBuffer, IParameter> valueCache) {
 
                 if (valueCache.containsKey(_value.getId())) {
                     // removed
@@ -287,7 +300,7 @@ public class RabbitServer extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, IParameter> valueCache) {
+            public void operate(final Map<ByteBuffer, IParameter> valueCache) {
 
                 //updated value cache?
                 final IParameter cached = valueCache.get(val.getId());
@@ -322,10 +335,10 @@ public class RabbitServer extends RCPBase {
         operateOnCache(new RCPCacheOperator() {
 
             @Override
-            public void operate(final Map<Integer, IParameter> valueCache) {
+            public void operate(final Map<ByteBuffer, IParameter> valueCache) {
 
                 // init with all values
-                for (final Entry<Integer, IParameter> entry : valueCache.entrySet()) {
+                for (final Entry<ByteBuffer, IParameter> entry : valueCache.entrySet()) {
 
                     System.out.println("sending ::: " + entry.getValue().getDescription());
 

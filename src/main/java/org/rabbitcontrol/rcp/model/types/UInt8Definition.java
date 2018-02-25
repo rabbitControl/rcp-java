@@ -7,7 +7,11 @@ import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberOptions;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class UInt8Definition extends NumberDefinition<Short> {
+public class UInt8Definition extends NumberDefinition<Byte> {
+
+    public static int getUnsigned(byte _value) {
+        return ((int)_value) & 0xff;
+    }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -24,7 +28,7 @@ public class UInt8Definition extends NumberDefinition<Short> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -32,16 +36,16 @@ public class UInt8Definition extends NumberDefinition<Short> {
 
         switch (option) {
             case DEFAULT:
-                setDefault((short)_io.readU1());
+                setDefault((byte)_io.readU1());
                 return true;
             case MINIMUM:
-                setMinimum((short)_io.readU1());
+                setMinimum((byte)_io.readU1());
                 return true;
             case MAXIMUM:
-                setMaximum((short)_io.readU1());
+                setMaximum((byte)_io.readU1());
                 return true;
             case MULTIPLEOF:
-                setMultipleof((short)_io.readU1());
+                setMultipleof((byte)_io.readU1());
                 return true;
         }
 
@@ -49,17 +53,17 @@ public class UInt8Definition extends NumberDefinition<Short> {
     }
 
     @Override
-    public Short readValue(final KaitaiStream _io) {
+    public Byte readValue(final KaitaiStream _io) {
 
-        return (short)_io.readU1();
+        return (byte)_io.readU1();
     }
 
     @Override
-    public void writeValue(final Short _value, final OutputStream _outputStream) throws
+    public void writeValue(final Byte _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
         if (_value != null) {
-            _outputStream.write(_value.byteValue());
+            _outputStream.write(_value);
         } else {
             _outputStream.write(0);
         }
@@ -70,19 +74,33 @@ public class UInt8Definition extends NumberDefinition<Short> {
     @Override
     public void setMin(final Number _value) {
 
-        setMinimum((short)_value.byteValue());
+        setMinimum(_value.byteValue());
     }
 
     @Override
     public void setMax(final Number _value) {
 
-        setMaximum((short)_value.byteValue());
+        setMaximum(_value.byteValue());
     }
 
     @Override
     public void setMult(final Number _value) {
 
-        setMultipleof((short)_value.byteValue());
+        setMultipleof(_value.byteValue());
     }
 
+    public int getMinimumUnsigned() {
+        return getUnsigned(getMinimum());
+    }
+    public int getMaximumUnsigned() {
+        return getUnsigned(getMaximum());
+    }
+    public int getMultipleofUnsigned() {
+        return getUnsigned(getMultipleof());
+    }
+
+//    @Override
+//    public void setMinimum(final long _minimum) {
+//        setMinimum((Byte)Long.valueOf(_minimum).byteValue());
+//    }
 }

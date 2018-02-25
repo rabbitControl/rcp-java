@@ -7,6 +7,7 @@ import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberOptions;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class Float64Definition extends NumberDefinition<Double> {
 
@@ -61,7 +62,9 @@ public class Float64Definition extends NumberDefinition<Double> {
                                                                                  IOException {
 
         if (_value != null) {
-            _outputStream.write(ByteBuffer.allocate(8).putDouble(_value).array());
+            // write big-endian!
+            _outputStream.write(ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putDouble(_value).array
+                    ());
         } else {
             _outputStream.write(ByteBuffer.allocate(8).putDouble(0).array());
         }

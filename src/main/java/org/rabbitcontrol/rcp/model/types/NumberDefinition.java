@@ -267,29 +267,30 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
-    private T toType(final Number _number) {
-
-        if (getDefault() instanceof Byte) {
-            return (T)(Byte)_number.byteValue();
-        }
-        else if (getDefault() instanceof Short) {
-            return (T)(Short)_number.shortValue();
-        }
-        else if (getDefault() instanceof Integer) {
-            return (T)(Integer)_number.intValue();
-        }
-        else if (getDefault() instanceof Long) {
-            return (T)(Long)_number.longValue();
-        }
-        else if (getDefault() instanceof Float) {
-            return (T)(Float)_number.floatValue();
-        }
-        else if (getDefault() instanceof Byte) {
-            return (T)(Double)_number.doubleValue();
-        }
-
-        throw new NumberFormatException();
-    }
+//    private T toType(final Number _number) {
+//
+//
+//        if (getDefault() instanceof Byte) {
+//            return (T)(Byte)_number.byteValue();
+//        }
+//        else if (getDefault() instanceof Short) {
+//            return (T)(Short)_number.shortValue();
+//        }
+//        else if (getDefault() instanceof Integer) {
+//            return (T)(Integer)_number.intValue();
+//        }
+//        else if (getDefault() instanceof Long) {
+//            return (T)(Long)_number.longValue();
+//        }
+//        else if (getDefault() instanceof Float) {
+//            return (T)(Float)_number.floatValue();
+//        }
+//        else if (getDefault() instanceof Byte) {
+//            return (T)(Double)_number.doubleValue();
+//        }
+//
+//        throw new NumberFormatException();
+//    }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -310,11 +311,6 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         minimumChanged = true;
     }
 
-    @Override
-    public void setMin(final Number _minimum) {
-
-        setMinimum(toType(_minimum));
-    }
 
     @Override
     public T getMaximum() {
@@ -334,12 +330,6 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     }
 
     @Override
-    public void setMax(final Number _maximum) {
-
-        setMaximum(toType(_maximum));
-    }
-
-    @Override
     public T getMultipleof() {
 
         return multipleof;
@@ -354,11 +344,6 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         multipleof = _multipleof;
         multipleofChanged = true;
-    }
-
-    @Override
-    public void setMult(final Number _multipleof) {
-        setMultipleof(toType(_multipleof));
     }
 
     @Override

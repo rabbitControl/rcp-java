@@ -1,6 +1,7 @@
 package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
+import io.kaitai.struct.RandomAccessFileKaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 
@@ -59,7 +60,7 @@ public class RCPParser {
                                                             RCPUnsupportedFeatureException,
                                                             RCPDataErrorException {
 
-        final KaitaiStream _io = new KaitaiStream(fileName);
+        final KaitaiStream _io = new RandomAccessFileKaitaiStream(fileName);
 
         // we read from a file: no magic expected
         //        _io.ensureFixedContents(Packet.TOI_MAGIC);

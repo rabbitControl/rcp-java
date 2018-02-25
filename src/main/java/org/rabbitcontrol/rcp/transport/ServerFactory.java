@@ -6,11 +6,11 @@ package org.rabbitcontrol.rcp.transport;
 public class ServerFactory {
 
 //
-//    RabbitServer createWSServer(int port) {
+//    RCPServer createWSServer(int port) {
 //
 //    }
 //
-//    RabbitServer createServer(RCPTransporter _transporter) {
+//    RCPServer createServer(RCPTransporter _transporter) {
 //
 //    }
 

@@ -2,11 +2,13 @@ package org.rabbitcontrol.rcp.model.parameter;
 
 import org.rabbitcontrol.rcp.model.types.EnumDefinition;
 
+import java.nio.ByteBuffer;
+
 public class EnumParameter extends ValueParameter<Integer> {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public EnumParameter(final int _id) {
+    public EnumParameter(final ByteBuffer _id) {
 
         super(_id, new EnumDefinition());
     }

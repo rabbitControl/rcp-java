@@ -1,5 +1,6 @@
 package org.rabbitcontrol.rcp.test.udp;
 
+import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
@@ -63,7 +64,7 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
 
                 // parse that
                 try {
-                    final Packet toiPacket = Packet.parse(new KaitaiStream(data));
+                    final Packet toiPacket = Packet.parse(new ByteBufferKaitaiStream(data));
 
                     received(toiPacket, this);
                 }

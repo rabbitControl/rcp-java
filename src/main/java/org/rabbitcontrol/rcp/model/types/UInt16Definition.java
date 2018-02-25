@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public class UInt16Definition extends NumberDefinition<Integer> {
+public class UInt16Definition extends NumberDefinition<Short> {
+
+    public static int getUnsigned(short _value) {
+        return ((int) _value) & 0xffff;
+    }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -33,16 +37,16 @@ public class UInt16Definition extends NumberDefinition<Integer> {
 
         switch (option) {
             case DEFAULT:
-                setDefault(_io.readU2be());
+                setDefault((short)_io.readU2be());
                 return true;
             case MINIMUM:
-                setMinimum(_io.readU2be());
+                setMinimum((short)_io.readU2be());
                 return true;
             case MAXIMUM:
-                setMaximum(_io.readU2be());
+                setMaximum((short)_io.readU2be());
                 return true;
             case MULTIPLEOF:
-                setMultipleof(_io.readU2be());
+                setMultipleof((short)_io.readU2be());
                 return true;
         }
 
@@ -50,17 +54,17 @@ public class UInt16Definition extends NumberDefinition<Integer> {
     }
 
     @Override
-    public Integer readValue(final KaitaiStream _io) {
+    public Short readValue(final KaitaiStream _io) {
 
-        return _io.readU2be();
+        return (short)_io.readU2be();
     }
 
     @Override
-    public void writeValue(final Integer _value, final OutputStream _outputStream) throws
+    public void writeValue(final Short _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
         if (_value != null) {
-            _outputStream.write(ByteBuffer.allocate(2).putShort(_value.shortValue()).array());
+            _outputStream.write(ByteBuffer.allocate(2).putShort(_value).array());
         } else {
             _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
         }
@@ -71,19 +75,19 @@ public class UInt16Definition extends NumberDefinition<Integer> {
     @Override
     public void setMin(final Number _value) {
 
-        setMinimum((int)_value.shortValue());
+        setMinimum(_value.shortValue());
     }
 
     @Override
     public void setMax(final Number _value) {
 
-        setMaximum((int)_value.shortValue());
+        setMaximum(_value.shortValue());
     }
 
     @Override
     public void setMult(final Number _value) {
 
-        setMultipleof((int)_value.shortValue());
+        setMultipleof(_value.shortValue());
     }
 
 }

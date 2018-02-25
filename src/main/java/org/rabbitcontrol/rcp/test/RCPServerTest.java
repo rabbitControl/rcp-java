@@ -7,10 +7,11 @@ import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.*;
 import org.rabbitcontrol.rcp.test.websocket.server.WebsocketServerTransporterNetty;
-import org.rabbitcontrol.rcp.transport.RabbitServer;
+import org.rabbitcontrol.rcp.transport.RCPServer;
 
 import java.awt.*;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Random;
@@ -19,9 +20,12 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     public static boolean doAutoUpdate = true;
 
-
-    static Color[] colors = {Color.CYAN, Color.BLUE, Color.GREEN, Color.MAGENTA, Color.pink, Color.RED};
-
+    static Color[] colors = { Color.CYAN,
+                              Color.BLUE,
+                              Color.GREEN,
+                              Color.MAGENTA,
+                              Color.pink,
+                              Color.RED };
 
     //------------------------------------------------------------
     //
@@ -65,7 +69,7 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     //------------------------------------------------------------
     //
-    private final RabbitServer rabbit;
+    private final RCPServer rabbit;
 
     private final StringParameter theValueString;
 
@@ -89,8 +93,6 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
     //
     public RCPServerTest() throws IOException, CertificateException, InterruptedException {
 
-
-
         // a udp transporter
         //        final UDPServerTransporter transporter = new UDPServerTransporter(8181);
         //        transporter.setTargetPort(61187);
@@ -103,14 +105,14 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
                 10000);
 
         // create rabbit
-        rabbit = new RabbitServer(transporter);
+        rabbit = new RCPServer(transporter);
+
+        //rabbit.addTransporter(transporter);
 
         rabbit.setUpdateListener(this);
         rabbit.setInitListener(this);
 
-
-
-        enumParameter = new EnumParameter(111);
+        enumParameter = new EnumParameter(ByteBuffer.wrap(new byte[] { 111 }));
         enumParameter.getEnumTypeDefinition().addEntry("uno");
         enumParameter.getEnumTypeDefinition().addEntry("dos");
         enumParameter.getEnumTypeDefinition().addEntry("tres");
@@ -119,16 +121,18 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         enumParameter.setLabel("enum test");
         enumParameter.setValue(1);
 
-
-
-        colorparam = new RGBParameter(112);
+        colorparam = new RGBParameter(ByteBuffer.wrap(new byte[] { 112 }));
         colorparam.setValue(Color.CYAN);
         colorparam.setLabel("a color");
 
-
+        UInt8Parameter u8p = new UInt8Parameter(ByteBuffer.wrap(new byte[] { 22 }));
+        u8p.getTypeDefinition().setMinimum((byte)1);
+        u8p.getTypeDefinition().setMaximum((byte)200);
+        u8p.setValue((byte)200);
+        int us = u8p.getValueUnsigned();
 
         // create values
-        theValueString = ParameterFactory.createStringParameter(1);
+        theValueString = ParameterFactory.createStringParameter(ByteBuffer.wrap(new byte[] { 1 }));
         theValueString.setValue("This is a text encoded in utf-8. let's test it: ¬”#£œæýýý‘");
         theValueString.setDescription("test description 2");
         theValueString.setLabel("text label");
@@ -136,67 +140,73 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
         theValueString.getTypeDefinition().setDefault("defaultstring");
 
-//        theValueString.addLabelChangeListener(new RCPParameter.LABEL_CHANGED() {
-//
-//            @Override
-//            public void labelChanged(final String newValue, final String oldValue) {
-//
-//                System.out.println("label changed!! : " + oldValue + " -> " + newValue);
-//            }
-//        });
-//
-//        theValueString.addValueChangeListener(new RCPParameter.VALUE_CHANGED<String>() {
-//
-//            @Override
-//            public void valueChanged(final String newValue, final String oldValue) {
-//
-//                System.out.println("label changed!! : " + oldValue + " -> " + newValue);
-//            }
-//        });
-//
-//
-//        theValueString.setLabel("new label");
+        //        theValueString.addLabelChangeListener(new RCPParameter.LABEL_CHANGED() {
+        //
+        //            @Override
+        //            public void labelChanged(final String newValue, final String oldValue) {
+        //
+        //                System.out.println("label changed!! : " + oldValue + " -> " + newValue);
+        //            }
+        //        });
+        //
+        //        theValueString.addValueChangeListener(new RCPParameter.VALUE_CHANGED<String>() {
+        //
+        //            @Override
+        //            public void valueChanged(final String newValue, final String oldValue) {
+        //
+        //                System.out.println("label changed!! : " + oldValue + " -> " + newValue);
+        //            }
+        //        });
+        //
+        //
+        //        theValueString.setLabel("new label");
 
-        DefaultDefinition<Boolean> bl = new BooleanDefinition();
-        DefaultDefinition<List<Boolean>> d          = new ArrayDefinition<Boolean>(bl, 4);
-        ArrayDefinition<Boolean>         def        = new ArrayDefinition((DefaultDefinition<List<Boolean>>)d, 4);
-        final ArrayParameter<Boolean>    arrayParam = ParameterFactory.createArrayParameter(12, def);
+        DefaultDefinition<Boolean>       bl  = new BooleanDefinition();
+        DefaultDefinition<List<Boolean>> d   = new ArrayDefinition<Boolean>(bl, 4);
+        ArrayDefinition<Boolean>
+                                         def
+                                             = new ArrayDefinition(
+                                                     (DefaultDefinition<List<Boolean>>)d,
+                                                                   4);
 
+        final ArrayParameter<Boolean>
+                arrayParam
+                = ParameterFactory.createArrayParameter(new byte[] { 12 }, def);
+        //        arrayParam.arrayDefinition.set
+        //        arrayParam.size = 4;
 
-
-
-
-        theValueDouble = ParameterFactory.createNumberParameter(2, Double.class);
+        theValueDouble = ParameterFactory.createNumberParameter(ByteBuffer.wrap(new byte[] {2}),
+                                                                Double.class);
         theValueDouble.getTypeDefinition().setMaximum(1000.D);
         theValueDouble.getTypeDefinition().setMinimum(0.D);
         theValueDouble.setLabel("a double");
         theValueDouble.setDescription("double description");
         theValueDouble.setValue(3.14);
 
-//        theValueDouble.addValueChangeListener(new RCPParameter.VALUE_CHANGED<Double>() {
-//
-//            @Override
-//            public void valueChanged(final Double newValue, final Double oldValue) {
-//                System.out.println("double value changed!! : " + oldValue + " -> " + newValue);
-//            }
-//        });
+        //        theValueDouble.addValueChangeListener(new RCPParameter.VALUE_CHANGED<Double>() {
+        //
+        //            @Override
+        //            public void valueChanged(final Double newValue, final Double oldValue) {
+        //                System.out.println("double value changed!! : " + oldValue + " -> " +
+        // newValue);
+        //            }
+        //        });
 
-
-
-        theValueFloat = ParameterFactory.createNumberParameter(444, Float.class);
+        theValueFloat = ParameterFactory.createNumberParameter(ByteBuffer.wrap(new byte[] {44}),
+                                                               Float.class);
         theValueFloat.setLabel("FLOAT");
 
-
-
-        theValueInt = ParameterFactory.createNumberParameter(3, Integer.class);
+        theValueInt = ParameterFactory.createNumberParameter(ByteBuffer.wrap(new byte[] {3, 3}),
+                                                             Integer.class);
         theValueInt.setLabel("INT LABEL");
         theValueInt.setValue(333);
 
-        theValueBool = ParameterFactory.createBooleanParameter(4);
+        theValueBool = ParameterFactory.createBooleanParameter(ByteBuffer.wrap(new byte[] {4}));
         theValueBool.setLabel("toggle button");
         theValueBool.setValue(true);
 
-        theValueLong = ParameterFactory.createNumberParameter(5, Long.class);
+        theValueLong = ParameterFactory.createNumberParameter(ByteBuffer.wrap(new byte[] {4}),
+                                                              Long.class);
         theValueLong.setValue((long)10);
         theValueLong.setLabel("a long number");
 
@@ -207,9 +217,9 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         rabbit.addParameter(theValueString);
         rabbit.addParameter(theValueInt);
         rabbit.addParameter(theValueBool);
-        rabbit.addParameter(theValueFloat);
+        rabbit.addParameter(theValueLong);
+//        rabbit.addParameter(theValueFloat);
     }
-
 
     public void updateVar1() {
 
@@ -217,31 +227,32 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         //rcp.endParamterUpdate();
         //theValueLong.setValueMore().setLabelMore().setOrder();
 
-//        RCPParameterNumber<Long> newVal = theValueLong.cloneEmpty();
-//        newVal.setValue(theValueLong.getValue() + 1);
-//
-//        rabbit.update(newVal);
+        //        RCPParameterNumber<Long> newVal = theValueLong.cloneEmpty();
+        //        newVal.setValue(theValueLong.getValue() + 1);
+        //
+        //        rabbit.update(newVal);
     }
 
     public void updateVar2() {
 
         Random rnd = new Random();
-//        int next = rnd.nextInt(enumParameter.getEnumTypeDefinition().getEntries()
-//                                 .size());
-//        System.out.println("next: " + next);
-//        enumParameter.setValue((long)next);
+        //        int next = rnd.nextInt(enumParameter.getEnumTypeDefinition().getEntries()
+        //                                 .size());
+        //        System.out.println("next: " + next);
+        //        enumParameter.setValue((long)next);
 
-//        theValueString.setValue("content: " + counter++);
-//        theValueDouble.setValue((double)counter);
+        //        theValueString.setValue("content: " + counter++);
+        //        theValueDouble.setValue((double)counter);
 
-//        Color next = colors[rnd.nextInt(colors.length)];
-//        System.out.println(String.format("%d - %d - %d", next.getRed(), next.getGreen(), next.getBlue()));
-//        colorparam.setValue(next);
+        //        Color next = colors[rnd.nextInt(colors.length)];
+        //        System.out.println(String.format("%d - %d - %d", next.getRed(), next.getGreen()
+        // , next.getBlue()));
+        //        colorparam.setValue(next);
 
-
-        theValueInt.setValue(rnd.nextInt(100));
-
-        rabbit.updateParameters(theValueInt);
+//        theValueInt.setValue(rnd.nextInt(100));
+//
+//        rabbit.updateParameters(theValueInt, theValueDouble);
+//        rabbit.updateParameters(theValueBool);
     }
 
     //------------------------------------------------------------
@@ -250,9 +261,9 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
     public void updated(final IParameter _value) {
 
         // updated from client
-//        System.out.println("server: updated: " + _value.getId() + " : " + _value.getValue());
-//
-//        rabbit.dumpCache();
+        //        System.out.println("server: updated: " + _value.getId() + " : " + _value.getValue());
+        //
+        //        rabbit.dumpCache();
         System.out.println("server update:");
         _value.dump();
     }
