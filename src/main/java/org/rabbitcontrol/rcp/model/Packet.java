@@ -74,7 +74,6 @@ public class Packet implements RCPWritable {
                             // init - shout not happen
                             throw new RCPDataErrorException();
 
-                        case ADD:
                         case REMOVE:
                         case UPDATE:
                             // expect parameter

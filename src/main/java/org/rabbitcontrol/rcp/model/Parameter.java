@@ -2,11 +2,12 @@ package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
 import io.netty.util.internal.ConcurrentSet;
+import lombok.Getter;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
-import org.rabbitcontrol.rcp.model.interfaces.IParameter;
-import org.rabbitcontrol.rcp.model.interfaces.ITypeDefinition;
+import org.rabbitcontrol.rcp.model.interfaces.*;
+import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-public abstract class Parameter implements IParameter {
+public abstract class Parameter implements IParameter, IParameterChild {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -23,8 +24,7 @@ public abstract class Parameter implements IParameter {
                                                           RCPDataErrorException {
 
         // get mandatory id
-        final Id id_obj = new Id(_io);
-        final byte[] parameter_id = id_obj.data();
+        final short parameter_id = _io.readS2be();
 
         // read mandatory typeDefinition
         final Datatype datatype = Datatype.byId(_io.readU1());
@@ -42,18 +42,13 @@ public abstract class Parameter implements IParameter {
             // create ArrayDefinition
             final ArrayDefinition<?> array_def = ArrayDefinition.parse(_io);
 
-            param = ParameterFactory.createArrayParameter(ByteBuffer.wrap(parameter_id), array_def);
+            param = ParameterFactory.createArrayParameter(parameter_id, array_def);
 
             // !! type definition options already parsed
 
         } else if (datatype == Datatype.DYNAMIC_ARRAY) {
 
             // read mandatory sub-type
-            param = null;
-
-        } else if (datatype == Datatype.COMPOUND) {
-
-            // read mandatory sub-types
             param = null;
 
         } else {
@@ -95,7 +90,7 @@ public abstract class Parameter implements IParameter {
 
     public interface PARENT_CHANGED {
 
-        void parentChanged(final long newValue);
+        void parentChanged(final ByteBuffer newValue);
     }
 
     public interface USERDATA_CHANGED {
@@ -107,7 +102,7 @@ public abstract class Parameter implements IParameter {
     //------------------------------------------------------------
     //------------------------------------------------------------
     // mandatory
-    protected final ByteBuffer id;
+    protected final short id;
 
     protected final TypeDefinition typeDefinition;
 
@@ -118,20 +113,27 @@ public abstract class Parameter implements IParameter {
     protected String description;
     private boolean descriptionChanged;
 
+    protected String tags;
+    private boolean tagsChanged;
+
     protected Integer order;
     private boolean orderChanged;
 
-    // TODO:
+    @Getter
+    private GroupParameter parent;
+    private boolean        parentChanged;
+
     // this should rather be a Parameter??
-    protected Long parentId;
-    private boolean parentIdChanged;
-
-    protected Parameter parent;
-
     // widget
-
+    @Getter
     protected byte[] userdata;
     private boolean userdataChanged;
+
+    @Getter
+    private String userid;
+    private boolean useridChanged;
+
+    private IRcpModel model;
 
     //------------------------
     // change listener
@@ -150,10 +152,11 @@ public abstract class Parameter implements IParameter {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public Parameter(final ByteBuffer _id, final TypeDefinition _typeDefinition) {
+    public Parameter(final short _id, final TypeDefinition _typeDefinition) {
 
         id = _id;
         typeDefinition = _typeDefinition;
+        typeDefinition.setParameter(this);
     }
 
     public IParameter cloneEmpty() {
@@ -192,23 +195,47 @@ public abstract class Parameter implements IParameter {
 
             switch (option) {
 
-                case LABEL:
+                case LABEL: {
                     final TinyString tinyString = new TinyString(_io);
                     setLabel(tinyString.data());
+                }
                     break;
 
-                case DESCRIPTION:
+                case DESCRIPTION: {
                     final ShortString shortString = new ShortString(_io);
                     setDescription(shortString.data());
+                }
+                    break;
+
+                case TAGS: {
+                    final TinyString tinyString = new TinyString(_io);
+                    setTags(tinyString.data());
+                }
                     break;
 
                 case ORDER:
                     setOrder(_io.readS4be());
                     break;
 
-                case PARENT:
-                    // read as signed int, this is correct
-                    setParentId(_io.readS4be());
+                case PARENTID: {
+                    // read as id, this is correct
+                    ByteBuffer parent_id = ByteBuffer.wrap(new Id(_io).data());
+                    if (model != null) {
+                        IParameter parent = model.getParameter(parent_id);
+                        try {
+                            setParent((GroupParameter)parent);
+                        } catch (ClassCastException _e) {
+                            System.err.println("parameter not a GroupParameter!");
+                        }
+                    }
+                }
+                    break;
+
+
+                case USERID: {
+                    final TinyString tinyString = new TinyString(_io);
+                    setUserid(tinyString.data());
+                }
                     break;
 
                 case WIDGET:
@@ -231,6 +258,14 @@ public abstract class Parameter implements IParameter {
         }
 
     }
+
+
+    protected void writeId(final short _id, final OutputStream _outputStream) throws IOException {
+
+        _outputStream.write(ByteBuffer.allocate(2).putShort(_id).array());
+
+    }
+
 
     @Override
     public void write(final OutputStream _outputStream, final boolean all) throws IOException {
@@ -285,6 +320,28 @@ public abstract class Parameter implements IParameter {
         }
 
         //
+        // tags
+        //
+        if (tags != null) {
+
+            if (all || tagsChanged) {
+
+                _outputStream.write((int)ParameterOptions.TAGS.id());
+                RCPParser.writeTinyString(tags, _outputStream);
+
+                if (!all) {
+                    tagsChanged = false;
+                }
+            }
+        } else if (tagsChanged) {
+
+            _outputStream.write((int)ParameterOptions.TAGS.id());
+            RCPParser.writeTinyString("", _outputStream);
+
+            tagsChanged = false;
+        }
+
+        //
         // order
         //
         if (order != null) {
@@ -310,23 +367,23 @@ public abstract class Parameter implements IParameter {
         //
         // parentId
         //
-        if (parentId != null) {
+        if (parent != null) {
 
-            if (all || parentIdChanged) {
+            if (all || parentChanged) {
 
-                _outputStream.write((int)ParameterOptions.PARENT.id());
-                _outputStream.write(ByteBuffer.allocate(4).putInt(parentId.intValue()).array());
+                _outputStream.write((int)ParameterOptions.PARENTID.id());
+                writeId(parent.getId(), _outputStream);
 
                 if (!all) {
-                    parentIdChanged = false;
+                    parentChanged = false;
                 }
             }
-        } else if (parentIdChanged) {
+        } else if (parentChanged) {
 
-            _outputStream.write((int)ParameterOptions.PARENT.id());
-            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
+            _outputStream.write((int)ParameterOptions.PARENTID.id());
+            writeId((short)0, _outputStream);
 
-            parentIdChanged = false;
+            parentChanged = false;
         }
 
         // TODO: write widget
@@ -354,6 +411,29 @@ public abstract class Parameter implements IParameter {
 
             userdataChanged = false;
         }
+
+
+        //
+        // userid
+        //
+        if (userid != null) {
+
+            if (all || useridChanged) {
+
+                _outputStream.write((int)ParameterOptions.USERID.id());
+                RCPParser.writeTinyString(userid, _outputStream);
+
+                if (!all) {
+                    useridChanged = false;
+                }
+            }
+        } else if (useridChanged) {
+
+            _outputStream.write((int)ParameterOptions.USERID.id());
+            RCPParser.writeTinyString("", _outputStream);
+
+            useridChanged = false;
+        }
     }
 
 
@@ -369,12 +449,16 @@ public abstract class Parameter implements IParameter {
             description = _parameter.getDescription();
         }
 
+        if (_parameter.getTags() != null) {
+            tags = _parameter.getTags();
+        }
+
         if (_parameter.getOrder() != null) {
             order = _parameter.getOrder();
         }
 
-        if (_parameter.getParentId() != null) {
-            parentId = (long)_parameter.getParentId();
+        if (_parameter.getParent() != null) {
+            parent = _parameter.getParent();
 
             // TODO: resolve parent parameter
         }
@@ -384,6 +468,10 @@ public abstract class Parameter implements IParameter {
         if (_parameter.getUserdata() != null) {
             userdata = _parameter.getUserdata();
         }
+
+        if (_parameter.getUserid() != null) {
+            userid = _parameter.getUserid();
+        }
     }
 
     @Override
@@ -392,9 +480,11 @@ public abstract class Parameter implements IParameter {
         System.out.println("type:\t\t\t" + typeDefinition.getDatatype().name());
         System.out.println("label:\t\t\t" + label);
         System.out.println("description:\t" + description);
+        System.out.println("tags:\t" + tags);
         System.out.println("order:\t" + order);
-        System.out.println("parent:\t" + parentId);
+        System.out.println("parent:\t" + (parent != null ? parent.getId() : "-"));
         System.out.println("userdata:\t\t" + userdata);
+        System.out.println("userid:\t\t" + userid);
     }
 
     //------------------------------------------------------------
@@ -492,7 +582,7 @@ public abstract class Parameter implements IParameter {
     //------------------------------------------------------------
 
     @Override
-    public ByteBuffer getId() {
+    public short getId() {
 
         return id;
     }
@@ -522,6 +612,8 @@ public abstract class Parameter implements IParameter {
         for (final LABEL_CHANGED label_changed : labelChangeListener) {
             label_changed.labelChanged(label);
         }
+
+        setDirty();
     }
 
     @Override
@@ -544,7 +636,28 @@ public abstract class Parameter implements IParameter {
         for (final DESCRIPTION_CHANGED description_changed : descriptionChangeListener) {
             description_changed.descriptionChanged(description);
         }
+
+        setDirty();
     }
+
+    @Override
+    public String getTags() {
+        return tags;
+    }
+
+    @Override
+    public void setTags(final String _tags) {
+
+        if ((tags != null) && (tags == _tags)) {
+            return;
+        }
+
+        tags = _tags;
+        tagsChanged = true;
+
+        setDirty();
+    }
+
 
     @Override
     public Integer getOrder() {
@@ -565,38 +678,47 @@ public abstract class Parameter implements IParameter {
         for (final ORDER_CHANGED order_changed : orderChangeListener) {
             order_changed.orderChanged(order);
         }
+
+        setDirty();
     }
 
     @Override
-    public Integer getParentId() {
+    public void setParent(final GroupParameter _parent) {
 
-        if (parentId == null) return null;
-
-        return (int)(long)parentId;
-    }
-
-    @Override
-    public void setParentId(final int _parentId) {
-
-        if ((parentId != null) && (parentId == (long)_parentId)) {
+        if ((parent == _parent) || ((parent != null) && parent.equals(_parent))) {
             return;
         }
 
-        parentId = (long)_parentId;
-        parentIdChanged = true;
-
-        // TODO resolve Parent Parameter
-
-        for (final PARENT_CHANGED parent_changed : parentChangeListener) {
-            parent_changed.parentChanged(parentId);
+        if (parent != null) {
+            parent.removeChild(this);
         }
+
+        parent  = _parent;
+        parentChanged = true;
+
+        setDirty();
     }
+
+//    @Override
+//    public byte[] getUserdata() {
+//
+//        return userdata;
+//    }
 
     @Override
-    public byte[] getUserdata() {
+    public void setUserid(final String _userid) {
 
-        return userdata;
+        if ((userid == _userid) || ((userid != null) && userid.equals(_userid))) {
+            return;
+        }
+
+        userid  = _userid;
+        useridChanged = true;
+
+        setDirty();
     }
+
+
 
     @Override
     public void setUserdata(final byte[] _userdata) {
@@ -610,6 +732,20 @@ public abstract class Parameter implements IParameter {
 
         for (final USERDATA_CHANGED userdata_changed : userdataChangeListener) {
             userdata_changed.userdataChanged(userdata);
+        }
+
+        setDirty();
+    }
+
+    @Override
+    public void setRcpModel(IRcpModel _model) {
+        model = _model;
+    }
+
+    @Override
+    public void setDirty() {
+        if (model != null) {
+            model.setDirtyParameter(this);
         }
     }
 }

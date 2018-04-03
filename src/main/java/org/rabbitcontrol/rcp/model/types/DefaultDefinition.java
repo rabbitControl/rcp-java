@@ -60,7 +60,6 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
                 break;
 
             case DYNAMIC_ARRAY:
-            case COMPOUND:
                 // dont handle these...?
                 // TODO: handle these...
                 // read special needs before...
@@ -120,5 +119,9 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
 
         defaultValue = _default;
         defaultValueChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 }

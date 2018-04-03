@@ -9,69 +9,71 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import org.rabbitcontrol.rcp.model.Packet;
-import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
-import org.rabbitcontrol.rcp.transport.RCPTransporter;
-import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
+import org.rabbitcontrol.rcp.transport.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class WebsocketClientTransporter implements RCPTransporterNetty {
+public class WebsocketClientTransporter implements ClientTransporter {
 
     EventLoopGroup group = new NioEventLoopGroup();
 
     private Channel ch;
 
-    private final URI uri;
+    private URI uri;
 
     private final Bootstrap bootstrap;
 
-    private RCPTransporterListener listener;
+    private ClientTransporterListener listener;
 
-    private final WebSocketClientHandler websocketHandler;
+    private WebSocketClientHandler websocketHandler;
 
     //    TOUISerializerFactory serializerFactory = new TOUISerializerFactory();
 
-    public WebsocketClientTransporter(final String host, final int port) throws
-                                                                         URISyntaxException,
-                                                                         InterruptedException {
-
-        uri = new URI("ws://" + host + ":" + port + "/");
-
-        // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
-        // If you change it to V00, ping is not supported and remember to change
-        // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-        websocketHandler
-                = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri,
-                                                                                            WebSocketVersion.V13,
-                                                                                            null,
-                                                                                            true,
-                                                                                            new DefaultHttpHeaders()));
+    public WebsocketClientTransporter() {
 
         bootstrap = new Bootstrap();
-        bootstrap.group(group)
-                 .channel(NioSocketChannel.class)
-                 .handler(new WebsocketClientInitializer(null,
-                                                         uri,
-                                                         websocketHandler,
-                                                         this));
     }
 
-    public boolean connect() {
+
+    @Override
+    public void connect(final String host, final int port) {
 
         try {
+            uri = new URI("ws://" + host + ":" + port + "/");
 
-            ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
-            websocketHandler.handshakeFuture().sync();
+            // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
+            // If you change it to V00, ping is not supported and remember to change
+            // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
+            websocketHandler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri,
+                                                                                                         WebSocketVersion.V13,
+                                                                                                         null,
+                                                                                                         true,
+                                                                                                         new DefaultHttpHeaders()));
+
+
+            bootstrap.group(group)
+                     .channel(NioSocketChannel.class)
+                     .handler(new WebsocketClientInitializer(null, uri, websocketHandler, listener));
+
+            try {
+
+                ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
+                websocketHandler.handshakeFuture().sync();
+            }
+            catch (Exception _e) {
+                _e.printStackTrace();
+                ch = null;
+            }
+
+            //return ch != null;
         }
-        catch (Exception _e) {
+        catch (URISyntaxException _e) {
             _e.printStackTrace();
-            ch = null;
         }
-
-        return ch != null;
     }
 
+    @Override
     public void disconnect() {
 
         if ((ch != null) && ch.isOpen()) {
@@ -86,11 +88,9 @@ public class WebsocketClientTransporter implements RCPTransporterNetty {
     }
 
     @Override
-    public void received(final Packet _packet, final RCPTransporter _transporter) {
+    public boolean isConnected() {
 
-        if (listener != null) {
-            listener.received(_packet, this);
-        }
+        return ch.isOpen();
     }
 
     @Override
@@ -105,24 +105,16 @@ public class WebsocketClientTransporter implements RCPTransporterNetty {
     }
 
     @Override
-    public void setListener(final RCPTransporterListener _listener) {
+    public void addListener(final ClientTransporterListener _listener) {
 
         listener = _listener;
     }
 
     @Override
-    public void received(
-            final ChannelHandlerContext ctx, final Packet _packet) {
+    public void removeListener(final ClientTransporterListener _listener) {
 
-    }
-
-    @Override
-    public void addChannel(final Channel _channel) {
-        // nop
-    }
-
-    @Override
-    public void removeChannel(final Channel _channel) {
-        // nop
+        if ((listener != null) && listener.equals(_listener)) {
+            listener = null;
+        }
     }
 }

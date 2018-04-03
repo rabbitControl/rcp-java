@@ -1,14 +1,13 @@
 package org.rabbitcontrol.rcp.model.interfaces;
 
 import org.rabbitcontrol.rcp.model.RCPWritable;
-
-import java.nio.ByteBuffer;
+import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
 public interface IParameter extends RCPWritable {
 
     //--------------------------------
     // mandatory
-    ByteBuffer getId();
+    short getId();
 
     ITypeDefinition getTypeDefinition();
 
@@ -22,17 +21,27 @@ public interface IParameter extends RCPWritable {
 
     void setDescription(final String _description);
 
+    String getTags();
+
+    void setTags(final String _tags);
+
     Integer getOrder();
 
     void setOrder(final int _order);
 
-    Integer getParentId();
+    GroupParameter getParent();
 
-    void setParentId(final int _parentId);
+    //    void setParent(GroupParameter _parent);
+
+    String getUserid();
+
+    void setUserid(final String _userid);
 
     byte[] getUserdata();
 
     void setUserdata(final byte[] _userdata);
+
+    void setDirty();
 
     //
     void dump();

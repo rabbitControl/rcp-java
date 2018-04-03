@@ -7,15 +7,9 @@ import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 
-import java.nio.ByteBuffer;
-
 public class ParameterFactory {
 
-    public static IParameter createParameter(final byte[] _id, Datatype _datatype) {
-        return createParameter(ByteBuffer.wrap(_id), _datatype);
-    }
-
-    public static IParameter createParameter(final ByteBuffer _id, Datatype _datatype) {
+    public static IParameter createParameter(final short _id, Datatype _datatype) {
 
         switch (_datatype) {
             case BOOLEAN:
@@ -65,7 +59,7 @@ public class ParameterFactory {
     }
 
     public static <T extends Number> INumberParameter<T> createNumberParameter(
-            ByteBuffer _id, Datatype _datatype, Class<T> _class) throws TypeMissmatch {
+            short _id, Datatype _datatype, Class<T> _class) throws TypeMissmatch {
 
         switch (_datatype) {
             // TODO: implement
@@ -110,7 +104,7 @@ public class ParameterFactory {
     }
 
     public static <T extends Number> INumberParameter<T> createNumberParameter(
-            ByteBuffer _id, Class<T> _class) {
+            short _id, Class<T> _class) {
 
         // best guess from type
         // not dealing with signed/unsigned
@@ -137,31 +131,26 @@ public class ParameterFactory {
         return null;
     }
 
-    public static NumberParameter<Byte> createUInt8Parameter(final ByteBuffer _id) {
+    public static NumberParameter<Byte> createUInt8Parameter(final short _id) {
         return new NumberParameter<Byte>(_id, Datatype.UINT8);
     }
 
-    public static NumberParameter<Byte> createInt8Parameter(final ByteBuffer _id) {
+    public static NumberParameter<Byte> createInt8Parameter(final short _id) {
         return new NumberParameter<Byte>(_id, Datatype.INT8);
     }
 
 
-    public static BooleanParameter createBooleanParameter(final ByteBuffer _id) {
+    public static BooleanParameter createBooleanParameter(final short _id) {
 
         return new BooleanParameter(_id);
     }
 
-    public static StringParameter createStringParameter(final ByteBuffer _id) {
+    public static StringParameter createStringParameter(final short _id) {
 
         return new StringParameter(_id);
     }
 
-    public static <T> ArrayParameter<T> createArrayParameter(final byte[] _id, ArrayDefinition<T>
-            _definition) {
-        return createArrayParameter(ByteBuffer.wrap(_id), _definition);
-    }
-
-    public static <T> ArrayParameter<T> createArrayParameter(final ByteBuffer _id, ArrayDefinition<T>
+    public static <T> ArrayParameter<T> createArrayParameter(final short _id, ArrayDefinition<T>
             _definition) {
 
         return new ArrayParameter<T>(_id, _definition);

@@ -309,6 +309,10 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         minimum = _minimum;
         minimumChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 
 
@@ -327,6 +331,10 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         maximum = _maximum;
         maximumChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 
     @Override
@@ -344,6 +352,10 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         multipleof = _multipleof;
         multipleofChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 
     @Override
@@ -361,6 +373,10 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         scale = _scale;
         scaleChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 
     @Override
@@ -378,5 +394,9 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
 
         unit = _unit;
         unitChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 }

@@ -21,9 +21,9 @@ import org.rabbitcontrol.rcp.model.Packet;
 
 public class RCPPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
-    private final RCPTransporterNetty listener;
+    private final ChannelManager listener;
 
-    public RCPPacketHandler(final RCPTransporterNetty _listener) {
+    public RCPPacketHandler(final ChannelManager _listener) {
         listener = _listener;
     }
 
@@ -51,9 +51,9 @@ public class RCPPacketHandler extends SimpleChannelInboundHandler<Packet> {
     protected void channelRead0(final ChannelHandlerContext ctx, final Packet rcpPacket) throws
                                                                                       Exception {
 
-        if (listener != null) {
-            listener.received(rcpPacket, listener);
-        }
+//        if (listener != null) {
+//            listener.received(rcpPacket, listener);
+//        }
 
     }
 }

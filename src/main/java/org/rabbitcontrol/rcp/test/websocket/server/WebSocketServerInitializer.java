@@ -18,13 +18,18 @@ package org.rabbitcontrol.rcp.test.websocket.server;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression
+        .WebSocketServerCompressionHandler;
 import io.netty.handler.ssl.SslContext;
-import org.rabbitcontrol.rcp.test.netty.*;
+import org.rabbitcontrol.rcp.test.netty.BinaryWebSocketFrameEncoder;
+import org.rabbitcontrol.rcp.test.netty.ChannelManager;
+import org.rabbitcontrol.rcp.transport.ServerTransporter;
+import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 
 import java.util.List;
 
@@ -34,12 +39,22 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
 
     private final SslContext sslCtx;
 
-    private final RCPTransporterNetty listener;
+    private final ServerTransporterListener listener;
 
-    public WebSocketServerInitializer(final SslContext sslCtx, final RCPTransporterNetty listener) {
+    private final ServerTransporter transporter;
+
+    private final ChannelManager channelManager;
+
+    public WebSocketServerInitializer(
+            final SslContext sslCtx,
+            final ServerTransporter _transporter,
+            final ServerTransporterListener listener,
+            final ChannelManager _channelManager) {
 
         this.sslCtx = sslCtx;
+        transporter = _transporter;
         this.listener = listener;
+        channelManager = _channelManager;
     }
 
     @Override
@@ -55,9 +70,27 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(new WebSocketServerProtocolHandler("/", null, true));
         //        pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
 
-
-
         pipeline.addLast(new MessageToMessageDecoder<WebSocketFrame>() {
+
+            @Override
+            public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+
+                if (channelManager != null) {
+                    channelManager.addChannel(ctx.channel());
+                }
+
+                super.channelActive(ctx);
+            }
+
+            @Override
+            public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+
+                if (channelManager != null) {
+                    channelManager.removeChannel(ctx.channel());
+                }
+
+                super.channelInactive(ctx);
+            }
 
             @Override
             protected void decode(
@@ -65,19 +98,29 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
                     final WebSocketFrame msg,
                     final List<Object> out) throws Exception {
 
-                out.add(msg.content().retain());
+                //out.add(msg.content().retain());
+
+                if (listener != null) {
+
+                    byte[] array = new byte[msg.content().readableBytes()];
+                    msg.content().getBytes(0, array);
+
+                    listener.received(array, transporter, ctx.channel());
+                }
             }
         });
 
-        pipeline.addLast(new RCPPacketDecoder());
-        pipeline.addLast(new RCPPacketHandler(listener));
+        //        pipeline.addLast(new ByteArrayDecoder());
 
+        //        pipeline.addLast(new RCPPacketDecoder());
+        //        pipeline.addLast(new RCPPacketHandler(listener));
 
         // encoder
         pipeline.addLast(new BinaryWebSocketFrameEncoder());
-        pipeline.addLast(new StringTextWebSocketFrameEncoder());
-        pipeline.addLast(new ByteArrayTextWebSocketFrameEncoder());
-        pipeline.addLast(new RCPPacketEncoder());
+        pipeline.addLast(new ByteArrayEncoder());
+        //        pipeline.addLast(new StringTextWebSocketFrameEncoder());
+        //        pipeline.addLast(new ByteArrayTextWebSocketFrameEncoder());
+        //pipeline.addLast(new RCPPacketEncoder());
     }
 
 }

@@ -1,134 +1,181 @@
 package org.rabbitcontrol.rcp.test.websocket.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.rabbitcontrol.rcp.model.Packet;
-import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
-import org.rabbitcontrol.rcp.transport.RCPTransporter;
-import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
+import org.rabbitcontrol.rcp.test.netty.ChannelManager;
+import org.rabbitcontrol.rcp.transport.ServerTransporter;
+import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
 
-public final class WebsocketServerTransporterNetty implements RCPTransporterNetty {
+public final class WebsocketServerTransporterNetty implements ServerTransporter, ChannelManager {
 
-    static final boolean SSL = System.getProperty("ssl") != null;
-    //    static final int PORT = Integer.parseInt(System.getProperty("port", SSL? "8443" :
-    // "8080"));
+    static final boolean SSL = false;
 
-    private EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
 
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    private final SslContext sslCtx;
+    private SslContext sslCtx;
 
-    private final Channel ch;
+    private Channel ch;
 
-    private RCPTransporterListener listener;
+    private ServerTransporterListener listener;
+
+    private int serverPort;
 
     final ChannelGroup allClients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-    public WebsocketServerTransporterNetty(final int _port) throws
-                                                            CertificateException,
-                                                            SSLException,
-                                                            InterruptedException {
+    public WebsocketServerTransporterNetty() {}
 
-        if (SSL) {
-            final SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-        }
-        else {
-            sslCtx = null;
-        }
+    public void dispose() {
 
-        final ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                 //             .handler(new LoggingHandler(LogLevel.INFO))
-                 .childHandler(new WebSocketServerInitializer(sslCtx, this));
-
-        ch = bootstrap.bind(_port).sync().channel();
-
-        System.out.println("Open your web browser and navigate to " +
-                           (SSL ? "https" : "http") +
-                           "://127.0.0.1:" +
-                           _port +
-                           '/');
-    }
-
-    public void stop() throws InterruptedException {
-
-        allClients.close().awaitUninterruptibly();
-
-        ch.closeFuture().sync();
-
+        unbind();
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
     }
 
-    // TODO: resolve this!
-    ChannelHandlerContext lastCtx;
-
-    @Override
-    public void received(final ChannelHandlerContext ctx, final Packet _packet) {
-
-        lastCtx = ctx;
-        received(_packet, this);
-
-        // done
-        lastCtx = null;
-    }
-
-    @Override
-    public void received(final Packet _packet, final RCPTransporter _transporter) {
-
-        if (listener != null) {
-            listener.received(_packet, this);
-        }
-    }
-
-    @Override
-    public void send(final byte[] _data) {
-
-        if (lastCtx != null) {
-
-            lastCtx.channel().writeAndFlush(Unpooled.wrappedBuffer(_data));
-        }
-        else {
-            // send to all
-            System.out.println(" ->> send to all");
-
-            allClients.writeAndFlush(Unpooled.wrappedBuffer(_data));
-        }
-    }
-
-    public void sendAll(final Packet _packet) {
-        allClients.writeAndFlush(_packet);
-    }
-
-    @Override
-    public void setListener(final RCPTransporterListener _listener) {
-
-        listener = _listener;
-    }
-
-    @Override
     public void addChannel(final Channel _channel) {
 
         allClients.add(_channel);
     }
 
-    @Override
     public void removeChannel(final Channel _channel) {
 
         allClients.remove(_channel);
+    }
+
+    @Override
+    public void bind(final int port) {
+
+        if (port == serverPort) {
+            return;
+        }
+
+        // first unbind
+        unbind();
+
+        try {
+            // try setup server
+            if (SSL) {
+                final SelfSignedCertificate ssc = new SelfSignedCertificate();
+                sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            }
+            else {
+                sslCtx = null;
+            }
+
+            final ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                     //             .handler(new LoggingHandler(LogLevel.INFO))
+                     .childHandler(new WebSocketServerInitializer(sslCtx, this, listener, this));
+
+            ch = bootstrap.bind(port).sync().channel();
+
+            System.out.println("Open your web browser and navigate to " +
+                               (SSL ? "https" : "http") +
+                               "://127.0.0.1:" +
+                               port +
+                               '/');
+
+        }
+        catch (CertificateException _e) {
+            _e.printStackTrace();
+        }
+        catch (InterruptedException _e) {
+            _e.printStackTrace();
+        }
+        catch (SSLException _e) {
+            _e.printStackTrace();
+        }
+
+        // TODO: how to get the error out of it?
+    }
+
+    @Override
+    public void unbind() {
+
+        if (!allClients.isEmpty()) {
+            allClients.close().awaitUninterruptibly();
+        }
+
+        if (ch != null) {
+            try {
+                ch.closeFuture().sync();
+            }
+            catch (InterruptedException _e) {
+                _e.printStackTrace();
+            }
+
+            // TODO: get the error out of this...
+            ch = null;
+        }
+
+        serverPort = 0;
+    }
+
+    @Override
+    public void sendToOne(final byte[] _data, final Object _id) {
+
+        System.out.println("want to send to one: " + _id);
+
+        if (_id instanceof Channel) {
+            ((Channel)_id).writeAndFlush(_data);
+        }
+        else {
+            System.err.println("not a Channel object??");
+        }
+
+    }
+
+    @Override
+    public void sendToAll(final byte[] _data, final Object _excludeId) {
+
+        System.out.println("send to all except: " + _excludeId);
+
+        if (_excludeId instanceof Channel) {
+
+            allClients.writeAndFlush(_data, new ChannelMatcher() {
+
+                @Override
+                public boolean matches(final Channel channel) {
+
+                    return (!channel.equals(_excludeId));
+                }
+            });
+        }
+        else {
+            allClients.writeAndFlush(_data);
+        }
+    }
+
+    @Override
+    public int getConnectionCount() {
+
+        return allClients.size();
+    }
+
+    @Override
+    public void addListener(final ServerTransporterListener _listener) {
+
+        listener = _listener;
+    }
+
+    @Override
+    public void removeListener(final ServerTransporterListener _listener) {
+
+        if ((listener != null) && listener.equals(_listener)) {
+            listener = null;
+        }
+
     }
 }

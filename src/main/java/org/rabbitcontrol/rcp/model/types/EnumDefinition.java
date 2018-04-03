@@ -173,6 +173,10 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
 
         entries = _entries;
         entriesChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 
     public boolean addEntry(final String _entry) {
@@ -185,6 +189,11 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
         if (entries.size() < MAX_ENTRY_SIZE) {
             entries.add(_entry);
             entriesChanged = true;
+
+            if (parameter != null) {
+                parameter.setDirty();
+            }
+
             return true;
         }
 
@@ -199,7 +208,14 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
         }
 
         boolean removed = entries.remove(_entry);
-        entriesChanged |= removed;
+        if (removed) {
+            entriesChanged = true;
+
+            if (parameter != null) {
+                parameter.setDirty();
+            }
+        }
+
 
         return removed;
     }

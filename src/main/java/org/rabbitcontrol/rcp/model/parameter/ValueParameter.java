@@ -39,7 +39,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public ValueParameter(final ByteBuffer _id, final DefaultDefinition<T> _typeDefinition) {
+    public ValueParameter(final short _id, final DefaultDefinition<T> _typeDefinition) {
 
         super(_id, _typeDefinition);
 
@@ -71,8 +71,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     public void write(final OutputStream _outputStream, final boolean all) throws IOException {
 
         // write mandatory id
-        _outputStream.write(id.array().length);
-        _outputStream.write(id.array());
+        writeId(id, _outputStream);
 
         // write mandatory typeDefinition
         typeDefinition.write(_outputStream, all);
@@ -166,6 +165,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         for (final VALUE_CHANGED<T> value_changed : valueChangeListener) {
             value_changed.valueChanged(value);
         }
+
+        setDirty();
     }
 
     @Override

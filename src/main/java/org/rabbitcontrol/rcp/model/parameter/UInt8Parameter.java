@@ -1,0 +1,17 @@
+package org.rabbitcontrol.rcp.model.parameter;
+
+import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.types.UInt8Definition;
+
+public class UInt8Parameter extends NumberParameter<Byte> {
+
+    public UInt8Parameter(final short _id) {
+
+        super(_id, Datatype.UINT8);
+    }
+
+    public int getValueUnsigned() {
+
+        return UInt8Definition.getUnsigned(getValue());
+    }
+}

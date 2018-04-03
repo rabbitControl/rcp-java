@@ -1,11 +1,25 @@
-repositories {
-    jcenter()
-    mavenLocal()
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+    }
 }
 
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.11'
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+}
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -14,11 +28,15 @@ version = "1.0"
 
 group = 'org.rabbitcontrol'
 
+
+
 dependencies {
 
-    compile ('io.kaitai:kaitai-struct-runtime:0.+')
+    compile ('io.kaitai:kaitai-struct-runtime:0.8')
 
     compile ('io.netty:netty-all:4.1.+')
+
+//    compileOnly 'org.projectlombok:lombok:1.16.20'
 }
 
 
@@ -29,7 +47,7 @@ task runServer(type: JavaExec) {
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.2.1'
+    gradleVersion = '4.6'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

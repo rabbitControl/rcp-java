@@ -3,11 +3,10 @@ package org.rabbitcontrol.rcp.model.parameter;
 import org.rabbitcontrol.rcp.model.types.RGBDefinition;
 
 import java.awt.*;
-import java.nio.ByteBuffer;
 
 public class RGBParameter extends ValueParameter<Color> {
 
-    public RGBParameter(final ByteBuffer _id) {
+    public RGBParameter(final short _id) {
 
         super(_id, new RGBDefinition());
     }

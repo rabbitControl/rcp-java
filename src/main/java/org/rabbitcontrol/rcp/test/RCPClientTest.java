@@ -62,7 +62,8 @@ public class RCPClientTest implements Add, Remove, Update {
 //        final UDPClientTransporter transporter = new UDPClientTransporter("localhost", 8888);
         //        final TCPClientTransporter transporter = new TCPClientTransporter("localhost",
         // 8888);
-        final WebsocketClientTransporter transporter = new WebsocketClientTransporter("localhost", 10000);
+        final WebsocketClientTransporter transporter = new WebsocketClientTransporter();
+
 
         // create toi
         rcp = new RCPClient(transporter);
@@ -70,7 +71,8 @@ public class RCPClientTest implements Add, Remove, Update {
         rcp.setAddListener(this);
         rcp.setRemoveListener(this);
 
-        transporter.connect();
+        transporter.connect("localhost", 10000);
+
 
         // init
         rcp.init();
@@ -80,7 +82,7 @@ public class RCPClientTest implements Add, Remove, Update {
 
     public void updateValue() {
 
-        final Map<ByteBuffer, IParameter> cache = rcp.getValueCache();
+        final Map<Short, IParameter> cache = rcp.getValueCache();
 
         if (!cache.isEmpty()) {
 
@@ -110,7 +112,7 @@ public class RCPClientTest implements Add, Remove, Update {
     //------------------------------------------------------------
     //
     @Override
-    public void added(final IParameter _value) {
+    public void parameterAdded(final IParameter _value) {
 
         //create ui
         //create adapter(parameter)
@@ -123,7 +125,7 @@ public class RCPClientTest implements Add, Remove, Update {
     }
 
     @Override
-    public void updated(final IParameter _value) {
+    public void parameterUpdated(final IParameter _value) {
 
         System.out.println("client: updated: " + _value.getId());
         //        toi.dumpCache();
@@ -131,7 +133,7 @@ public class RCPClientTest implements Add, Remove, Update {
     }
 
     @Override
-    public void removed(final IParameter _value) {
+    public void parameterRemoved(final IParameter _value) {
 
         System.out.println("client: removed: " + _value.getId());
         //        toi.dumpCache();

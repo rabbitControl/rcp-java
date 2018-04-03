@@ -49,7 +49,7 @@ public class Bytetest {
 
         final ArrayParameter<List<Byte>>
                 parameter
-                = ParameterFactory.createArrayParameter(new byte[] { 3 }, arr2Def);
+                = ParameterFactory.createArrayParameter((short)3, arr2Def);
         parameter.setValue(def);
 
         //parameter.setValue(l);

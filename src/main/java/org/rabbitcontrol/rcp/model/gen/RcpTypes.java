@@ -1,6 +1,6 @@
-package org.rabbitcontrol.rcp.model.gen;
-
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
+
+package org.rabbitcontrol.rcp.model.gen;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
@@ -67,20 +67,36 @@ public class RcpTypes extends KaitaiStruct {
         VALUE(32),
         LABEL(33),
         DESCRIPTION(34),
-        ORDER(35),
-        PARENT(36),
-        WIDGET(37),
-        USERDATA(38);
+        TAGS(35),
+        ORDER(36),
+        PARENTID(37),
+        WIDGET(38),
+        USERDATA(39),
+        USERID(40);
 
         private final long id;
         ParameterOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, ParameterOptions> byId = new HashMap<Long, ParameterOptions>(7);
+        private static final Map<Long, ParameterOptions> byId = new HashMap<Long, ParameterOptions>(9);
         static {
             for (ParameterOptions e : ParameterOptions.values())
                 byId.put(e.id(), e);
         }
         public static ParameterOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum Ipv4Options {
+        DEFAULT(48);
+
+        private final long id;
+        Ipv4Options(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, Ipv4Options> byId = new HashMap<Long, Ipv4Options>(1);
+        static {
+            for (Ipv4Options e : Ipv4Options.values())
+                byId.put(e.id(), e);
+        }
+        public static Ipv4Options byId(long id) { return byId.get(id); }
     }
 
     public enum VectorOptions {
@@ -100,20 +116,6 @@ public class RcpTypes extends KaitaiStruct {
                 byId.put(e.id(), e);
         }
         public static VectorOptions byId(long id) { return byId.get(id); }
-    }
-
-    public enum CompoundOptions {
-        DEFAULT(48);
-
-        private final long id;
-        CompoundOptions(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, CompoundOptions> byId = new HashMap<Long, CompoundOptions>(1);
-        static {
-            for (CompoundOptions e : CompoundOptions.values())
-                byId.put(e.id(), e);
-        }
-        public static CompoundOptions byId(long id) { return byId.get(id); }
     }
 
     public enum BooleanOptions {
@@ -159,7 +161,7 @@ public class RcpTypes extends KaitaiStruct {
         INVALID(0),
         VERSION(1),
         INITIALIZE(2),
-        ADD(3),
+        DISCOVER(3),
         UPDATE(4),
         REMOVE(5),
         UPDATEVALUE(6);
@@ -223,6 +225,22 @@ public class RcpTypes extends KaitaiStruct {
         public static LabelPosition byId(long id) { return byId.get(id); }
     }
 
+    public enum UriOptions {
+        DEFAULT(48),
+        FILTER(49),
+        SCHEMA(50);
+
+        private final long id;
+        UriOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, UriOptions> byId = new HashMap<Long, UriOptions>(3);
+        static {
+            for (UriOptions e : UriOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static UriOptions byId(long id) { return byId.get(id); }
+    }
+
     public enum ClientStatus {
         DISCONNECTED(0),
         CONNECTED(1),
@@ -280,7 +298,6 @@ public class RcpTypes extends KaitaiStruct {
         DYNAMIC_ARRAY(38),
         BANG(39),
         GROUP(40),
-        COMPOUND(41),
         URI(42),
         IPV4(43),
         IPV6(44);
@@ -288,7 +305,7 @@ public class RcpTypes extends KaitaiStruct {
         private final long id;
         Datatype(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(29);
+        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(28);
         static {
             for (Datatype e : Datatype.values())
                 byId.put(e.id(), e);
@@ -313,6 +330,20 @@ public class RcpTypes extends KaitaiStruct {
                 byId.put(e.id(), e);
         }
         public static NumberOptions byId(long id) { return byId.get(id); }
+    }
+
+    public enum Ipv6Options {
+        DEFAULT(48);
+
+        private final long id;
+        Ipv6Options(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, Ipv6Options> byId = new HashMap<Long, Ipv6Options>(1);
+        static {
+            for (Ipv6Options e : Ipv6Options.values())
+                byId.put(e.id(), e);
+        }
+        public static Ipv6Options byId(long id) { return byId.get(id); }
     }
 
     public enum MetadataOptions {

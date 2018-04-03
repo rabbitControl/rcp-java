@@ -8,9 +8,9 @@ import org.rabbitcontrol.rcp.test.netty.*;
 
 public class TCPServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final RCPTransporterNetty server;
+    private final ChannelManager server;
 
-    public TCPServerInitializer(final RCPTransporterNetty _server) {
+    public TCPServerInitializer(final ChannelManager _server) {
 
         server = _server;
     }

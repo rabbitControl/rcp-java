@@ -22,12 +22,10 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.rabbitcontrol.rcp.model.Packet;
-import org.rabbitcontrol.rcp.transport.RCPTransporter;
+import org.rabbitcontrol.rcp.test.netty.ChannelManager;
 import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
-import org.rabbitcontrol.rcp.test.netty.RCPTransporterNetty;
 
-public final class TCPServerTransporterNetty implements RCPTransporterNetty {
+public final class TCPServerTransporterNetty implements ChannelManager {
 
     private final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
 
@@ -57,35 +55,35 @@ public final class TCPServerTransporterNetty implements RCPTransporterNetty {
         workerGroup.shutdownGracefully();
     }
 
-    ChannelHandlerContext lastCtx;
+//    ChannelHandlerContext lastCtx;
 
-    public void received(final ChannelHandlerContext ctx, final Packet _packet) {
-
-        lastCtx = ctx;
-        received(_packet, this);
-
-        // done
-        lastCtx = null;
-    }
-
-    @Override
-    public void received(final Packet _packet, final RCPTransporter _transporter) {
-        if (listener != null) {
-            listener.received(_packet, this);
-        }
-    }
-
-
-    @Override
-    public void send(final byte[] _packet) {
-        // TODO
-    }
-
-    @Override
-    public void setListener(final RCPTransporterListener _listener) {
-
-        listener = _listener;
-    }
+//    public void received(final ChannelHandlerContext ctx, final Packet _packet) {
+//
+//        lastCtx = ctx;
+//        received(_packet, this);
+//
+//        // done
+//        lastCtx = null;
+//    }
+//
+//    @Override
+//    public void received(final Packet _packet, final RCPTransporter _transporter) {
+//        if (listener != null) {
+//            listener.received(_packet, this);
+//        }
+//    }
+//
+//
+//    @Override
+//    public void send(final byte[] _packet) {
+//        // TODO
+//    }
+//
+//    @Override
+//    public void setListener(final RCPTransporterListener _listener) {
+//
+//        listener = _listener;
+//    }
 
     @Override
     public void addChannel(final Channel _channel) {
