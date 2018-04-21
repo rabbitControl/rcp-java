@@ -110,7 +110,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
 
         if (ch != null) {
             try {
-                ch.closeFuture().sync();
+                ch.close().sync();
             }
             catch (InterruptedException _e) {
                 _e.printStackTrace();
