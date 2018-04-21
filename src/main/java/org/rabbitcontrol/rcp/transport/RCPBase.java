@@ -5,7 +5,6 @@ import org.rabbitcontrol.rcp.model.RCPCommands;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IRcpModel;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -86,7 +85,7 @@ public abstract class RCPBase implements IRcpModel {
 
     // IRcpModel
     @Override
-    public IParameter getParameter(final ByteBuffer _id) {
+    public IParameter getParameter(final short _id) {
         if (valueCache.containsKey(_id)) {
             return valueCache.get(_id);
         }

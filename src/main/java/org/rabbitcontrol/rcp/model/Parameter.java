@@ -219,12 +219,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
                 case PARENTID: {
                     // read as id, this is correct
-                    ByteBuffer parent_id = ByteBuffer.wrap(new Id(_io).data());
+                    final short parent_id = _io.readS2be();
                     if (model != null) {
-                        IParameter parent = model.getParameter(parent_id);
+                        final IParameter parent = model.getParameter(parent_id);
                         try {
                             setParent((GroupParameter)parent);
-                        } catch (ClassCastException _e) {
+                        } catch (final ClassCastException _e) {
                             System.err.println("parameter not a GroupParameter!");
                         }
                     }
@@ -738,7 +738,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
-    public void setRcpModel(IRcpModel _model) {
+    public void setRcpModel(final IRcpModel _model) {
         model = _model;
     }
 
