@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model.parameter;
 
 import org.rabbitcontrol.rcp.model.types.EnumDefinition;
 
-public class EnumParameter extends ValueParameter<Integer> {
+public class EnumParameter extends ValueParameter<String> {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -19,7 +19,13 @@ public class EnumParameter extends ValueParameter<Integer> {
     }
 
     @Override
-    public void setValue(final Integer _value) {
-        super.setValue(getEnumTypeDefinition().conformValue(_value));
+    public void setValue(final String _value) {
+
+        if (!getEnumTypeDefinition().containsValue(_value)) {
+            System.err.println("\"" + _value + "\" is not a valid option");
+            return;
+        }
+
+        super.setValue(_value);
     }
 }

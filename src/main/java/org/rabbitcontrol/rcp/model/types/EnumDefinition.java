@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public class EnumDefinition extends DefaultDefinition<Integer> {
+public class EnumDefinition extends DefaultDefinition<String> {
 
     public static final int MAX_ENTRY_SIZE = (2^16)-1;
 
@@ -25,19 +25,19 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
     }
 
     @Override
-    public void writeValue(final Integer _value, final OutputStream _outputStream) throws
+    public void writeValue(final String _value, final OutputStream _outputStream) throws
                                                                                    IOException {
         if (_value != null) {
-            _outputStream.write(ByteBuffer.allocate(2).putShort(_value.shortValue()).array());
+            RCPParser.writeTinyString(_value, _outputStream);
         } else {
-            _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
+            RCPParser.writeTinyString("", _outputStream);
         }
     }
 
     @Override
-    public Integer readValue(final KaitaiStream _io) {
+    public String readValue(final KaitaiStream _io) {
 
-        return _io.readU2be();
+        return new TinyString(_io).data();
     }
 
     @Override
@@ -60,12 +60,13 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
                 final List<String> _entris = new ArrayList<String>();
 
                 // read amount of entries
-                final int enum_length = _io.readU2be();
 
-                for (int i=0; i<enum_length; i++) {
+
+                while (true) {
                     final TinyString tinyString = new TinyString(_io);
-
-                    // TODO: check tinyString.data() != null... empty... etc...??
+                    if (tinyString.data().isEmpty()) {
+                        break;
+                    }
 
                     _entris.add(tinyString.data());
                 }
@@ -118,15 +119,11 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
                 // use any of the default values id
                 _outputStream.write((int)EnumOptions.ENTRIES.id());
 
-                // TODO: check if entries.size <= uint16!!
-
-                // write length
-                _outputStream.write(ByteBuffer.allocate(2).putShort((short)entries.size()).array());
-
                 // write entries...
                 for (final String entry : entries) {
                     RCPParser.writeTinyString(entry, _outputStream);
                 }
+                _outputStream.write((byte)0);
 
                 if (!all) {
                     entriesChanged = false;
@@ -154,8 +151,8 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
     //------------------------------------------------------------
 
     @Override
-    public void setDefault(final Integer _default) {
-        super.setDefault(conformValue(_default));
+    public void setDefault(final String _default) {
+        super.setDefault(_default);
     }
 
     //------------------------------------------------------------
@@ -224,14 +221,8 @@ public class EnumDefinition extends DefaultDefinition<Integer> {
         return entries.size();
     }
 
-    public int conformValue(int _value) {
-
-        if (_value < 0) {
-            return 0;
-        } else if ((entries != null) && (_value >= entries.size())) {
-            return entries.size() - 1;
-        } else {
-            return _value;
-        }
+    public boolean containsValue(final String _value) {
+        return entries.contains(_value);
     }
+
 }
