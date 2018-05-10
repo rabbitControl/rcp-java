@@ -1,6 +1,6 @@
 package org.rabbitcontrol.rcp.model.interfaces;
 
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberScale;
+import org.rabbitcontrol.rcp.model.RcpTypes.NumberScale;
 
 public interface INumberDefinition<T extends Number> extends IDefaultDefinition<T> {
 

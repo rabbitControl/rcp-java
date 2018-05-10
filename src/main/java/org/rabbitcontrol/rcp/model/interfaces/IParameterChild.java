@@ -4,7 +4,7 @@ import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
 public interface IParameterChild {
 
-    void setParent(GroupParameter _parent);
+    void setParent(final GroupParameter _parent);
 
-    void setRcpModel(IRcpModel _model);
+    void setRcpModel(final IParameterManager _model);
 }

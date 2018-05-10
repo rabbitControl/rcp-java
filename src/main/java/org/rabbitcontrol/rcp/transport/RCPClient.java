@@ -7,12 +7,11 @@ import org.rabbitcontrol.rcp.model.RCPCommands.Remove;
 import org.rabbitcontrol.rcp.model.RCPCommands.StatusChange;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
+import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.ValueParameter;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class RCPClient extends RCPBase implements ClientTransporterListener {

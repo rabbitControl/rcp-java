@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
+import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
 
 import java.io.IOException;
@@ -122,7 +122,7 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
@@ -132,13 +132,13 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         //
         if (getDefault() != null) {
 
-            if (all || defaultValueChanged) {
+            if (_all || defaultValueChanged || initialWrite) {
 
                 // use any of the default values id
                 _outputStream.write((int)NumberOptions.DEFAULT.id());
                 writeValue(getDefault(), _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     defaultValueChanged = false;
                 }
             }
@@ -158,12 +158,12 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         //
         if (getMinimum() != null) {
 
-            if (all || minimumChanged) {
+            if (_all || minimumChanged || initialWrite) {
 
                 _outputStream.write((int)NumberOptions.MINIMUM.id());
                 writeValue(minimum, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     minimumChanged = false;
                 }
             }
@@ -180,12 +180,12 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         //
         if (getMaximum() != null) {
 
-            if (all || maximumChanged) {
+            if (_all || maximumChanged || initialWrite) {
 
                 _outputStream.write((int)NumberOptions.MAXIMUM.id());
                 writeValue(maximum, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     maximumChanged = false;
                 }
             }
@@ -202,12 +202,12 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         //
         if (getMultipleof() != null) {
 
-            if (all || multipleofChanged) {
+            if (_all || multipleofChanged || initialWrite) {
 
                 _outputStream.write((int)NumberOptions.MULTIPLEOF.id());
                 writeValue(multipleof, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     multipleofChanged = false;
                 }
             }
@@ -224,12 +224,12 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         //
         if (scale != null) {
 
-            if (all || scaleChanged) {
+            if (_all || scaleChanged || initialWrite) {
 
                 _outputStream.write((int)NumberOptions.SCALE.id());
                 _outputStream.write((int)scale.id());
 
-                if (!all) {
+                if (!_all) {
                     scaleChanged = false;
                 }
             }
@@ -246,12 +246,12 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         //
         if (unit != null) {
 
-            if (all || unitChanged) {
+            if (_all || unitChanged || initialWrite) {
 
                 _outputStream.write((int)NumberOptions.UNIT.id());
                 RCPParser.writeTinyString(unit, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     unitChanged = false;
                 }
             }
@@ -261,6 +261,10 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
             RCPParser.writeTinyString("", _outputStream);
 
             unitChanged = false;
+        }
+
+        if (!_all) {
+            initialWrite = false;
         }
 
         // finalize with terminator

@@ -2,8 +2,8 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.ColorOptions;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.ColorOptions;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 
 import java.awt.*;
 import java.io.IOException;
@@ -67,20 +67,20 @@ public class RGBADefinition extends DefaultDefinition<Color> {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
         if (getDefault() != null) {
 
-            if (all || defaultValueChanged) {
+            if (_all || defaultValueChanged || initialWrite) {
 
                 // use any of the default values id
                 _outputStream.write((int)ColorOptions.DEFAULT.id());
                 writeValue(getDefault(), _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     defaultValueChanged = false;
                 }
             }
@@ -90,6 +90,10 @@ public class RGBADefinition extends DefaultDefinition<Color> {
             writeValue(null, _outputStream);
 
             defaultValueChanged = false;
+        }
+
+        if (!_all) {
+            initialWrite = false;
         }
 
         // finalize with terminator

@@ -1,11 +1,9 @@
 package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
-import io.netty.util.internal.ConcurrentSet;
-import lombok.Getter;
+import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
@@ -13,6 +11,7 @@ import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class Parameter implements IParameter, IParameterChild {
@@ -108,46 +107,48 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     // optional
     protected String label;
-    private boolean labelChanged;
+    private boolean labelChanged = false;
 
     protected String description;
-    private boolean descriptionChanged;
+    private boolean descriptionChanged = false;
 
     protected String tags;
-    private boolean tagsChanged;
+    private boolean tagsChanged = false;
 
     protected Integer order;
-    private boolean orderChanged;
+    private boolean orderChanged = false;
 
-    @Getter
     private GroupParameter parent;
-    private boolean        parentChanged;
+    private boolean        parentChanged = false;
 
-    // this should rather be a Parameter??
+
     // widget
-    @Getter
+    private Short widgetType;
+    private boolean widgetTypeChanged = false;
+
     protected byte[] userdata;
-    private boolean userdataChanged;
+    private boolean userdataChanged = false;
 
-    @Getter
     private String userid;
-    private boolean useridChanged;
+    private boolean useridChanged = false;
 
-    private IRcpModel model;
+    private IParameterManager model;
+
+    protected boolean initialWrite = true; // one-time-flag
 
     //------------------------
     // change listener
-    private final Set<LABEL_CHANGED> labelChangeListener = new ConcurrentSet<LABEL_CHANGED>();
+    private final Set<LABEL_CHANGED> labelChangeListener = new HashSet<LABEL_CHANGED>();
 
     private final Set<DESCRIPTION_CHANGED>
             descriptionChangeListener
-            = new ConcurrentSet<DESCRIPTION_CHANGED>();
+            = new HashSet<DESCRIPTION_CHANGED>();
 
-    private final Set<ORDER_CHANGED> orderChangeListener = new ConcurrentSet<ORDER_CHANGED>();
+    private final Set<ORDER_CHANGED> orderChangeListener = new HashSet<ORDER_CHANGED>();
 
-    private final Set<USERDATA_CHANGED> userdataChangeListener = new ConcurrentSet<USERDATA_CHANGED>();
+    private final Set<USERDATA_CHANGED> userdataChangeListener = new HashSet<USERDATA_CHANGED>();
 
-    private final Set<PARENT_CHANGED> parentChangeListener = new ConcurrentSet<PARENT_CHANGED>();
+    private final Set<PARENT_CHANGED> parentChangeListener = new HashSet<PARENT_CHANGED>();
 
 
     //------------------------------------------------------------
@@ -268,7 +269,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write options
 
@@ -277,13 +278,13 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (label != null) {
 
-            if (all || labelChanged) {
+            if (_all || labelChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.LABEL.id());
                 RCPParser.writeTinyString(label, _outputStream);
 
-                // leave changed flag untouched, if writing all
-                if (!all) {
+                // clear flag
+                if (!_all) {
                     labelChanged = false;
                 }
             }
@@ -302,12 +303,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (description != null) {
 
-            if (all || descriptionChanged) {
+            if (_all || descriptionChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
                 RCPParser.writeShortString(description, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     descriptionChanged = false;
                 }
             }
@@ -324,12 +325,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (tags != null) {
 
-            if (all || tagsChanged) {
+            if (_all || tagsChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.TAGS.id());
                 RCPParser.writeTinyString(tags, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     tagsChanged = false;
                 }
             }
@@ -346,12 +347,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (order != null) {
 
-            if (all || orderChanged) {
+            if (_all || orderChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.ORDER.id());
                 _outputStream.write(ByteBuffer.allocate(4).putInt(order).array());
 
-                if (!all) {
+                if (!_all) {
                     orderChanged = false;
                 }
             }
@@ -369,12 +370,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (parent != null) {
 
-            if (all || parentChanged) {
+            if (_all || parentChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.PARENTID.id());
                 writeId(parent.getId(), _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     parentChanged = false;
                 }
             }
@@ -386,7 +387,26 @@ public abstract class Parameter implements IParameter, IParameterChild {
             parentChanged = false;
         }
 
-        // TODO: write widget
+        // TODO: write widget -widgetType
+        if (widgetType != null) {
+
+            if (_all || widgetTypeChanged || initialWrite) {
+
+                _outputStream.write((int)ParameterOptions.WIDGET.id());
+                _outputStream.write(ByteBuffer.allocate(2).putShort(widgetType).array());
+
+                if (!_all) {
+                    widgetTypeChanged = false;
+                }
+            }
+        } else if (widgetTypeChanged) {
+
+            _outputStream.write((int)ParameterOptions.WIDGET.id());
+            _outputStream.write(ByteBuffer.allocate(2).putShort(widgetType).array());
+
+            widgetTypeChanged = false;
+        }
+
 
 
         //
@@ -394,13 +414,13 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (userdata != null) {
 
-            if (all || userdataChanged) {
+            if (_all || userdataChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.USERDATA.id());
                 _outputStream.write(ByteBuffer.allocate(4).putInt(userdata.length).array());
                 _outputStream.write(userdata);
 
-                if (!all) {
+                if (!_all) {
                     userdataChanged = false;
                 }
             }
@@ -418,12 +438,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         if (userid != null) {
 
-            if (all || useridChanged) {
+            if (_all || useridChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.USERID.id());
                 RCPParser.writeTinyString(userid, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     useridChanged = false;
                 }
             }
@@ -433,6 +453,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
             RCPParser.writeTinyString("", _outputStream);
 
             useridChanged = false;
+        }
+
+
+        if (!_all) {
+            initialWrite = false;
         }
     }
 
@@ -683,14 +708,23 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
+    public GroupParameter getParent() {
+
+        return parent;
+    }
+
+    @Override
     public void setParent(final GroupParameter _parent) {
 
         if ((parent == _parent) || ((parent != null) && parent.equals(_parent))) {
             return;
         }
 
+        GroupParameter p = parent;
+
         if (parent != null) {
-            parent.removeChild(this);
+            parent = null;
+            p.removeChild(this);
         }
 
         parent  = _parent;
@@ -699,11 +733,18 @@ public abstract class Parameter implements IParameter, IParameterChild {
         setDirty();
     }
 
-//    @Override
-//    public byte[] getUserdata() {
-//
-//        return userdata;
-//    }
+    @Override
+    public void setWidgetType(short type) {
+        widgetType = type;
+        widgetTypeChanged = true;
+        setDirty();
+    }
+
+    @Override
+    public String getUserid() {
+
+        return userid;
+    }
 
     @Override
     public void setUserid(final String _userid) {
@@ -718,7 +759,10 @@ public abstract class Parameter implements IParameter, IParameterChild {
         setDirty();
     }
 
-
+    @Override
+    public byte[] getUserdata() {
+        return userdata;
+    }
 
     @Override
     public void setUserdata(final byte[] _userdata) {
@@ -738,14 +782,14 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
-    public void setRcpModel(final IRcpModel _model) {
+    public void setRcpModel(final IParameterManager _model) {
         model = _model;
     }
 
     @Override
     public void setDirty() {
         if (model != null) {
-            model.setDirtyParameter(this);
+            model.setParameterDirty(this);
         }
     }
 }

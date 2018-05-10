@@ -8,5 +8,5 @@ import java.io.OutputStream;
  */
 public interface RCPWritable {
 
-    void write(final OutputStream _outputStream, final boolean all) throws IOException;
+    void write(final OutputStream _outputStream, final boolean _all) throws IOException;
 }

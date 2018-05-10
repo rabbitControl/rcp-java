@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.interfaces.ITypeDefinition;
 
@@ -15,11 +15,17 @@ public abstract class TypeDefinition implements ITypeDefinition {
 
     protected IParameter parameter;
 
+    protected boolean initialWrite = true; // one-time-flag
+
     //------------------------------------------------------------
     //------------------------------------------------------------
     public TypeDefinition(final Datatype _datatype) {
 
         datatype = _datatype;
+    }
+
+    void setInitialWrite(final boolean _initialWrite) {
+        initialWrite = _initialWrite;
     }
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);

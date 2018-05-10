@@ -3,8 +3,8 @@ package org.rabbitcontrol.rcp.model;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.PacketOptions;
+import org.rabbitcontrol.rcp.model.RcpTypes.Command;
+import org.rabbitcontrol.rcp.model.RcpTypes.PacketOptions;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -16,13 +16,13 @@ public class Packet implements RCPWritable {
 
     public static final byte[] TOI_MAGIC = { 4, 15, 5, 9 };
 
-    public static byte[] serialize(final Packet _packet, boolean all) throws IOException {
+    public static byte[] serialize(final Packet _packet, final boolean _all) throws IOException {
 
         byte[] result = null;
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         try {
-            _packet.write(os, all);
+            _packet.write(os, _all);
             result = os.toByteArray();
         }
         finally {
@@ -122,28 +122,26 @@ public class Packet implements RCPWritable {
         data = _data;
     }
 
+    public byte[] serialize(final boolean _all) throws IOException {
+        return Packet.serialize(this, _all);
+    }
+
     //--------------------------------------------------------
     public void write(final boolean _magic,
                       final OutputStream _outputStream,
-                      boolean all) throws IOException
+                      final boolean _all) throws IOException
     {
         if (_magic) {
             // write magic
             _outputStream.write(TOI_MAGIC);
         }
 
-        write(_outputStream, all);
+        write(_outputStream, _all);
     }
 
-
-
-    public void write(final OutputStream _outputStream) throws IOException {
-        // default: send only changed values
-        write(_outputStream, false);
-    }
 
     @Override
-    public void write(final OutputStream _outputStream, boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // ignore flag "all" for packets... packets are short living objects
 
@@ -157,7 +155,7 @@ public class Packet implements RCPWritable {
 
         if (data != null) {
             _outputStream.write((int)PacketOptions.DATA.id());
-            data.write(_outputStream, all);
+            data.write(_outputStream, _all);
         }
 
         // finalize packet with terminator

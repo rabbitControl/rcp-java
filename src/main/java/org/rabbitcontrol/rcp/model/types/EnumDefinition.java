@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
+import org.rabbitcontrol.rcp.model.RcpTypes.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,6 +17,9 @@ public class EnumDefinition extends DefaultDefinition<String> {
     //------------------------------------------------------------
     private List<String> entries;
     private boolean entriesChanged;
+
+    private Boolean multiselect;
+    private boolean multiselectChanged;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -74,13 +77,19 @@ public class EnumDefinition extends DefaultDefinition<String> {
                 setEntries(_entris);
                 return true;
             }
+
+            case MULTISELECT:
+            {
+                setMultiselect(_io.readS1() != 0);
+                return true;
+            }
         }
 
         return false;
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
@@ -90,13 +99,13 @@ public class EnumDefinition extends DefaultDefinition<String> {
         //
         if (getDefault() != null) {
 
-            if (all || defaultValueChanged) {
+            if (_all || defaultValueChanged || initialWrite) {
 
                 // use any of the default values id
                 _outputStream.write((int)EnumOptions.DEFAULT.id());
                 writeValue(getDefault(), _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     defaultValueChanged = false;
                 }
             }
@@ -114,7 +123,7 @@ public class EnumDefinition extends DefaultDefinition<String> {
         //
         if (entries != null) {
 
-            if (all || entriesChanged) {
+            if (_all || entriesChanged || initialWrite) {
 
                 // use any of the default values id
                 _outputStream.write((int)EnumOptions.ENTRIES.id());
@@ -123,9 +132,9 @@ public class EnumDefinition extends DefaultDefinition<String> {
                 for (final String entry : entries) {
                     RCPParser.writeTinyString(entry, _outputStream);
                 }
-                _outputStream.write((byte)0);
+                _outputStream.write(RCPParser.TERMINATOR);
 
-                if (!all) {
+                if (!_all) {
                     entriesChanged = false;
                 }
             }
@@ -139,6 +148,33 @@ public class EnumDefinition extends DefaultDefinition<String> {
             entriesChanged = false;
         }
 
+        //
+        // multiselect
+        //
+        if (multiselect != null) {
+
+            if (_all || multiselectChanged || initialWrite) {
+
+                // use any of the default values id
+                _outputStream.write((int)EnumOptions.MULTISELECT.id());
+                _outputStream.write(multiselect ? 1 : 0);
+
+                if (!_all) {
+                    multiselectChanged = false;
+                }
+            }
+        } else if (multiselectChanged) {
+
+            _outputStream.write((int)EnumOptions.MULTISELECT.id());
+
+            _outputStream.write(multiselect ? 1 : 0);
+
+            entriesChanged = false;
+        }
+
+        if (!_all) {
+            initialWrite = false;
+        }
 
         // finalize with terminator
         _outputStream.write(RCPParser.TERMINATOR);
@@ -218,11 +254,38 @@ public class EnumDefinition extends DefaultDefinition<String> {
     }
 
     public int getEntrySize() {
+        if (entries == null) {
+            return 0;
+        }
+
         return entries.size();
     }
 
     public boolean containsValue(final String _value) {
+
+        if (entries == null) {
+            return true;
+        }
+
         return entries.contains(_value);
     }
 
+
+    public boolean isMultiselect() {
+        return multiselect;
+    }
+
+    public void setMultiselect(final boolean _multiselect) {
+
+        if ((multiselect == _multiselect) || ((multiselect != null) && multiselect.equals(_multiselect))) {
+            return;
+        }
+
+        multiselect = _multiselect;
+        multiselectChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
+    }
 }

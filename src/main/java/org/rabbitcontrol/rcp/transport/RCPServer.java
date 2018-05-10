@@ -3,17 +3,20 @@ package org.rabbitcontrol.rcp.transport;
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
+import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.exceptions.*;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Command;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.*;
+
+// TODO
+/*
+- create parameter, create parameter with group
+- update() only sends the updates to the clients
+- remove group only sends to remove the group (not all the children...)
+ */
 
 /**
  * Created by inx on 30/11/16.
@@ -22,7 +25,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     private final List<ServerTransporter> transporterList = new ArrayList<ServerTransporter>();
 
-    ArrayList<Short> ids = new ArrayList<Short>();
+    private Set<Short> ids = new HashSet<Short>();
+
+    private final List<IParameter> parameterToRemove = new ArrayList<IParameter>();
 
     //------------------------------------------------------------
     // callback objects
@@ -62,103 +67,268 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     //
     //
     //
-    public IParameter createParameter(final Datatype _datatype) throws RCPParameterException {
-        final short id = availableId();
-        if (id != 0) {
+    private void setupParameter(
+            final Parameter _parameter, final String _label, final GroupParameter _group) {
 
-            final IParameter p = ParameterFactory.createParameter(id, _datatype);
-            addParameter(p);
-            return p;
-        }
-
-        throw new RCPParameterException("could not get valid parameter id");
+        _parameter.setLabel(_label);
+        _parameter.setRcpModel(this);
+        dirtyParams.add(_parameter);
+        addParameter(_parameter, _group);
     }
 
-    public <T extends Number> INumberParameter<T> createNumberParameter(final Datatype _datatype, final Class<T> _class) throws
-                                                                                                             RCPParameterException,
-                                                                                                             TypeMissmatch {
+    // boolean
+    public BooleanParameter createBooleanParameter(
+            final String _label) throws RCPParameterException {
 
-        final short id = availableId();
-        if (id != 0) {
-
-            final INumberParameter<T> p = ParameterFactory.createNumberParameter(id, _datatype, _class);
-            addParameter(p);
-            return p;
-        }
-
-        throw new RCPParameterException("could not get valid parameter id");
+        return createBooleanParameter(_label, rootGroup);
     }
 
-    public <T extends Number> INumberParameter<T> createNumberParameter(final Class<T> _class) throws
-                                                                                         RCPParameterException {
+    public BooleanParameter createBooleanParameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
-        if (id != 0) {
-
-            final INumberParameter<T> p = ParameterFactory.createNumberParameter(id, _class);
-            addParameter(p);
-            return p;
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
         }
 
-        throw new RCPParameterException("could not get valid parameter id");
+        final BooleanParameter p = new BooleanParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
     }
 
-    public NumberParameter<Byte> createUInt8Parameter() throws RCPParameterException {
+    // int8
+    public Int8Parameter createInt8Parameter(final String _label) throws
+                                                                          RCPParameterException {
+        return createInt8Parameter(_label, rootGroup);
+    }
+
+    public Int8Parameter createInt8Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
-        if (id != 0) {
 
-            final NumberParameter<Byte> p = new NumberParameter<Byte>(id, Datatype.UINT8);
-            addParameter(p);
-            return p;
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
         }
 
-        throw new RCPParameterException("could not get valid parameter id");
+        final Int8Parameter p = new Int8Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
     }
 
-    public NumberParameter<Byte> createInt8Parameter() throws RCPParameterException {
-        final short id = availableId();
-        if (id != 0) {
-
-            final NumberParameter<Byte> p = new NumberParameter<Byte>(id, Datatype.INT8);
-            addParameter(p);
-            return p;
-        }
-
-        throw new RCPParameterException("could not get valid parameter id");
+    // int16
+    public Int32Parameter createInt16Parameter(final String _label) throws
+                                                                          RCPParameterException {
+        return createInt16Parameter(_label, rootGroup);
     }
 
-
-    public BooleanParameter createBooleanParameter() throws RCPParameterException {
+    public Int32Parameter createInt16Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
-        if (id != 0) {
 
-            final BooleanParameter p = new BooleanParameter(id);
-            addParameter(p);
-            return p;
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
         }
 
-        throw new RCPParameterException("could not get valid parameter id");
+        final Int32Parameter p = new Int32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
     }
 
-    public StringParameter createStringParameter() throws RCPParameterException {
+    // int32
+    public Int32Parameter createInt32Parameter(final String _label) throws
+                                                                            RCPParameterException {
+        return createInt32Parameter(_label, rootGroup);
+    }
+
+    public Int32Parameter createInt32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
-        if (id != 0) {
 
-            final StringParameter p = new StringParameter(id);
-            addParameter(p);
-            return p;
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
         }
 
-        throw new RCPParameterException("could not get valid parameter id");
+        final Int32Parameter p = new Int32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
     }
 
+    // int64
+    public Int64Parameter createInt64Parameter(final String _label) throws
+                                                                              RCPParameterException {
+        return createInt64Parameter(_label, rootGroup);
+    }
 
+    public Int64Parameter createInt64Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Int64Parameter p = new Int64Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // float
+    public Float32Parameter createFloatParameter(final String _label) throws
+                                                                           RCPParameterException {
+        return createFloatParameter(_label, rootGroup);
+    }
+
+    public Float32Parameter createFloatParameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Float32Parameter p = new Float32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // double
+    public Float64Parameter createDoubleParameter(final String _label) throws
+                                                                            RCPParameterException {
+        return createDoubleParameter(_label, rootGroup);
+    }
+
+    public Float64Parameter createDoubleParameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Float64Parameter p = new Float64Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // string
+    public StringParameter createStringParameter(final String _label) throws RCPParameterException {
+
+        return createStringParameter(_label, rootGroup);
+    }
+
+    public StringParameter createStringParameter(
+            final String _label,
+            final GroupParameter _group) throws
+                                         RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final StringParameter p = new StringParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // enum
+    public EnumParameter createEnumParameter(final String _label) throws RCPParameterException {
+
+        return createEnumParameter(_label, rootGroup);
+    }
+
+    public EnumParameter createEnumParameter(
+            final String _label,
+            final GroupParameter _group) throws
+                                         RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final EnumParameter p = new EnumParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // RGB
+    public RGBParameter createRGBParameter(final String _label) throws RCPParameterException {
+
+        return createRGBParameter(_label, rootGroup);
+    }
+
+    public RGBParameter createRGBParameter(
+            final String _label,
+            final GroupParameter _group) throws
+                                         RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final RGBParameter p = new RGBParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // RGBA
+    public RGBAParameter createRGBAParameter(final String _label) throws RCPParameterException {
+
+        return createRGBAParameter(_label, rootGroup);
+    }
+
+    public RGBAParameter createRGBAParameter(
+            final String _label,
+            final GroupParameter _group) throws
+                                         RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final RGBAParameter p = new RGBAParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // group
+    public GroupParameter createGroupParameter(final String _label) throws RCPParameterException {
+
+        return createGroupParameter(_label, rootGroup);
+    }
+
+    public GroupParameter createGroupParameter(
+            final String _label,
+            final GroupParameter _group) throws
+                                         RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final GroupParameter p = new GroupParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    /**
+     * get next available id
+     *
+     * @return next available id
+     */
     private short availableId() {
 
-        for (short i = 1; i <= Short.MAX_VALUE; i++) {
+        for (short i = 1; i < Short.MAX_VALUE; i++) {
             if (ids.contains(i)) {
                 continue;
             }
@@ -166,7 +336,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             return i;
         }
 
-        for (short i= -1; i>=Short.MIN_VALUE; i--) {
+        for (short i = -1; i > Short.MIN_VALUE; i--) {
             if (ids.contains(i)) {
                 continue;
             }
@@ -180,21 +350,77 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     //------------------------------------------------------------
     //
-    public void addParameter(final IParameter _value) {
+    public void addParameters(final IParameter... _parameter) {
 
-        if (groupsAndParameters.contains(_value)) {
-            System.err.println("already in cache...");
+        addParameters(rootGroup, _parameter);
+    }
+
+    public void addParameters(
+            final GroupParameter _group, final IParameter... _parameter) {
+
+        for (final IParameter parameter : _parameter) {
+            addParameter(parameter, _group);
+        }
+    }
+
+    public void addParameter(final IParameter _parameter) {
+
+        addParameter(_parameter, rootGroup);
+    }
+
+    public void addParameter(final IParameter _parameter, final GroupParameter _group) {
+
+        if (_group != null) {
+            _group.addChild(_parameter);
+
+            // make sure we send parameter _after_ group
+            if (dirtyParams.contains(_parameter)) {
+                dirtyParams.remove(_parameter);
+                dirtyParams.add(_parameter);
+            }
+        }
+        else {
+            // add to hierarchical list... root-list
+            rootGroup.addChild(_parameter);
+        }
+
+        // add everything to flat-map
+        _addParameterFlat(_parameter);
+    }
+
+    private void _addParameterFlat(final IParameter _parameter) {
+
+        if (valueCache.containsKey(_parameter.getId())) {
+
+            if (!valueCache.get(_parameter.getId()).equals(_parameter)) {
+                System.err.println("different object with same ID!!!");
+            }
+            else {
+                System.out.println("already added value with this id - ignore");
+            }
+
             return;
         }
 
-        // add to hierarchical...
-        groupsAndParameters.add(_value);
+        //------------------------------------------------
+        // add parameter to valueCache (flat map)
+        valueCache.put(_parameter.getId(), _parameter);
 
-        // add everything to flat-map
-        _addParameter(_value);
+        if (!ids.contains(_parameter.getId())) {
+            ids.add(_parameter.getId());
+        }
+        else {
+            // ? ignore
+        }
 
-        // send it out
-        _sendParameterFullAll(_value);
+        //------------------------------------------------
+        // if group: add all children into flat-map
+        if (_parameter instanceof GroupParameter) {
+
+            for (final IParameter _child : ((GroupParameter)_parameter).getChildren()) {
+                _addParameterFlat(_child);
+            }
+        }
     }
 
     private void _sendParameterFullAll(final IParameter _parameter) {
@@ -202,10 +428,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         //------------------------------------------------
         // send add to all
         if (!transporterList.isEmpty()) {
-            // TODO: send to all clients
-            final Packet packet = new Packet(Command.UPDATE, _parameter);
+
             try {
-                final byte[] data = Packet.serialize(packet, true);
+                final byte[] data = new Packet(Command.UPDATE, _parameter).serialize( true);
 
                 System.out.println("send parameter: " + _parameter.getLabel());
 
@@ -233,9 +458,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         System.out.println("sending ::: " + _parameter.getLabel());
 
-        final Packet packet = new Packet(Command.UPDATE, _parameter);
         try {
-            final byte[] data = Packet.serialize(packet, true);
+            final byte[] data = new Packet(Command.UPDATE, _parameter).serialize(true);
             _transporter.sendToOne(data, _id);
         }
         catch (final IOException _e) {
@@ -252,40 +476,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
     }
 
-    private void _addParameter(final IParameter _value) {
-
-        if (valueCache.containsKey(_value.getId())) {
-
-            if (!valueCache.get(_value.getId()).equals(_value)) {
-                System.err.println("different object with same ID!!!");
-            }
-            else {
-                System.out.println("already added value with this id - ignore");
-            }
-
-            return;
-        }
-
-        //------------------------------------------------
-        // add to valueChache
-        // added to flat-map...
-        valueCache.put(_value.getId(), _value);
-
-        if (ids.contains(_value.getId())) {
-            System.err.println("!!!! id already in ids!!!!");
-        }
-        ids.add(_value.getId());
-
-        //------------------------------------------------
-        // add all children into flat-map
-        if (_value instanceof GroupParameter) {
-
-            for (final IParameter _child : ((GroupParameter)_value).getChildren()) {
-                _addParameter(_child);
-            }
-        }
-    }
-
     public void update() {
 
         // TODO: multithreading??
@@ -296,53 +486,38 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             // INFO: don't call update(_parameter!!) -> co-modification of list
             update(parameter, null);
         }
-
         dirtyParams.clear();
-    }
 
-    public void updateParameters(final IParameter... _values) {
+        // remove
+        for (final IParameter parameter : parameterToRemove) {
 
-        for (final IParameter parameter : _values) {
-            update(parameter, null);
+            // free id
+            ids.remove(parameter.getId());
+
+            if (!transporterList.isEmpty()) {
+                try {
+                    final byte[] data = new Packet(Command.REMOVE, parameter).serialize(false);
+
+                    for (final ServerTransporter transporter : transporterList) {
+                        transporter.sendToAll(data, null);
+                    }
+                }
+                catch (final IOException _e) {
+                    _e.printStackTrace();
+                }
+            }
         }
-
-        // TODO
-        // we probably want to send all the parameters at once...
-        // if transport packet size allows it
-
-    }
-
-    /**
-     * send value updated using the transporterList
-     *
-     * @param _parameter
-     *         the value to updated
-     */
-    public void update(final IParameter _parameter) {
-
-        //        // updated valuecache
-        //        if (getValueCache().containsKey((int)_value.getId())) {
-        //            // get cached value
-        //            final IParameter parameter = getValueCache().get((int)_value.getId());
-        //
-        //            parameter.update(_value);
-        //        }
-        //        else {
-        //            System.out.println("value not in cache - ignore");
-        //        }
-
-        update(_parameter, null);
-
-        dirtyParams.remove(_parameter);
+        parameterToRemove.clear();
     }
 
     private void update(final IParameter _value, final Object _id) {
 
         if (!transporterList.isEmpty()) {
 
-            // transport value
-            final Packet packet = new Packet(Command.UPDATE, _value);
+            //TODO possibly check for connected clients
+
             try {
+                final Packet packet = new Packet(Command.UPDATE, _value);
                 final byte[] data = Packet.serialize(packet, false);
 
                 for (final ServerTransporter transporter : transporterList) {
@@ -357,7 +532,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
 
-
     public void remove(final IParameter _parameter) {
 
         if (valueCache.containsKey(_parameter.getId())) {
@@ -368,31 +542,14 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             System.out.println("value not in cache - ignore");
         }
 
-        if (groupsAndParameters.contains(_parameter)) {
-            groupsAndParameters.remove(_parameter);
-        }
+        ((Parameter)_parameter).setParent(null);
+
 
         if (dirtyParams.contains(_parameter)) {
             dirtyParams.remove(_parameter);
         }
 
-        // free id
-        ids.remove(_parameter.getId());
-
-        if (!transporterList.isEmpty()) {
-            final Packet packet = new Packet(Command.REMOVE, _parameter);
-            try {
-                final byte[] data = Packet.serialize(packet, false);
-
-                for (final ServerTransporter transporter : transporterList) {
-                    transporter.sendToAll(data, null);
-                }
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
-
-        }
+        parameterToRemove.add(_parameter);
 
         //------------------------------------------------
         // remove all children
@@ -405,7 +562,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     //------------------------------------------------------------
-    //
+    //------------------------------------------------------------
+    //------------------------------------------------------------
+    //------------------------------------------------------------
     @Override
     public void received(
             final byte[] _data, final ServerTransporter _transporter, final Object _id) {
@@ -489,12 +648,24 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         System.out.println("GOT INIT");
 
-        for (final IParameter parameter : groupsAndParameters) {
+        for (final IParameter parameter : rootGroup.getChildren()) {
             _sendParameterFull(parameter, _transporter, _id);
         }
 
         if (initListener != null) {
             initListener.init();
         }
+    }
+
+
+    @Override
+    public void setParameterDirty(final IParameter _parameter) {
+
+        if (parameterToRemove.contains(_parameter)) {
+            System.out.println("parameter marked for deletion... " + _parameter);
+            return;
+        }
+
+        super.setParameterDirty(_parameter);
     }
 }

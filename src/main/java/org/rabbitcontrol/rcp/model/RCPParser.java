@@ -9,19 +9,25 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 public class RCPParser {
 
-    public static final int TERMINATOR = 0;
+    public static final byte TERMINATOR = 0;
+
+    public static final int TINY_STRING_LENGTH_MAX = 255;
+    public static final int SHORT_STRING_LENGTH_MAX = 65535;
 
     public static void writeTinyString(
             final String _string, final OutputStream _outputStream) throws IOException {
 
-        final byte[] bytes = _string.getBytes(Charset.forName("UTF-8"));
+        byte[] bytes = _string.getBytes(Charset.forName("UTF-8"));
 
-        if (bytes.length > 255) {
+        if (bytes.length > TINY_STRING_LENGTH_MAX) {
             // TODO log error
-            System.err.println("unit string is too long");
+            System.err.println("unit string is too long - truncating");
+
+            bytes = Arrays.copyOf(bytes, TINY_STRING_LENGTH_MAX);
         }
 
         // write length
@@ -32,11 +38,13 @@ public class RCPParser {
     public static void writeShortString(
             final String _string, final OutputStream _outputStream) throws IOException {
 
-        final byte[] bytes = _string.getBytes(Charset.forName("UTF-8"));
+        byte[] bytes = _string.getBytes(Charset.forName("UTF-8"));
 
-        if (bytes.length > 65535) {
+        if (bytes.length > SHORT_STRING_LENGTH_MAX) {
             // TODO log error
             System.err.println("unit string is too long for short string");
+
+            bytes = Arrays.copyOf(bytes, SHORT_STRING_LENGTH_MAX);
         }
 
         // write length

@@ -1,6 +1,6 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 
 public class Int32Parameter extends NumberParameter<Integer> {
 

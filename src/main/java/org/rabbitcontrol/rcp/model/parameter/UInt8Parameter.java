@@ -1,6 +1,6 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.types.UInt8Definition;
 
 public class UInt8Parameter extends NumberParameter<Byte> {

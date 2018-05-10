@@ -33,6 +33,8 @@ public interface IParameter extends RCPWritable {
 
     //    void setParent(GroupParameter _parent);
 
+    void setWidgetType(short type);
+
     String getUserid();
 
     void setUserid(final String _userid);

@@ -1,17 +1,14 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
-import io.netty.util.internal.ConcurrentSet;
 import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.ParameterOptions;
+import org.rabbitcontrol.rcp.model.RcpTypes.ParameterOptions;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class ValueParameter<T> extends Parameter implements IValueParameter<T> {
 
@@ -28,14 +25,14 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     private final DefaultDefinition<T> typeDefinition;
 
     // optional
-    private T       value;
+    private T value;
 
     private boolean valueChanged;
 
     //------------------------
     // change listener
 
-    private final Set<VALUE_CHANGED<T>> valueChangeListener = new ConcurrentSet<VALUE_CHANGED<T>>();
+    private final Set<VALUE_CHANGED<T>> valueChangeListener = new HashSet<VALUE_CHANGED<T>>();
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -68,23 +65,23 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory id
         writeId(id, _outputStream);
 
         // write mandatory typeDefinition
-        typeDefinition.write(_outputStream, all);
+        typeDefinition.write(_outputStream, _all);
 
         // write all optionals
         if (value != null) {
 
-            if (all || valueChanged) {
+            if (_all || valueChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.VALUE.id());
                 typeDefinition.writeValue(value, _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     valueChanged = false;
                 }
             }
@@ -98,7 +95,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         }
 
         // write other options
-        super.write(_outputStream, all);
+        super.write(_outputStream, _all);
 
         // finalize parameter with terminator
         _outputStream.write(RCPParser.TERMINATOR);

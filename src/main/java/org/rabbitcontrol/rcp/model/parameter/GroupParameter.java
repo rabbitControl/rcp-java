@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
-import lombok.Getter;
 import org.rabbitcontrol.rcp.model.Parameter;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.interfaces.*;
@@ -14,7 +13,6 @@ import java.util.List;
 
 public class GroupParameter extends Parameter {
 
-    @Getter
     private List<IParameter> children = new ArrayList<IParameter>();
 
     //------------------------------------------------------------
@@ -40,19 +38,23 @@ public class GroupParameter extends Parameter {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory id
         writeId(id, _outputStream);
 
         // write mandatory typeDefinition
-        typeDefinition.write(_outputStream, all);
+        typeDefinition.write(_outputStream, _all);
 
         // write other options
-        super.write(_outputStream, all);
+        super.write(_outputStream, _all);
 
         // finalize parameter with terminator
         _outputStream.write(RCPParser.TERMINATOR);
+    }
+
+    public List<IParameter> getChildren() {
+        return children;
     }
 
     public void addChildren(final IParameter ... _parameters) {

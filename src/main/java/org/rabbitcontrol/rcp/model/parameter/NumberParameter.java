@@ -1,7 +1,7 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.NumberScale;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.NumberScale;
 import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
 import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;

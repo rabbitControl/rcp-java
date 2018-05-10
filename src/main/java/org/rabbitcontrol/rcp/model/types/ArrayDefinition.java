@@ -3,8 +3,8 @@ package org.rabbitcontrol.rcp.model.types;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.StringOptions;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.StringOptions;
 
 import java.awt.*;
 import java.io.IOException;
@@ -168,13 +168,13 @@ public class ArrayDefinition<T> extends DefaultDefinition<List<T>> {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
         // write subtype
-        subtype.write(_outputStream, all);
+        subtype.write(_outputStream, _all);
 
         // write length (4byte)
         _outputStream.write(ByteBuffer.allocate(4).putInt((int)arrayLength).array());
@@ -182,13 +182,13 @@ public class ArrayDefinition<T> extends DefaultDefinition<List<T>> {
         // write options
         if (getDefault() != null) {
 
-            if (all || defaultValueChanged) {
+            if (_all || defaultValueChanged || initialWrite) {
 
                 // use any of the default values id
                 _outputStream.write((int)StringOptions.DEFAULT.id());
                 writeValue(getDefault(), _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     defaultValueChanged = false;
                 }
             }
@@ -200,6 +200,10 @@ public class ArrayDefinition<T> extends DefaultDefinition<List<T>> {
             writeValue(null, _outputStream);
 
             defaultValueChanged = false;
+        }
+
+        if (!_all) {
+            initialWrite = false;
         }
 
         // finalize with terminator

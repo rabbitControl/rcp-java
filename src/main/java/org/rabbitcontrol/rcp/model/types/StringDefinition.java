@@ -2,12 +2,19 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.gen.RcpTypes.*;
+import org.rabbitcontrol.rcp.model.RcpTypes.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class StringDefinition extends DefaultDefinition<String> {
+
+    //------------------------------------------------------------
+    //------------------------------------------------------------
+    // options
+    //----------------------------------------------------
+    private String regex;
+    private boolean regexChanged;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -26,9 +33,17 @@ public class StringDefinition extends DefaultDefinition<String> {
         }
 
         switch (option) {
-            case DEFAULT:
+            case DEFAULT: {
                 final LongString longString = new LongString(_io);
                 setDefault(longString.data());
+            }
+                return true;
+
+            case REGULAR_EXPRESSION:
+            {
+                final LongString longString = new LongString(_io);
+                setRegex(longString.data());
+            }
                 return true;
         }
 
@@ -53,7 +68,7 @@ public class StringDefinition extends DefaultDefinition<String> {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean all) throws IOException {
+    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
@@ -63,13 +78,13 @@ public class StringDefinition extends DefaultDefinition<String> {
         //
         if (getDefault() != null) {
 
-            if (all || defaultValueChanged) {
+            if (_all || defaultValueChanged || initialWrite) {
 
                 // use any of the default values id
                 _outputStream.write((int)StringOptions.DEFAULT.id());
                 writeValue(getDefault(), _outputStream);
 
-                if (!all) {
+                if (!_all) {
                     defaultValueChanged = false;
                 }
             }
@@ -81,7 +96,54 @@ public class StringDefinition extends DefaultDefinition<String> {
             defaultValueChanged = false;
         }
 
+
+        //
+        // regex
+        //
+        if (regex != null) {
+
+            if (_all || regexChanged || initialWrite) {
+
+                _outputStream.write((int)StringOptions.REGULAR_EXPRESSION.id());
+                RCPParser.writeLongString(regex, _outputStream);
+
+                if (!_all) {
+                    regexChanged = false;
+                }
+            }
+        } else if (regexChanged) {
+
+            _outputStream.write((int)StringOptions.REGULAR_EXPRESSION.id());
+            RCPParser.writeLongString("", _outputStream);
+
+            regexChanged = false;
+        }
+
+        if (!_all) {
+            initialWrite = false;
+        }
+
         // finalize with terminator
         _outputStream.write(RCPParser.TERMINATOR);
+    }
+
+    //------------------------------------------------------------
+    //------------------------------------------------------------
+    public String getRegex() {
+        return regex;
+    }
+
+    public void setRegex(final String _regex) {
+
+        if ((regex == _regex) || ((regex != null) && regex.equals(_regex))) {
+            return;
+        }
+
+        regex = _regex;
+        regexChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
     }
 }
