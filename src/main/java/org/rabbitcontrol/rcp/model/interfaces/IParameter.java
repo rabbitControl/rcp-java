@@ -1,5 +1,7 @@
 package org.rabbitcontrol.rcp.model.interfaces;
 
+import org.rabbitcontrol.rcp.model.Parameter.PARAMETER_UPDATED;
+import org.rabbitcontrol.rcp.model.Parameter.PARAMETER_VALUE_UPDATED;
 import org.rabbitcontrol.rcp.model.RCPWritable;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
@@ -67,6 +69,14 @@ public interface IParameter extends RCPWritable {
 
     void setDirty();
 
+    // update listener
+    void addUpdateListener(final PARAMETER_UPDATED _listener);
+    void removeUpdateListener(final PARAMETER_UPDATED _listener);
+    void addValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener);
+    void removeValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener);
+
     //
     void dump();
+
+    String getStringValue();
 }

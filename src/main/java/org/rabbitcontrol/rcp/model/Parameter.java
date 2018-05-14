@@ -73,30 +73,13 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     //------------------------------------------------------------
-    public interface LABEL_CHANGED {
+    public interface PARAMETER_UPDATED {
 
-        void labelChanged(final String newValue);
+        void updated(final IParameter _parameter);
     }
+    public interface PARAMETER_VALUE_UPDATED {
 
-    public interface DESCRIPTION_CHANGED {
-
-        void descriptionChanged(final String newValue);
-    }
-
-    public interface ORDER_CHANGED {
-
-        void orderChanged(final int newValue);
-    }
-
-    public interface PARENT_CHANGED {
-
-        void parentChanged(final ByteBuffer newValue);
-    }
-
-    public interface USERDATA_CHANGED {
-
-        void userdataChanged(final byte[] newValue);
-
+        void valueUpdated(final IParameter _parameter);
     }
 
     //------------------------------------------------------------
@@ -150,17 +133,9 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     //------------------------
     // change listener
-    private final Set<LABEL_CHANGED> labelChangeListener = new HashSet<LABEL_CHANGED>();
+    private final Set<PARAMETER_UPDATED> parameterUpdateListener = new HashSet<PARAMETER_UPDATED>();
 
-    private final Set<DESCRIPTION_CHANGED>
-            descriptionChangeListener
-            = new HashSet<DESCRIPTION_CHANGED>();
-
-    private final Set<ORDER_CHANGED> orderChangeListener = new HashSet<ORDER_CHANGED>();
-
-    private final Set<USERDATA_CHANGED> userdataChangeListener = new HashSet<USERDATA_CHANGED>();
-
-    private final Set<PARENT_CHANGED> parentChangeListener = new HashSet<PARENT_CHANGED>();
+    private final Set<PARAMETER_VALUE_UPDATED> valueUpdateListener = new HashSet<PARAMETER_VALUE_UPDATED>();
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -585,6 +560,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     public void update(final IParameter _parameter) {
 
+        boolean changed = false;
+
         // check id
         if (_parameter.getId() != id) {
             return;
@@ -594,6 +571,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         if (_parameter.getLabel() != null) {
             label = _parameter.getLabel();
+            changed = true;
         }
 
         final Set<String> label_keys = _parameter.getLabelLanguages();
@@ -602,10 +580,12 @@ public abstract class Parameter implements IParameter, IParameterChild {
             for (final String key : label_keys) {
                 setLanguageLabel(key, _parameter.getLanguageLabel(key));
             }
+            changed = true;
         }
 
         if (_parameter.getDescription() != null) {
             description = _parameter.getDescription();
+            changed = true;
         }
 
         final Set<String> desc_keys = _parameter.getDescriptionLanguages();
@@ -614,20 +594,23 @@ public abstract class Parameter implements IParameter, IParameterChild {
             for (final String desc_key : desc_keys) {
                 setLanguageDescription(desc_key, _parameter.getLanguageDescription(desc_key));
             }
+            changed = true;
         }
 
         if (_parameter.getTags() != null) {
             tags = _parameter.getTags();
+            changed = true;
         }
 
         if (_parameter.getOrder() != null) {
             order = _parameter.getOrder();
+            changed = true;
         }
 
 
         if (_parameter.getParent() != null) {
             parent = _parameter.getParent();
-
+            changed = true;
             // TODO: test
         }
 
@@ -635,10 +618,16 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         if (_parameter.getUserdata() != null) {
             userdata = _parameter.getUserdata();
+            changed = true;
         }
 
         if (_parameter.getUserid() != null) {
             userid = _parameter.getUserid();
+            changed = true;
+        }
+
+        if (changed) {
+            callUpdateListener();
         }
     }
 
@@ -657,94 +646,64 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     //------------------------------------------------------------
-    // listener
-    /*
-        LABEL_CHANGED listener
-     */
-    public void addLabelChangeListener(final LABEL_CHANGED _listener) {
+    // update listener
+    @Override
+    public void addUpdateListener(final PARAMETER_UPDATED _listener) {
 
-        if (!labelChangeListener.contains(_listener)) {
-            labelChangeListener.add(_listener);
+        if (!parameterUpdateListener.contains(_listener)) {
+            parameterUpdateListener.add(_listener);
         }
     }
 
-    public void removeLabelChangeListener(final LABEL_CHANGED _listener) {
+    @Override
+    public void removeUpdateListener(final PARAMETER_UPDATED _listener) {
 
-        if (labelChangeListener.contains(_listener)) {
-            labelChangeListener.remove(_listener);
+        if (parameterUpdateListener.contains(_listener)) {
+            parameterUpdateListener.remove(_listener);
         }
     }
 
-    public void clearLabelChangeListener() {
+    public void clearUpdateListener() {
 
-        labelChangeListener.clear();
+        parameterUpdateListener.clear();
     }
 
-    /*
-        DESCRIPTION_CHANGED listener
-     */
-    public void addDescriptionChangedListener(final DESCRIPTION_CHANGED _listener) {
+    private void callUpdateListener() {
 
-        if (!descriptionChangeListener.contains(_listener)) {
-            descriptionChangeListener.add(_listener);
+        for (final PARAMETER_UPDATED listener : parameterUpdateListener) {
+            listener.updated(this);
         }
     }
 
-    public void removeDescriptionChangedListener(final DESCRIPTION_CHANGED _listener) {
+    // value update listener
+    @Override
+    public void addValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener) {
 
-        if (descriptionChangeListener.contains(_listener)) {
-            descriptionChangeListener.remove(_listener);
+        if (!valueUpdateListener.contains(_listener)) {
+            valueUpdateListener.add(_listener);
         }
     }
 
-    public void clearDescriptionChangedListener() {
+    @Override
+    public void removeValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener) {
 
-        descriptionChangeListener.clear();
-    }
-
-    /*
-        ORDER_CHANGED listener
-     */
-    public void addOrderChangedListener(final ORDER_CHANGED _listener) {
-
-        if (!orderChangeListener.contains(_listener)) {
-            orderChangeListener.add(_listener);
+        if (valueUpdateListener.contains(_listener)) {
+            valueUpdateListener.remove(_listener);
         }
     }
 
-    public void removeOrderChangedListener(final ORDER_CHANGED _listener) {
+    public void clearValueChangeListener() {
 
-        if (orderChangeListener.contains(_listener)) {
-            orderChangeListener.remove(_listener);
+        valueUpdateListener.clear();
+    }
+
+    protected void callValueUpdateListener() {
+
+        for (final PARAMETER_VALUE_UPDATED listener : valueUpdateListener) {
+            listener.valueUpdated(this);
         }
     }
 
-    public void clearOrderChangedListener() {
-
-        orderChangeListener.clear();
-    }
-
-    /*
-        USERDATA_CHANGED listener
-     */
-    public void addUserdataChangedListener(final USERDATA_CHANGED _listener) {
-
-        if (!userdataChangeListener.contains(_listener)) {
-            userdataChangeListener.add(_listener);
-        }
-    }
-
-    public void removeUserdataChangedListener(final USERDATA_CHANGED _listener) {
-
-        if (userdataChangeListener.contains(_listener)) {
-            userdataChangeListener.remove(_listener);
-        }
-    }
-
-    public void clearUserdataChangedListener() {
-
-        userdataChangeListener.clear();
-    }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -776,10 +735,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         label = _label;
         labelChanged = true;
-
-        for (final LABEL_CHANGED label_changed : labelChangeListener) {
-            label_changed.labelChanged(label);
-        }
 
         setDirty();
     }
@@ -833,10 +788,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         description = _description;
         descriptionChanged = true;
-
-        for (final DESCRIPTION_CHANGED description_changed : descriptionChangeListener) {
-            description_changed.descriptionChanged(description);
-        }
 
         setDirty();
     }
@@ -909,10 +860,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
         order = _order;
         orderChanged = true;
 
-        for (final ORDER_CHANGED order_changed : orderChangeListener) {
-            order_changed.orderChanged(order);
-        }
-
         setDirty();
     }
 
@@ -984,10 +931,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         userdata = _userdata;
         userdataChanged = true;
-
-        for (final USERDATA_CHANGED userdata_changed : userdataChangeListener) {
-            userdata_changed.userdataChanged(userdata);
-        }
 
         setDirty();
     }

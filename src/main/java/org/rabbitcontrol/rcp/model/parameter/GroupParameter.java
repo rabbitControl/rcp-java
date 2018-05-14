@@ -93,4 +93,10 @@ public class GroupParameter extends Parameter {
         }
 
     }
+
+    @Override
+    public String getStringValue() {
+
+        return "group:"+getId();
+    }
 }

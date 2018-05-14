@@ -12,12 +12,6 @@ import java.util.*;
 
 public abstract class ValueParameter<T> extends Parameter implements IValueParameter<T> {
 
-    //------------------------------------------------------------
-    // interfaces
-    public interface VALUE_CHANGED<T> {
-
-        void valueChanged(final T newValue);
-    }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -28,11 +22,6 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     private T value;
 
     private boolean valueChanged;
-
-    //------------------------
-    // change listener
-
-    private final Set<VALUE_CHANGED<T>> valueChangeListener = new HashSet<VALUE_CHANGED<T>>();
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -111,31 +100,6 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     }
 
     //------------------------------------------------------------
-    // listener
-
-    /*
-        VALUE_CHANGED listener
-     */
-    public void addValueChangeListener(final VALUE_CHANGED<T> _listener) {
-
-        if (!valueChangeListener.contains(_listener)) {
-            valueChangeListener.add(_listener);
-        }
-    }
-
-    public void removeValueChangeListener(final VALUE_CHANGED<T> _listener) {
-
-        if (valueChangeListener.contains(_listener)) {
-            valueChangeListener.remove(_listener);
-        }
-    }
-
-    public void clearValueChangeListener() {
-
-        valueChangeListener.clear();
-    }
-
-    //------------------------------------------------------------
     //------------------------------------------------------------
     @Override
     public IDefaultDefinition<T> getTypeDefinition() {
@@ -158,10 +122,6 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
         value = _value;
         valueChanged = true;
-
-        for (final VALUE_CHANGED<T> value_changed : valueChangeListener) {
-            value_changed.valueChanged(value);
-        }
 
         setDirty();
     }
@@ -186,22 +146,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
             return;
         }
 
-        // TODO: figure out if we need to check id/datatype before setting data
-        //        if (id != _parameter.getId()) {
-        //            System.err.println("don't updated unmatching id");
-        //            return;
-        //        }
-        //
-        //        // compare datatypes...
-        //        if ((_parameter.getTypeDefinition() != null) &&
-        //            (typeDefinition.getDatatype() != _parameter.getTypeDefinition().getDatatype
-        // ())) {
-        //            System.err.println("not updated unmatching types: " +
-        //                               typeDefinition.getDatatype() +
-        //                               " != " +
-        //                               _parameter.getTypeDefinition().getDatatype());
-        //            return;
-        //        }
+        boolean changed = false;
 
         // set fields directly, no change-flag ist set!
 
@@ -213,6 +158,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
                 try {
                     value = (T)value.getClass().cast(otherValue);
+                    changed = true;
                 }
                 catch (final ClassCastException e) {
 
@@ -220,23 +166,28 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
                         if (value instanceof Integer) {
                             value = (T)new Integer(((Number)otherValue).intValue());
+                            changed = true;
                         }
                         else if (value instanceof Short) {
                             value = (T)new Short(((Number)otherValue).shortValue());
+                            changed = true;
                         }
                         else if (value instanceof Byte) {
                             value = (T)new Byte(((Number)otherValue).byteValue());
+                            changed = true;
                         }
                         else if (value instanceof Long) {
                             value = (T)new Long(((Number)otherValue).longValue());
+                            changed = true;
                         }
                         else if (value instanceof Float) {
                             value = (T)new Float(((Number)otherValue).floatValue());
+                            changed = true;
                         }
                         else if (value instanceof Double) {
                             value = (T)new Double(((Number)otherValue).doubleValue());
+                            changed = true;
                         }
-
                     }
                     else if (value instanceof Map) {
 
@@ -249,6 +200,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
                             for (Object key : ((Map)otherValue).keySet()) {
                                 ((Map)value).put(key, ((Map)otherValue).get(key));
                             }
+
+                            changed = true;
 
                         }
                         else {
@@ -267,6 +220,16 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
             }
         }
 
+        if (changed) {
+            callValueUpdateListener();
+        }
+
         super.update(_parameter);
+    }
+
+    @Override
+    public String getStringValue() {
+
+        return value.toString();
     }
 }
