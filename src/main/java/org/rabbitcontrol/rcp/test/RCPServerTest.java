@@ -137,17 +137,17 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 //        bla.setValue(list);
 
 
-        ArrayParameter<List<List<Integer>>, Integer> arr = ArrayParameter.create((short)1, Integer
-                .class, 3, 3);
-
-
-        rabbit.addParameter(arr);
-        rabbit.update();
+//        ArrayParameter<List<List<Integer>>, Integer> arr = ArrayParameter.create((short)1, Integer
+//                .class, 3, 3);
+//
+//
+//        rabbit.addParameter(arr);
+//        rabbit.update();
 
 
         // group 1
         groupParam1 = rabbit.createGroupParameter("GROuP");
-        groupParam1.setWidgetType((short)123);
+//        groupParam1.setWidgetType((short)123);
 
 
         // string
@@ -173,9 +173,9 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 //        enumParameter.getEnumTypeDefinition().setDefault("tres");
 //        enumParameter.setValue("dos");
 //
-//        // RGB color
-//        colorparam = rabbit.createRGBParameter("a color", groupParam1);
-//        colorparam.setValue(Color.CYAN);
+        // RGB color
+        colorparam = rabbit.createRGBParameter("a color", groupParam1);
+        colorparam.setValue(Color.CYAN);
 //
 //
 //        theValueString.getTypeDefinition().setDefault("defaultstring");
