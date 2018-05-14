@@ -11,6 +11,7 @@ import org.rabbitcontrol.rcp.transport.RCPClient;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -54,9 +55,11 @@ public class RCPClientTest implements Add, Remove, Update {
     //
     private final RCPClient rcp;
 
+    ArrayList<IParameter> allParams = new ArrayList<IParameter>();
+
     //------------------------------------------------------------
     //
-    public RCPClientTest() throws IOException, URISyntaxException, InterruptedException {
+    public RCPClientTest() {
 
         // create serializer and transporter
 //        final UDPClientTransporter transporter = new UDPClientTransporter("localhost", 8888);
@@ -112,16 +115,18 @@ public class RCPClientTest implements Add, Remove, Update {
     //------------------------------------------------------------
     //
     @Override
-    public void parameterAdded(final IParameter _value) {
+    public void parameterAdded(final IParameter _parameter) {
 
         //create ui
         //create adapter(parameter)
         // ui.setupdatelistern(adapter, client)
 
 
-        System.out.println("client: added: " + _value.getId());
-        //        toi.dumpCache();
-        _value.dump();
+        if (!allParams.contains(_parameter)) {
+            allParams.add(_parameter);
+            _parameter.dump();
+
+        }
     }
 
     @Override

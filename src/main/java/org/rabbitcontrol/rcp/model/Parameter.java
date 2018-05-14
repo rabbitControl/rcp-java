@@ -5,16 +5,20 @@ import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.interfaces.*;
+import org.rabbitcontrol.rcp.model.parameter.ArrayParameter;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
-import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
+import org.rabbitcontrol.rcp.model.types.ArrayDefinitionFixed;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Parameter implements IParameter, IParameterChild {
+
+    private static final String LANGUAGE_ANY_STR = "any";
+
+    private static final byte[] LANGUAGE_ANY     = LANGUAGE_ANY_STR.getBytes();
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -32,27 +36,26 @@ public abstract class Parameter implements IParameter, IParameterChild {
             throw new RCPDataErrorException();
         }
 
-
         final Parameter param;
 
         // handle certain datatypes...
         if (datatype == Datatype.FIXED_ARRAY) {
 
-            // create ArrayDefinition
-            final ArrayDefinition<?> array_def = ArrayDefinition.parse(_io);
+            // create ArrayDefinitionFixed
+            final ArrayDefinitionFixed<?, ?> array_def = ArrayDefinitionFixed.parse(_io);
 
-            param = ParameterFactory.createArrayParameter(parameter_id, array_def);
-
+            param = ArrayParameter.createFixed(parameter_id, array_def, array_def.getSubtype());
             // !! type definition options already parsed
-
-        } else if (datatype == Datatype.DYNAMIC_ARRAY) {
+        }
+        else if (datatype == Datatype.DYNAMIC_ARRAY) {
 
             // read mandatory sub-type
             param = null;
 
-        } else {
+        }
+        else {
             // implicitly create typeDefinition
-            param = (Parameter)ParameterFactory.createParameter(parameter_id, datatype);
+            param = (Parameter)RCPFactory.createParameter(parameter_id, datatype);
 
             // parse type options and
             if (param != null) {
@@ -60,13 +63,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
             }
         }
 
-
         if (param != null) {
             // !! parse only parameter options
             param.parseOptions(_io);
             return param;
         }
-
 
         throw new RCPUnsupportedFeatureException("no such feature: " + datatype);
     }
@@ -93,10 +94,10 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     public interface USERDATA_CHANGED {
+
         void userdataChanged(final byte[] newValue);
 
     }
-
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -107,32 +108,43 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     // optional
     protected String label;
-    private boolean labelChanged = false;
+
+    protected Map<String, String> languageLabels = new HashMap<String, String>();
+
+    private   boolean             labelChanged   = false;
 
     protected String description;
-    private boolean descriptionChanged = false;
+
+    protected Map<String, String> languageDescriptions = new HashMap<String, String>();
+
+    private   boolean             descriptionChanged   = false;
 
     protected String tags;
+
     private boolean tagsChanged = false;
 
     protected Integer order;
+
     private boolean orderChanged = false;
 
     private GroupParameter parent;
-    private boolean        parentChanged = false;
 
+    private boolean parentChanged = false;
 
     // widget
     private Short widgetType;
+
     private boolean widgetTypeChanged = false;
 
     protected byte[] userdata;
+
     private boolean userdataChanged = false;
 
     private String userid;
+
     private boolean useridChanged = false;
 
-    private IParameterManager model;
+    private IParameterManager parameterManager;
 
     protected boolean initialWrite = true; // one-time-flag
 
@@ -150,7 +162,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     private final Set<PARENT_CHANGED> parentChangeListener = new HashSet<PARENT_CHANGED>();
 
-
     //------------------------------------------------------------
     //------------------------------------------------------------
     public Parameter(final short _id, final TypeDefinition _typeDefinition) {
@@ -161,12 +172,14 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     public IParameter cloneEmpty() {
-        return ParameterFactory.createParameter(id, typeDefinition.getDatatype());
+
+        return RCPFactory.createParameter(id, typeDefinition.getDatatype());
     }
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);
 
     private void parseTypeOptions(final KaitaiStream _io) throws RCPDataErrorException {
+
         typeDefinition.parseOptions(_io);
     }
 
@@ -197,22 +210,79 @@ public abstract class Parameter implements IParameter, IParameterChild {
             switch (option) {
 
                 case LABEL: {
-                    final TinyString tinyString = new TinyString(_io);
-                    setLabel(tinyString.data());
+
+                    int  current = _io.pos();
+                    byte ppeekk  = _io.readS1();
+
+                    while (ppeekk != 0) {
+
+                        // rewind one
+                        _io.seek(current);
+
+                        final String lang_code = new String(_io.readBytes(LANGUAGE_ANY.length));
+                        final String label     = new TinyString(_io).data();
+
+                        if (LANGUAGE_ANY_STR.equals(lang_code)) {
+                            System.out.println("any language label: " + label);
+                            setLabel(label);
+                        }
+                        else {
+                            System.out.println("setting language label " +
+                                               lang_code +
+                                               " : " +
+                                               label);
+                            setLanguageLabel(lang_code, label);
+                        }
+
+                        current = _io.pos();
+                        ppeekk = _io.readS1();
+                    }
+
+                    //                    final TinyString tinyString = new TinyString(_io);
+                    //                    setLabel(tinyString.data());
                 }
-                    break;
+                break;
 
                 case DESCRIPTION: {
-                    final ShortString shortString = new ShortString(_io);
-                    setDescription(shortString.data());
+
+                    int  current = _io.pos();
+                    byte ppeekk  = _io.readS1();
+
+                    while (ppeekk != 0) {
+
+                        // rewind one
+                        _io.seek(current);
+
+                        final String lang_code = new String(_io.readBytes(LANGUAGE_ANY.length));
+                        final String label     = new ShortString(_io).data();
+
+                        if (LANGUAGE_ANY_STR.equals(lang_code)) {
+                            System.out.println("any language description: " + label);
+                            setDescription(label);
+                        }
+                        else {
+                            System.out.println("setting language description " +
+                                               lang_code +
+                                               " :" +
+                                               " " +
+                                               label);
+                            setLanguageDescription(lang_code, label);
+                        }
+
+                        current = _io.pos();
+                        ppeekk = _io.readS1();
+                    }
+
+                    //                    final ShortString shortString = new ShortString(_io);
+                    //                    setDescription(shortString.data());
                 }
-                    break;
+                break;
 
                 case TAGS: {
                     final TinyString tinyString = new TinyString(_io);
                     setTags(tinyString.data());
                 }
-                    break;
+                break;
 
                 case ORDER:
                     setOrder(_io.readS4be());
@@ -221,23 +291,23 @@ public abstract class Parameter implements IParameter, IParameterChild {
                 case PARENTID: {
                     // read as id, this is correct
                     final short parent_id = _io.readS2be();
-                    if (model != null) {
-                        final IParameter parent = model.getParameter(parent_id);
+                    if (parameterManager != null) {
+                        final IParameter parent = parameterManager.getParameter(parent_id);
                         try {
                             setParent((GroupParameter)parent);
-                        } catch (final ClassCastException _e) {
+                        }
+                        catch (final ClassCastException _e) {
                             System.err.println("parameter not a GroupParameter!");
                         }
                     }
                 }
-                    break;
-
+                break;
 
                 case USERID: {
                     final TinyString tinyString = new TinyString(_io);
                     setUserid(tinyString.data());
                 }
-                    break;
+                break;
 
                 case WIDGET:
                     // skip...
@@ -260,13 +330,65 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     }
 
-
     protected void writeId(final short _id, final OutputStream _outputStream) throws IOException {
 
         _outputStream.write(ByteBuffer.allocate(2).putShort(_id).array());
 
     }
 
+    private void writeLabel(final OutputStream _outputStream) throws IOException {
+
+        _outputStream.write((int)ParameterOptions.LABEL.id());
+
+        // concat label and all language-labels
+        if (label != null) {
+            _outputStream.write(LANGUAGE_ANY);
+            RCPParser.writeTinyString(label, _outputStream);
+        }
+
+        if (languageLabels != null) {
+
+            for (final String key : languageLabels.keySet()) {
+
+                if (key.length() < 3) {
+                    continue;
+                }
+
+                final String value = languageLabels.get(key);
+                _outputStream.write(Arrays.copyOf(key.getBytes(), 3));
+                RCPParser.writeTinyString(value, _outputStream);
+            }
+        }
+
+        _outputStream.write(RCPParser.TERMINATOR);
+    }
+
+    private void writeDescription(final OutputStream _outputStream) throws IOException {
+
+        _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
+
+        // concat label and all language-labels
+        if (description != null) {
+            _outputStream.write(LANGUAGE_ANY);
+            RCPParser.writeShortString(description, _outputStream);
+        }
+
+        if (languageDescriptions != null) {
+
+            for (final String key : languageDescriptions.keySet()) {
+
+                if (key.length() < 3) {
+                    continue;
+                }
+
+                final String value = languageDescriptions.get(key);
+                _outputStream.write(Arrays.copyOf(key.getBytes(), 3));
+                RCPParser.writeShortString(value, _outputStream);
+            }
+        }
+
+        _outputStream.write(RCPParser.TERMINATOR);
+    }
 
     @Override
     public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
@@ -276,12 +398,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         // label
         //
-        if (label != null) {
+        if ((label != null) || !languageLabels.isEmpty()) {
 
             if (_all || labelChanged || initialWrite) {
 
-                _outputStream.write((int)ParameterOptions.LABEL.id());
-                RCPParser.writeTinyString(label, _outputStream);
+                writeLabel(_outputStream);
 
                 // clear flag
                 if (!_all) {
@@ -289,11 +410,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
                 }
             }
 
-
-        } else if (labelChanged) {
+        }
+        else if (labelChanged) {
             // send default value
             _outputStream.write((int)ParameterOptions.LABEL.id());
-            RCPParser.writeTinyString("", _outputStream);
+            _outputStream.write(RCPParser.TERMINATOR);
 
             labelChanged = false;
         }
@@ -301,21 +422,21 @@ public abstract class Parameter implements IParameter, IParameterChild {
         //
         // description
         //
-        if (description != null) {
+        if ((description != null) || !languageDescriptions.isEmpty()) {
 
             if (_all || descriptionChanged || initialWrite) {
 
-                _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
-                RCPParser.writeShortString(description, _outputStream);
+                writeDescription(_outputStream);
 
                 if (!_all) {
                     descriptionChanged = false;
                 }
             }
-        } else if (descriptionChanged) {
+        }
+        else if (descriptionChanged) {
 
             _outputStream.write((int)ParameterOptions.DESCRIPTION.id());
-            RCPParser.writeShortString("", _outputStream);
+            _outputStream.write(RCPParser.TERMINATOR);
 
             descriptionChanged = false;
         }
@@ -334,7 +455,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     tagsChanged = false;
                 }
             }
-        } else if (tagsChanged) {
+        }
+        else if (tagsChanged) {
 
             _outputStream.write((int)ParameterOptions.TAGS.id());
             RCPParser.writeTinyString("", _outputStream);
@@ -356,14 +478,14 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     orderChanged = false;
                 }
             }
-        } else if (orderChanged) {
+        }
+        else if (orderChanged) {
 
             _outputStream.write((int)ParameterOptions.ORDER.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
 
             orderChanged = false;
         }
-
 
         //
         // parentId
@@ -379,7 +501,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     parentChanged = false;
                 }
             }
-        } else if (parentChanged) {
+        }
+        else if (parentChanged) {
 
             _outputStream.write((int)ParameterOptions.PARENTID.id());
             writeId((short)0, _outputStream);
@@ -399,15 +522,14 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     widgetTypeChanged = false;
                 }
             }
-        } else if (widgetTypeChanged) {
+        }
+        else if (widgetTypeChanged) {
 
             _outputStream.write((int)ParameterOptions.WIDGET.id());
             _outputStream.write(ByteBuffer.allocate(2).putShort(widgetType).array());
 
             widgetTypeChanged = false;
         }
-
-
 
         //
         // userdata
@@ -424,14 +546,14 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     userdataChanged = false;
                 }
             }
-        } else if (userdataChanged) {
+        }
+        else if (userdataChanged) {
 
             _outputStream.write((int)ParameterOptions.USERDATA.id());
             _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
 
             userdataChanged = false;
         }
-
 
         //
         // userid
@@ -447,7 +569,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     useridChanged = false;
                 }
             }
-        } else if (useridChanged) {
+        }
+        else if (useridChanged) {
 
             _outputStream.write((int)ParameterOptions.USERID.id());
             RCPParser.writeTinyString("", _outputStream);
@@ -455,14 +578,17 @@ public abstract class Parameter implements IParameter, IParameterChild {
             useridChanged = false;
         }
 
-
         if (!_all) {
             initialWrite = false;
         }
     }
 
-
     public void update(final IParameter _parameter) {
+
+        // check id
+        if (_parameter.getId() != id) {
+            return;
+        }
 
         // set fields directly, no change-flag ist set!
 
@@ -470,8 +596,24 @@ public abstract class Parameter implements IParameter, IParameterChild {
             label = _parameter.getLabel();
         }
 
+        final Set<String> label_keys = _parameter.getLabelLanguages();
+        if (label_keys != null) {
+            clearLanguageLabel();
+            for (final String key : label_keys) {
+                setLanguageLabel(key, _parameter.getLanguageLabel(key));
+            }
+        }
+
         if (_parameter.getDescription() != null) {
             description = _parameter.getDescription();
+        }
+
+        final Set<String> desc_keys = _parameter.getDescriptionLanguages();
+        if (desc_keys != null) {
+            clearLangaugeDescription();
+            for (final String desc_key : desc_keys) {
+                setLanguageDescription(desc_key, _parameter.getLanguageDescription(desc_key));
+            }
         }
 
         if (_parameter.getTags() != null) {
@@ -482,10 +624,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
             order = _parameter.getOrder();
         }
 
+
         if (_parameter.getParent() != null) {
             parent = _parameter.getParent();
 
-            // TODO: resolve parent parameter
+            // TODO: test
         }
 
         // TODO: widget
@@ -501,6 +644,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     @Override
     public void dump() {
+
         System.out.println("--- " + id + " ---");
         System.out.println("type:\t\t\t" + typeDefinition.getDatatype().name());
         System.out.println("label:\t\t\t" + label);
@@ -602,7 +746,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
         userdataChangeListener.clear();
     }
 
-
     //------------------------------------------------------------
     //------------------------------------------------------------
 
@@ -642,6 +785,39 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
+    public Set<String> getLabelLanguages() {
+        return languageLabels.keySet();
+    }
+
+    @Override
+    public String getLanguageLabel(final String _code) {
+        return languageLabels.get(_code);
+    }
+
+    @Override
+    public void clearLanguageLabel() {
+        languageLabels.clear();
+    }
+
+    @Override
+    public void setLanguageLabel(final String _code, final String _label) {
+
+        languageLabels.put(_code, _label);
+        labelChanged = true;
+
+        setDirty();
+    }
+
+    @Override
+    public void removeLanguageLabel(final String _code) {
+
+        languageLabels.remove(_code);
+        labelChanged = true;
+
+        setDirty();
+    }
+
+    @Override
     public String getDescription() {
 
         return description;
@@ -650,8 +826,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
     @Override
     public void setDescription(final String _description) {
 
-        if ((description == _description) ||
-            ((description != null) && description.equals(_description))) {
+        if ((description == _description) || ((description != null) && description.equals(
+                _description))) {
             return;
         }
 
@@ -666,7 +842,41 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
+    public Set<String> getDescriptionLanguages() {
+        return languageDescriptions.keySet();
+    }
+
+    @Override
+    public String getLanguageDescription(final String _code) {
+        return languageDescriptions.get(_code);
+    }
+
+    @Override
+    public void clearLangaugeDescription() {
+        languageDescriptions.clear();
+    }
+
+    @Override
+    public void setLanguageDescription(final String _code, final String _label) {
+
+        languageDescriptions.put(_code, _label);
+        descriptionChanged = true;
+
+        setDirty();
+    }
+
+    @Override
+    public void removeLanguageDescription(final String _code) {
+
+        languageDescriptions.remove(_code);
+        descriptionChanged = true;
+
+        setDirty();
+    }
+
+    @Override
     public String getTags() {
+
         return tags;
     }
 
@@ -682,7 +892,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         setDirty();
     }
-
 
     @Override
     public Integer getOrder() {
@@ -720,21 +929,22 @@ public abstract class Parameter implements IParameter, IParameterChild {
             return;
         }
 
-        GroupParameter p = parent;
+        final GroupParameter p = parent;
 
         if (parent != null) {
             parent = null;
             p.removeChild(this);
         }
 
-        parent  = _parent;
+        parent = _parent;
         parentChanged = true;
 
         setDirty();
     }
 
     @Override
-    public void setWidgetType(short type) {
+    public void setWidgetType(final short type) {
+
         widgetType = type;
         widgetTypeChanged = true;
         setDirty();
@@ -753,7 +963,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
             return;
         }
 
-        userid  = _userid;
+        userid = _userid;
         useridChanged = true;
 
         setDirty();
@@ -761,6 +971,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     @Override
     public byte[] getUserdata() {
+
         return userdata;
     }
 
@@ -783,13 +994,15 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     @Override
     public void setRcpModel(final IParameterManager _model) {
-        model = _model;
+
+        parameterManager = _model;
     }
 
     @Override
     public void setDirty() {
-        if (model != null) {
-            model.setParameterDirty(this);
+
+        if (parameterManager != null) {
+            parameterManager.setParameterDirty(this);
         }
     }
 }

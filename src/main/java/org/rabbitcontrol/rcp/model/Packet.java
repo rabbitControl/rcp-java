@@ -1,10 +1,11 @@
 package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.RcpTypes.PacketOptions;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -187,5 +188,9 @@ public class Packet implements RCPWritable {
     public void setData(final RCPWritable _data) {
 
         data = _data;
+    }
+
+    public IParameter getDataAsParameter() throws ClassCastException {
+        return (IParameter)data;
     }
 }

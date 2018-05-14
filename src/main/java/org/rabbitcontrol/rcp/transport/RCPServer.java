@@ -4,6 +4,7 @@ import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
@@ -72,7 +73,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         _parameter.setLabel(_label);
         _parameter.setRcpModel(this);
-        dirtyParams.add(_parameter);
         addParameter(_parameter, _group);
     }
 
@@ -97,8 +97,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     // int8
-    public Int8Parameter createInt8Parameter(final String _label) throws
-                                                                          RCPParameterException {
+    public Int8Parameter createInt8Parameter(final String _label) throws RCPParameterException {
+
         return createInt8Parameter(_label, rootGroup);
     }
 
@@ -117,8 +117,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     // int16
-    public Int32Parameter createInt16Parameter(final String _label) throws
-                                                                          RCPParameterException {
+    public Int32Parameter createInt16Parameter(final String _label) throws RCPParameterException {
+
         return createInt16Parameter(_label, rootGroup);
     }
 
@@ -137,8 +137,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     // int32
-    public Int32Parameter createInt32Parameter(final String _label) throws
-                                                                            RCPParameterException {
+    public Int32Parameter createInt32Parameter(final String _label) throws RCPParameterException {
+
         return createInt32Parameter(_label, rootGroup);
     }
 
@@ -157,8 +157,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     // int64
-    public Int64Parameter createInt64Parameter(final String _label) throws
-                                                                              RCPParameterException {
+    public Int64Parameter createInt64Parameter(final String _label) throws RCPParameterException {
+
         return createInt64Parameter(_label, rootGroup);
     }
 
@@ -177,8 +177,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     // float
-    public Float32Parameter createFloatParameter(final String _label) throws
-                                                                           RCPParameterException {
+    public Float32Parameter createFloatParameter(final String _label) throws RCPParameterException {
+
         return createFloatParameter(_label, rootGroup);
     }
 
@@ -198,7 +198,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     // double
     public Float64Parameter createDoubleParameter(final String _label) throws
-                                                                            RCPParameterException {
+                                                                       RCPParameterException {
+
         return createDoubleParameter(_label, rootGroup);
     }
 
@@ -223,9 +224,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public StringParameter createStringParameter(
-            final String _label,
-            final GroupParameter _group) throws
-                                         RCPParameterException {
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
         if (id == 0) {
@@ -244,9 +243,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public EnumParameter createEnumParameter(
-            final String _label,
-            final GroupParameter _group) throws
-                                         RCPParameterException {
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
         if (id == 0) {
@@ -265,9 +262,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public RGBParameter createRGBParameter(
-            final String _label,
-            final GroupParameter _group) throws
-                                         RCPParameterException {
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
         if (id == 0) {
@@ -286,9 +281,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public RGBAParameter createRGBAParameter(
-            final String _label,
-            final GroupParameter _group) throws
-                                         RCPParameterException {
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
         if (id == 0) {
@@ -307,9 +300,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public GroupParameter createGroupParameter(
-            final String _label,
-            final GroupParameter _group) throws
-                                         RCPParameterException {
+            final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
         if (id == 0) {
@@ -320,6 +311,27 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         setupParameter(p, _label, _group);
         return p;
     }
+
+//    public <T> ArrayParameter<T> createArrayParameter(
+//            final String _label, Datatype _datatype, int _dim, int... _sizes) throws
+//                                                                       RCPParameterException {
+//
+//        return createArrayParameter(_label, rootGroup, _datatype, _dim, _sizes);
+//    }
+//
+//    public <T> ArrayParameter<T> createArrayParameter(
+//            final String _label, final GroupParameter _group, Datatype _datatype, int _dim, int... _sizes) throws
+//                                                                                            RCPParameterException {
+//
+//        final short id = availableId();
+//        if (id == 0) {
+//            throw new RCPParameterException("could not get valid parameter id");
+//        }
+//
+//        final ArrayParameter<T> p = new ArrayParameter<T>(id, _datatype, _dim, _sizes);
+//        setupParameter(p, _label, _group);
+//        return p;
+//    }
 
     /**
      * get next available id
@@ -405,6 +417,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         //------------------------------------------------
         // add parameter to valueCache (flat map)
         valueCache.put(_parameter.getId(), _parameter);
+        dirtyParams.add(_parameter);
 
         if (!ids.contains(_parameter.getId())) {
             ids.add(_parameter.getId());
@@ -430,7 +443,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         if (!transporterList.isEmpty()) {
 
             try {
-                final byte[] data = new Packet(Command.UPDATE, _parameter).serialize( true);
+                final byte[] data = new Packet(Command.UPDATE, _parameter).serialize(true);
 
                 System.out.println("send parameter: " + _parameter.getLabel());
 
@@ -476,6 +489,10 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
     }
 
+    /**
+     * public interface: update
+     * updates all dirty parameters and removes parameters to remove
+     */
     public void update() {
 
         // TODO: multithreading??
@@ -518,7 +535,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
             try {
                 final Packet packet = new Packet(Command.UPDATE, _value);
-                final byte[] data = Packet.serialize(packet, false);
+                final byte[] data   = Packet.serialize(packet, false);
 
                 for (final ServerTransporter transporter : transporterList) {
                     System.out.println("update : " + _value.getId());
@@ -530,7 +547,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             }
         }
     }
-
 
     public void remove(final IParameter _parameter) {
 
@@ -544,21 +560,22 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         ((Parameter)_parameter).setParent(null);
 
-
         if (dirtyParams.contains(_parameter)) {
             dirtyParams.remove(_parameter);
         }
 
         parameterToRemove.add(_parameter);
 
+        //- remove group: only remove group.id is sent
+        // client needs to remove all children
         //------------------------------------------------
         // remove all children
-        if (_parameter instanceof GroupParameter) {
-
-            for (final IParameter _child : ((GroupParameter)_parameter).getChildren()) {
-                remove(_child);
-            }
-        }
+        //        if (_parameter instanceof GroupParameter) {
+        //
+        //            for (final IParameter _child : ((GroupParameter)_parameter).getChildren()) {
+        //                remove(_child);
+        //            }
+        //        }
     }
 
     //------------------------------------------------------------
@@ -614,33 +631,33 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     private void _update(
             final Packet _packet, final ServerTransporter _transporter, final Object _id) {
 
-        final IParameter val = (IParameter)_packet.getData();
+        try {
 
-        operateOnCache(new RCPCacheOperator() {
+            final IParameter parameter = _packet.getDataAsParameter();
 
-            @Override
-            public void operate(final Map<Short, IParameter> valueCache) {
+            //updated value cache?
+            final IParameter cached_parameter = valueCache.get(parameter.getId());
+            if (cached_parameter != null) {
 
-                //updated value cache?
-                final IParameter cached = valueCache.get(val.getId());
-                if (cached != null) {
+                // update cached
+                ((Parameter)cached_parameter).update(parameter);
 
-                    // update cached
-                    ((Parameter)cached).update(val);
-
-                    // call listeners with cached...
-                    if (updateListener != null) {
-                        updateListener.parameterUpdated(cached);
-                    }
-                }
-                else {
-                    System.err.println("client: updated: no value in value cache - " + "ignoring");
+                // call listeners with cached...
+                if (updateListener != null) {
+                    updateListener.parameterUpdated(cached_parameter);
                 }
             }
-        });
+            else {
+                System.err.println("server: update: parameter not found in valuecache - " +
+                                   "ignoring");
+            }
 
-        // update all clients...
-        update(val, _id);
+            // update all clients...
+            update(parameter, _id);
+
+        } catch (final ClassCastException _e) {
+            // nop
+        }
 
     }
 
@@ -656,7 +673,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             initListener.init();
         }
     }
-
 
     @Override
     public void setParameterDirty(final IParameter _parameter) {

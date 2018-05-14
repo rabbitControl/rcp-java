@@ -3,6 +3,8 @@ package org.rabbitcontrol.rcp.model.interfaces;
 import org.rabbitcontrol.rcp.model.RCPWritable;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
+import java.util.Set;
+
 public interface IParameter extends RCPWritable {
 
     //--------------------------------
@@ -17,9 +19,29 @@ public interface IParameter extends RCPWritable {
 
     void setLabel(final String _label);
 
+    Set<String> getLabelLanguages();
+
+    String getLanguageLabel(final String _code);
+
+    void clearLanguageLabel();
+
+    void setLanguageLabel(final String _code, final String _label);
+
+    void removeLanguageLabel(final String _code);
+
     String getDescription();
 
     void setDescription(final String _description);
+
+    Set<String> getDescriptionLanguages();
+
+    String getLanguageDescription(final String _code);
+
+    void clearLangaugeDescription();
+
+    void setLanguageDescription(final String _code, final String _label);
+
+    void removeLanguageDescription(final String _code);
 
     String getTags();
 

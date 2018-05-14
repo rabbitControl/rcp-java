@@ -46,8 +46,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     @Override
     public IValueParameter<T> cloneEmpty() {
 
-        return (IValueParameter<T>)ParameterFactory.createParameter(id,
-                                                                    typeDefinition.getDatatype());
+        return (IValueParameter<T>)RCPFactory.createParameter(id,
+                                                              typeDefinition.getDatatype());
     }
 
     @Override
@@ -180,6 +180,11 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     @Override
     public void update(final IParameter _parameter) {
+
+        // check id
+        if (_parameter.getId() != id) {
+            return;
+        }
 
         // TODO: figure out if we need to check id/datatype before setting data
         //        if (id != _parameter.getId()) {

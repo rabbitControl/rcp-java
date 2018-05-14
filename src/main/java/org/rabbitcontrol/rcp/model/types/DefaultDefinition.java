@@ -56,7 +56,7 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
                 // no default definition...
 
             case FIXED_ARRAY:
-                definition = ArrayDefinition.parse(_io);
+                definition = ArrayDefinitionFixed.parse(_io);
                 break;
 
             case DYNAMIC_ARRAY:

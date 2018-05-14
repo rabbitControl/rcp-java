@@ -2,11 +2,14 @@ package org.rabbitcontrol.rcp.transport;
 
 import org.rabbitcontrol.rcp.model.RCPCacheOperator;
 import org.rabbitcontrol.rcp.model.RCPCommands;
+import org.rabbitcontrol.rcp.model.RCPCommands.Update;
+import org.rabbitcontrol.rcp.model.RCPCommands.ValueUpdate;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameterManager;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,9 +27,9 @@ public abstract class RCPBase implements IParameterManager {
     protected final List<IParameter> dirtyParams = new ArrayList<IParameter>();
 
     // callback objects
-    protected RCPCommands.Update updateListener;
+    protected Update updateListener;
 
-    protected RCPCommands.ValueUpdate valueUpdateListener;
+    protected ValueUpdate valueUpdateListener;
 
     protected RCPCommands.Error       errorListener;
 
@@ -43,12 +46,12 @@ public abstract class RCPBase implements IParameterManager {
 
     //------------------------------------------------------------
     //
-    public void setUpdateListener(final RCPCommands.Update _listener) {
+    public void setUpdateListener(final Update _listener) {
 
         updateListener = _listener;
     }
 
-    public void setValueUpdateListener(final RCPCommands.ValueUpdate _listener) {
+    public void setValueUpdateListener(final ValueUpdate _listener) {
 
         valueUpdateListener = _listener;
     }
@@ -62,7 +65,7 @@ public abstract class RCPBase implements IParameterManager {
     //
     public void dumpCache() {
 
-        for (final Map.Entry<Short, IParameter> entry : valueCache.entrySet()) {
+        for (final Entry<Short, IParameter> entry : valueCache.entrySet()) {
 
             System.out.println("------");
             entry.getValue().dump();
@@ -77,11 +80,6 @@ public abstract class RCPBase implements IParameterManager {
 
         // FIXME: right??
         _operator.operate(valueCache);
-        //        lock.lock();
-        //        try {
-        //        } finally {
-        //            lock.unlock();
-        //        }
     }
 
     // IParameterManager

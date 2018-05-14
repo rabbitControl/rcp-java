@@ -11,6 +11,7 @@ import org.rabbitcontrol.rcp.transport.RCPServer;
 import java.awt.*;
 import java.io.IOException;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
@@ -82,7 +83,7 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     private INumberParameter<Integer> theValueInt;
 
-    private final BooleanParameter theValueBool;
+    private BooleanParameter theValueBool;
 
     private INumberParameter<Long> theValueLong;
 
@@ -90,7 +91,7 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
     private RGBParameter colorparam;
 
-    private final GroupParameter groupParam1;
+    private GroupParameter groupParam1;
 
     private GroupParameter groupParam2;
 
@@ -129,22 +130,25 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         //------------------------------------------------------------
         //------------------------------------------------------------
 
+//        ArrayParameter<List<String>> bla = new ArrayParameter<List<String>>((short)1, null);
+//
+//        ArrayList<String> list = new ArrayList<String>();
+//        list.add("aa");
+//        bla.setValue(list);
+
+
+        ArrayParameter<List<List<Integer>>, Integer> arr = ArrayParameter.create((short)1, Integer
+                .class, 3, 3);
+
+
+        rabbit.addParameter(arr);
+        rabbit.update();
+
+
         // group 1
         groupParam1 = rabbit.createGroupParameter("GROuP");
         groupParam1.setWidgetType((short)123);
 
-        // enum
-        enumParameter = rabbit.createEnumParameter("enum test", groupParam1);
-        enumParameter.getEnumTypeDefinition().addEntry("uno");
-        enumParameter.getEnumTypeDefinition().addEntry("dos");
-        enumParameter.getEnumTypeDefinition().addEntry("tres");
-        enumParameter.getEnumTypeDefinition().addEntry("quattro");
-        enumParameter.getEnumTypeDefinition().setDefault("tres");
-        enumParameter.setValue("dos");
-
-        // RGB color
-        colorparam = rabbit.createRGBParameter("a color", groupParam1);
-        colorparam.setValue(Color.CYAN);
 
         // string
         theValueString = rabbit.createStringParameter("text label", groupParam1);
@@ -152,30 +156,52 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
         theValueString.setDescription("test description 2");
         theValueString.setUserdata("some user data?".getBytes());
 
-        theValueString.getTypeDefinition().setDefault("defaultstring");
+        theValueString.setLanguageLabel("eng", "another label");
+        theValueString.setLanguageLabel("deu", "deutsches label");
+        theValueString.setLanguageLabel("fra", "une label francaise");
 
-        // double
-        theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
-        theValueDouble.getTypeDefinition().setMaximum(1000.D);
-        theValueDouble.getTypeDefinition().setMinimum(0.D);
-        theValueDouble.setDescription("double description");
-        theValueDouble.setValue(3.14);
+        theValueString.setLanguageDescription("eng", "english description");
+        theValueString.setLanguageDescription("deu", "deutsche beschreibung");
+        theValueString.setLanguageDescription("fra", "escription francoise");
 
-        // float
-        theValueFloat = rabbit.createFloatParameter("FLOAT", groupParam1);
-        theValueFloat.setValue(123.F);
-
-        // float
-        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2", groupParam1);
-        theValueFloat2.setValue(123.F);
-
-        // int
-        theValueInt = rabbit.createInt32Parameter("INt LABEL", groupParam1);
-        theValueInt.setValue(333);
-
-        // boolean
-        theValueBool = rabbit.createBooleanParameter("toggle button", groupParam1);
-        theValueBool.setValue(true);
+//        // enum
+//        enumParameter = rabbit.createEnumParameter("enum test", groupParam1);
+//        enumParameter.getEnumTypeDefinition().addEntry("uno");
+//        enumParameter.getEnumTypeDefinition().addEntry("dos");
+//        enumParameter.getEnumTypeDefinition().addEntry("tres");
+//        enumParameter.getEnumTypeDefinition().addEntry("quattro");
+//        enumParameter.getEnumTypeDefinition().setDefault("tres");
+//        enumParameter.setValue("dos");
+//
+//        // RGB color
+//        colorparam = rabbit.createRGBParameter("a color", groupParam1);
+//        colorparam.setValue(Color.CYAN);
+//
+//
+//        theValueString.getTypeDefinition().setDefault("defaultstring");
+//
+//        // double
+//        theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
+//        theValueDouble.getTypeDefinition().setMaximum(1000.D);
+//        theValueDouble.getTypeDefinition().setMinimum(0.D);
+//        theValueDouble.setDescription("double description");
+//        theValueDouble.setValue(3.14);
+//
+//        // float
+//        theValueFloat = rabbit.createFloatParameter("FLOAT", groupParam1);
+//        theValueFloat.setValue(123.F);
+//
+//        // float
+//        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2", groupParam1);
+//        theValueFloat2.setValue(123.F);
+//
+//        // int
+//        theValueInt = rabbit.createInt32Parameter("INt LABEL", groupParam1);
+//        theValueInt.setValue(333);
+//
+//        // boolean
+//        theValueBool = rabbit.createBooleanParameter("toggle button", groupParam1);
+//        theValueBool.setValue(true);
 
         // long
 //        theValueLong = rabbit.createInt64Parameter("a long number");
@@ -199,19 +225,6 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
 
         rabbit.update();
-
-        //groupParam1.addChild(groupParam2);
-        //groupParam2.addChild(groupParam3);
-
-        // addParameter the values to rabbit
-        //        rabbit.addParameter(colorparam);
-        //        rabbit.addParameter(enumParameter);
-        //        rabbit.addParameter(theValueDouble);
-        //        rabbit.addParameter(theValueString);
-        //        rabbit.addParameter(theValueInt);
-        //        rabbit.addParameter(theValueBool);
-                //rabbit.addParameter(theValueLong);
-        //        rabbit.addParameter(theValueFloat);
     }
 
     public void updateVar1() {
@@ -224,15 +237,15 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
         if (!init) {
 
-            System.out.println("adding group");
-            theValueInt = rabbit.createInt32Parameter("INt LABEL");
-            theValueInt.setValue(333);
-
-            groupParam2 = rabbit.createGroupParameter("foo");
-
-            rabbit.addParameter(theValueInt, groupParam2);
-
-            rabbit.update();
+//            System.out.println("adding group");
+//            theValueInt = rabbit.createInt32Parameter("INt LABEL");
+//            theValueInt.setValue(333);
+//
+//            groupParam2 = rabbit.createGroupParameter("foo");
+//
+//            rabbit.addParameter(theValueInt, groupParam2);
+//
+//            rabbit.update();
 
             init = true;
         }

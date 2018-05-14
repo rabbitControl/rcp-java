@@ -83,7 +83,7 @@ public class ParserTest {
 //            newP.setTimestamp(1234);
 //
 //
-//            final INumberParameter<Short> param = ParameterFactory.createNumberParameter(12,
+//            final INumberParameter<Short> param = RCPFactory.createNumberParameter(12,
 //                                                                                         Short.class);
 //            param.getTypeDefinition().setDefault((short)33);
 //            param.getTypeDefinition().setMin(10);

@@ -2,14 +2,12 @@ package org.rabbitcontrol.rcp.transport;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.RCPCommands.Add;
-import org.rabbitcontrol.rcp.model.RCPCommands.Remove;
-import org.rabbitcontrol.rcp.model.RCPCommands.StatusChange;
+import org.rabbitcontrol.rcp.model.RCPCommands.*;
+import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
-import org.rabbitcontrol.rcp.model.parameter.ValueParameter;
+import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -66,43 +64,32 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
     //
     public void update() {
         // update all dirty params
-        for (IParameter parameter : dirtyParams) {
+        for (final IParameter parameter : dirtyParams) {
             update(parameter);
         }
 
         dirtyParams.clear();
     }
 
-
     /**
      * send value updated using the transporter
      *
-     * @param _value
+     * @param _parameter
      *         the value to updated
      */
-    public void update(final IParameter _value) {
+    private void update(final IParameter _parameter) {
 
-        //        // updated valuecache
-        //        if (getValueCache().containsKey((int)_value.getId())) {
-        //            // get cached value
-        //            final IParameter parameter = getValueCache().get((int)_value.getId());
-        //
-        //            parameter.update(_value);
-        //        }
-        //        else {
-        //            System.out.println("value not in cache - ignore");
-        //        }
-
-        if (transporter != null) {
+         if (transporter != null) {
 
             // transport value
-            final Packet packet = new Packet(Command.UPDATE, _value);
+             System.out.println("client update: " + _parameter.getId());
 
-            System.out.println("client update: " + _value.getId());
+             final Packet packet = new Packet(Command.UPDATE, _parameter);
+
             try {
                 transporter.send(Packet.serialize(packet, false));
             }
-            catch (IOException _e) {
+            catch (final IOException _e) {
                 _e.printStackTrace();
             }
         }
@@ -113,22 +100,15 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
      */
     public void init() {
 
-        operateOnCache(new RCPCacheOperator() {
-
-            @Override
-            public void operate(final Map<Short, IParameter> valueCache) {
-                // clear cache?
-                valueCache.clear();
-            }
-        });
+        valueCache.clear();
 
         if (transporter != null) {
+
             // send to all clients
-            final Packet packet = new Packet(Command.INITIALIZE);
             try {
-                transporter.send(Packet.serialize(packet, false));
+                transporter.send(Packet.serialize(new Packet(Command.INITIALIZE), false));
             }
-            catch (IOException _e) {
+            catch (final IOException _e) {
                 _e.printStackTrace();
             }
         }
@@ -147,25 +127,36 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 return;
             }
 
-            if ((_packet.getCmd() == Command.UPDATE) ||
-                (_packet.getCmd() == Command.REMOVE)) {
 
-                _update(_packet);
+            switch (_packet.getCmd()) {
+                case INVALID:
+                    // nop
+                    break;
+                case VERSION:
+                    // try to convert to version object
+                    System.out.println("version object yet to be specified");
+                    break;
+                case INITIALIZE:
+                    // ignore
+                    break;
+                case DISCOVER:
+                    // ignore
+                    break;
+                case UPDATE:
+                    _update(_packet);
+                    break;
+                case REMOVE:
+                    _remove(_packet);
+                    break;
+                case UPDATEVALUE:
+                    break;
             }
-            else if (_packet.getCmd() == Command.VERSION) {
 
-                // try to convert to version object
-                System.out.println("version object yet to be specified");
-            }
-            else {
-
-                System.err.println("not implemented command: " + _packet.getCmd());
-            }
         }
-        catch (RCPDataErrorException _e) {
+        catch (final RCPDataErrorException _e) {
             _e.printStackTrace();
         }
-        catch (RCPUnsupportedFeatureException _e) {
+        catch (final RCPUnsupportedFeatureException _e) {
             _e.printStackTrace();
         }
 
@@ -176,78 +167,67 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
         // try to convert data to TypeDefinition
         try {
 
-            final IParameter val = (IParameter)_packet.getData();
+            final IParameter parameter = _packet.getDataAsParameter();
 
-            switch (_packet.getCmd()) {
+            //updated value cache?
+            final IParameter cached_parameter = valueCache.get(parameter.getId());
+            if (cached_parameter == null) {
+                valueCache.put(parameter.getId(), parameter);
 
-                case UPDATE:
+                // inform listener
+                if (addListener != null) {
+                    addListener.parameterAdded(parameter);
+                }
+            }
+            else {
 
-                    operateOnCache(new RCPCacheOperator() {
+                ((Parameter)cached_parameter).update(parameter);
 
-                        @Override
-                        public void operate(final Map<Short, IParameter> valueCache) {
-                            //updated value cache?
-                            final IParameter cached = valueCache.get(val.getId());
-                            if (cached == null) {
-                                valueCache.put(val.getId(), val);
+                // inform listener
+                if (updateListener != null) {
+                    updateListener.parameterUpdated(cached_parameter);
+                }
 
-                                // inform listener
-                                if (addListener != null) {
-                                    addListener.parameterAdded(val);
-                                }
-                            }
-                            else {
-
-                                ((ValueParameter)cached).update(val);
-
-                                // inform listener
-                                if (updateListener != null) {
-                                    updateListener.parameterUpdated(cached);
-                                }
-
-                            }
-                        }
-                    });
-
-                    break;
-
-                case REMOVE:
-
-                operateOnCache(new RCPCacheOperator() {
-
-                        @Override
-                        public void operate(final Map<Short, IParameter> valueCache) {
-
-                            if (valueCache.containsKey(val.getId())) {
-                                final IParameter
-                                        removed
-                                        = valueCache.remove(val.getId());
-
-                                // inform listener
-                                if (removeListener != null) {
-                                    removeListener.parameterRemoved(removed);
-                                }
-                            }
-                            else {
-                                System.err.println("client: removed: does not know value with id:" +
-                                                   " " +
-                                                   val.getId());
-                            }
-                        }
-                    });
-
-                break;
-
-
-                default:
-                    System.err.println("no such command implemented in client: " +
-                                       _packet.getCmd());
             }
 
+        } catch (final ClassCastException _e) {
+            // nop
         }
-        catch (final IllegalArgumentException e) {
-            e.printStackTrace();
+
+    }
+
+    private void removeParameter(IParameter _parameter) {
+
+        valueCache.remove(_parameter);
+
+        // inform listener
+        if (removeListener != null) {
+            removeListener.parameterRemoved(_parameter);
         }
+
+        if (_parameter instanceof GroupParameter) {
+            for (final IParameter child : ((GroupParameter)_parameter).getChildren()) {
+                removeParameter(child);
+            }
+        }
+    }
+
+    private void _remove(final Packet _packet) {
+
+        try {
+            final IParameter parameter = _packet.getDataAsParameter();
+
+            if (valueCache.containsKey(parameter.getId())) {
+                removeParameter(valueCache.get(parameter.getId()));
+            }
+            else {
+                System.err.println("client: removed: does not know value with id:" + " " + parameter
+                        .getId());
+            }
+        } catch (final ClassCastException _e) {
+            // nop
+        }
+
     }
 
     @Override
