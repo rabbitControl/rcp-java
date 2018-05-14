@@ -10,4 +10,9 @@ public class RGBAParameter extends ValueParameter<Color> {
 
         super(_id, new RGBADefinition());
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Color.decode(_value));
+    }
 }

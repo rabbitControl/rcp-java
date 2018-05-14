@@ -6,5 +6,5 @@ public interface IParameterChild {
 
     void setParent(final GroupParameter _parent);
 
-    void setRcpModel(final IParameterManager _model);
+    void setManager(final IParameterManager _model);
 }

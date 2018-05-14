@@ -147,4 +147,8 @@ public class ArrayParameter<T extends Collection, E> extends ValueParameter<T> {
         arrayDefinitionDynamic = _dynamic;
     }
 
+    @Override
+    public void setStringValue(final String _value) {
+        //
+    }
 }

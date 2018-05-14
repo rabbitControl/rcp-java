@@ -14,4 +14,9 @@ public class UInt16Parameter extends NumberParameter<Short> {
 
         return UInt16Definition.getUnsigned(getValue());
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Short.parseShort(_value));
+    }
 }

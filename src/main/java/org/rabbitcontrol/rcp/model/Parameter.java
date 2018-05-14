@@ -936,7 +936,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
-    public void setRcpModel(final IParameterManager _model) {
+    public void setManager(final IParameterManager _model) {
 
         parameterManager = _model;
     }

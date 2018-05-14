@@ -28,4 +28,9 @@ public class EnumParameter extends ValueParameter<String> {
 
         super.setValue(_value);
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(_value);
+    }
 }

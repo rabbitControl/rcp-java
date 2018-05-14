@@ -9,4 +9,8 @@ public class Int64Parameter extends NumberParameter<Long> {
         super(_id, Datatype.INT64);
     }
 
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Long.parseLong(_value));
+    }
 }

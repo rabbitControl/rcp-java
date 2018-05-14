@@ -4,7 +4,6 @@ import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
-import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
@@ -72,7 +71,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             final Parameter _parameter, final String _label, final GroupParameter _group) {
 
         _parameter.setLabel(_label);
-        _parameter.setRcpModel(this);
+        _parameter.setManager(this);
         addParameter(_parameter, _group);
     }
 

@@ -8,4 +8,9 @@ public class Float64Parameter extends NumberParameter<Double> {
 
         super(_id, Datatype.FLOAT64);
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Double.parseDouble(_value));
+    }
 }

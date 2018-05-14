@@ -10,4 +10,9 @@ public class StringParameter extends ValueParameter<String> {
 
         super(_id, new StringDefinition());
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(_value);
+    }
 }

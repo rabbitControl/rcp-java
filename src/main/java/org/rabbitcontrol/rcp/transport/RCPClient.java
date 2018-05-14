@@ -10,7 +10,6 @@ import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
 import java.io.IOException;
-import java.util.Map;
 
 public class RCPClient extends RCPBase implements ClientTransporterListener {
 
@@ -172,7 +171,12 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
             //updated value cache?
             final IParameter cached_parameter = valueCache.get(parameter.getId());
             if (cached_parameter == null) {
+
+                // add parameter
+
                 valueCache.put(parameter.getId(), parameter);
+
+                ((Parameter)parameter).setManager(this);
 
                 // inform listener
                 if (addListener != null) {

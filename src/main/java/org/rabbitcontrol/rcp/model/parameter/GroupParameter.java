@@ -99,4 +99,9 @@ public class GroupParameter extends Parameter {
 
         return "group:"+getId();
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+
+    }
 }

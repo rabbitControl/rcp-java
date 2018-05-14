@@ -11,4 +11,8 @@ public class BooleanParameter extends ValueParameter<Boolean> {
         super(_id, new BooleanDefinition());
     }
 
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Boolean.parseBoolean(_value));
+    }
 }

@@ -9,4 +9,8 @@ public class Int16Parameter extends NumberParameter<Short> {
         super(_id, Datatype.INT16);
     }
 
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Short.parseShort(_value));
+    }
 }

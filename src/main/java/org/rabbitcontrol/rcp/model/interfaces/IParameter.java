@@ -79,4 +79,5 @@ public interface IParameter extends RCPWritable {
     void dump();
 
     String getStringValue();
+    void setStringValue(final String _value);
 }

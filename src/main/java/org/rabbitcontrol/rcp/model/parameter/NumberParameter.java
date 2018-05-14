@@ -7,7 +7,7 @@ import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.types.NumberDefinition;
 
-public class NumberParameter<T extends Number> extends ValueParameter<T> implements
+public abstract class NumberParameter<T extends Number> extends ValueParameter<T> implements
                                                                          INumberParameter<T>,
                                                                          INumberDefinition<T>{
 

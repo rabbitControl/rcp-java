@@ -14,4 +14,9 @@ public class UInt32Parameter extends NumberParameter<Integer> {
 
         return UInt32Definition.getUnsigned(getValue());
     }
+
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Integer.parseInt(_value));
+    }
 }

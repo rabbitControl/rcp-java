@@ -9,4 +9,8 @@ public class Int32Parameter extends NumberParameter<Integer> {
         super(_id, Datatype.INT32);
     }
 
+    @Override
+    public void setStringValue(final String _value) {
+        setValue(Integer.parseInt(_value));
+    }
 }
