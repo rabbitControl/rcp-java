@@ -61,14 +61,14 @@ public class WebsocketClientTransporter implements ClientTransporter {
                 ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
                 websocketHandler.handshakeFuture().sync();
             }
-            catch (Exception _e) {
-                _e.printStackTrace();
+            catch (final Exception _e) {
+                System.err.println(_e.getMessage());
                 ch = null;
             }
 
             //return ch != null;
         }
-        catch (URISyntaxException _e) {
+        catch (final URISyntaxException _e) {
             _e.printStackTrace();
         }
     }
@@ -76,11 +76,11 @@ public class WebsocketClientTransporter implements ClientTransporter {
     @Override
     public void disconnect() {
 
-        if ((ch != null) && ch.isOpen()) {
+        if (isConnected()) {
             try {
                 ch.close().sync();
             }
-            catch (InterruptedException _e) {
+            catch (final InterruptedException _e) {
                 _e.printStackTrace();
             }
         }
@@ -90,18 +90,24 @@ public class WebsocketClientTransporter implements ClientTransporter {
     @Override
     public boolean isConnected() {
 
-        return ch.isOpen();
+        return (ch != null) && ch.isOpen();
     }
 
     @Override
     public void send(final byte[] _packet) {
 
-        if (ch.isOpen() && ch.isWritable()) {
-            ch.writeAndFlush(Unpooled.wrappedBuffer(_packet));
+        if (isConnected()) {
+
+            if (ch.isWritable()) {
+                ch.writeAndFlush(Unpooled.wrappedBuffer(_packet));
+            }
+            else {
+                System.err.println("channel not writeable!");
+            }
+        } else {
+            System.err.println("client not connected");
         }
-        else {
-            System.err.println("channel not open or not writeable");
-        }
+
     }
 
     @Override
