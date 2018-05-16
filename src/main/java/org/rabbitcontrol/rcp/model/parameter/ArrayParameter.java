@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp.model.parameter;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.types.*;
 
+import java.awt.*;
 import java.lang.reflect.Array;
 
 public class ArrayParameter<T, E> extends ValueParameter<T> {
@@ -19,7 +20,7 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
 
             case BOOLEAN:
                 return new ArrayParameter<Object, Boolean>(param_id,
-                                                           (ArrayDefinitionFixed<Object,
+                                                           (ArrayDefinitionFixed<Object, 
                                                                    Boolean>)_arrayDefinition,
                                                            value);
 
@@ -28,53 +29,79 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
                                                         (ArrayDefinitionFixed<Object, Byte>)
                                                                 _arrayDefinition,
                                                         value);
-            //            case UINT8:
-            //                return new ArrayDefinitionFixed<Collection, Short>(
-            // (DefaultDefinition<Short>)_sub_type, _dimSizes);
-            //            case INT16:
-            //                return new ArrayDefinitionFixed<Collection, Short>(
-            // (DefaultDefinition<Short>)_sub_type, _dimSizes);
-            //            case UINT16:
-            //                return new ArrayDefinitionFixed<Collection, Integer>(
-            // (DefaultDefinition<Integer>)_sub_type, _dimSizes);
-            //            case INT32:
-            //                return new ArrayDefinitionFixed<Collection, Integer>(
-            // (DefaultDefinition<Integer>)_sub_type, _dimSizes);
-            //            case UINT32:
-            //                return new ArrayDefinitionFixed<Collection, Long>(
-            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
-            //            case INT64:
-            //                return new ArrayDefinitionFixed<Collection, Long>(
-            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
-            //            case UINT64:
-            //                return new ArrayDefinitionFixed<Collection, Long>(
-            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
-            //            case FLOAT32:
-            //                return new ArrayDefinitionFixed<Collection, Float>(
-            // (DefaultDefinition<Float>)_sub_type, _dimSizes);
-            //            case FLOAT64:
-            //                return new ArrayDefinitionFixed<Collection, Double>(
-            // (DefaultDefinition<Double>)_sub_type, _dimSizes);
-            //
-            //            case STRING:
-            //                return new ArrayDefinitionFixed<Collection, String>(
-            // (DefaultDefinition<String>)_sub_type, _dimSizes);
-            //
-            //            case ENUM:
-            //                return new ArrayDefinitionFixed<Collection, Long>(
-            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
-            //
-            //            case RGB:
-            //                return new ArrayDefinitionFixed<Collection, Color>(
-            // (DefaultDefinition<Color>)_sub_type, _dimSizes);
-            //
-            //            case RGBA:
-            //                return new ArrayDefinitionFixed<Collection, Color>(
-            // (DefaultDefinition<Color>)_sub_type, _dimSizes);
-            //
-            //            case FIXED_ARRAY:
+            case UINT8:
+                return new ArrayParameter<Object,Short>(param_id,
+                                                              (ArrayDefinitionFixed<Object, Short>)
+                                                                      _arrayDefinition,
+                                                              value);
+            case INT16:
+                return new ArrayParameter<Object,Short>(param_id,
+                                                        (ArrayDefinitionFixed<Object, Short>)
+                                                                _arrayDefinition,
+                                                        value);
+            case UINT16:
+                return new ArrayParameter<Object,Integer>(param_id,
+                                                          (ArrayDefinitionFixed<Object, Integer>)
+                                                                  _arrayDefinition,
+                                                          value);
+            case INT32:
+                return new ArrayParameter<Object,Integer>(param_id,
+                                                          (ArrayDefinitionFixed<Object, Integer>)
+                                                                  _arrayDefinition,
+                                                          value);
+            case UINT32:
+                return new ArrayParameter<Object,Long>(param_id,
+                                                       (ArrayDefinitionFixed<Object, Long>)
+                                                               _arrayDefinition,
+                                                       value);
+            case INT64:
+                return new ArrayParameter<Object,Long>(param_id,
+                                                       (ArrayDefinitionFixed<Object, Long>)
+                                                               _arrayDefinition,
+                                                       value);
+            case UINT64:
+                return new ArrayParameter<Object,Long>(param_id,
+                                                       (ArrayDefinitionFixed<Object, Long>)
+                                                               _arrayDefinition,
+                                                       value);
+            case FLOAT32:
+                return new ArrayParameter<Object,Float>(param_id,
+                                                        (ArrayDefinitionFixed<Object, Float>)
+                                                                _arrayDefinition,
+                                                        value);
+            case FLOAT64:
+                return new ArrayParameter<Object,Double>(param_id,
+                                                         (ArrayDefinitionFixed<Object, Double>)
+                                                                 _arrayDefinition,
+                                                         value);
 
-            //                break;
+            case STRING:
+                return new ArrayParameter<Object,String>(param_id,
+                                                         (ArrayDefinitionFixed<Object, String>)
+                                                                 _arrayDefinition,
+                                                         value);
+
+            case ENUM:
+                return new ArrayParameter<Object,String>(param_id,
+                                                       (ArrayDefinitionFixed<Object, String>)
+                                                               _arrayDefinition,
+                                                       value);
+
+            case RGB:
+                return new ArrayParameter<Object,Color>(param_id,
+                                                        (ArrayDefinitionFixed<Object, Color>)
+                                                                _arrayDefinition,
+                                                        value);
+
+            case RGBA:
+                return new ArrayParameter<Object,Color>(param_id,
+                                                        (ArrayDefinitionFixed<Object, Color>)
+                                                                _arrayDefinition,
+                                                        value);
+
+            case FIXED_ARRAY:
+                // nonono
+                break;
 
             default:
                 break;
@@ -97,8 +124,8 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
 
     public static <T, E> ArrayParameter<T, E> create(
             final short _id, final Class<E> _class, final T _value, final int... _dimSizes) throws
-                                                                                      InstantiationException,
-                                                                                      IllegalAccessException {
+                                                                                            InstantiationException,
+                                                                                            IllegalAccessException {
 
         // create subtype
         final DefaultDefinition<E> elemen_def = RCPFactory.createDefaultTypeDefinition(_class);
@@ -163,8 +190,9 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
     //------------------------------------------------------------
     //------------------------------------------------------------
     private ArrayParameter(
-            final short _id, final ArrayDefinitionFixed<T, E> _fixedDefinition, final T _value) throws
-                                                                                          RuntimeException {
+            final short _id,
+            final ArrayDefinitionFixed<T, E> _fixedDefinition,
+            final T _value) throws RuntimeException {
 
         super(_id, _fixedDefinition, _value);
 
@@ -191,7 +219,6 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
         System.out.println("not setting: " + _value);
     }
 
-
     private void addToString(Object _o, StringBuilder _builder) {
 
         if (_o.getClass().isArray()) {
@@ -202,25 +229,26 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
                 addToString(Array.get(_o, i), _builder);
             }
 
-            _builder.deleteCharAt(_builder.length()-2);
+            _builder.deleteCharAt(_builder.length() - 2);
 
             _builder.append("], ");
 
-        } else {
+        }
+        else {
             _builder.append(_o + ", ");
         }
 
     }
 
-
     @Override
     public String getStringValue() {
+
         Object v = getValue();
 
         StringBuilder builder = new StringBuilder();
 
         addToString(v, builder);
-        builder.deleteCharAt(builder.length()-2);
+        builder.deleteCharAt(builder.length() - 2);
 
         return builder.toString().trim();
     }
