@@ -148,4 +148,54 @@ public class RCPFactory {
         return null;
     }
 
+    public static Class<?> getClass(final Datatype _datatype) {
+        switch (_datatype) {
+            case BOOLEAN:
+                return Boolean.class;
+
+            case INT8:
+                return Byte.class;
+            case UINT8:
+                return Byte.class;
+            case INT16:
+                return Short.class;
+            case UINT16:
+                return Short.class;
+            case INT32:
+                return Integer.class;
+            case UINT32:
+                return Integer.class;
+            case INT64:
+                return Long.class;
+            case UINT64:
+                return Long.class;
+            case FLOAT32:
+                return Float.class;
+            case FLOAT64:
+                return Double.class;
+
+            case STRING:
+                return String.class;
+
+            case RGB:
+                return Color.class;
+
+            case RGBA:
+                return Color.class;
+
+            case ENUM:
+                return String.class;
+
+            case GROUP:
+                //                return new GroupDefinition();
+
+            case FIXED_ARRAY:
+
+
+
+        }
+
+        return null;
+    }
+
 }

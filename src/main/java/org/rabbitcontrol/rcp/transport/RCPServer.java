@@ -311,26 +311,46 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
-//    public <T> ArrayParameter<T> createArrayParameter(
-//            final String _label, Datatype _datatype, int _dim, int... _sizes) throws
-//                                                                       RCPParameterException {
-//
-//        return createArrayParameter(_label, rootGroup, _datatype, _dim, _sizes);
-//    }
-//
-//    public <T> ArrayParameter<T> createArrayParameter(
-//            final String _label, final GroupParameter _group, Datatype _datatype, int _dim, int... _sizes) throws
-//                                                                                            RCPParameterException {
-//
-//        final short id = availableId();
-//        if (id == 0) {
-//            throw new RCPParameterException("could not get valid parameter id");
-//        }
-//
-//        final ArrayParameter<T> p = new ArrayParameter<T>(id, _datatype, _dim, _sizes);
-//        setupParameter(p, _label, _group);
-//        return p;
-//    }
+    public <T, E> ArrayParameter<T, E> createArrayParameter(
+            final String _label,
+            RcpTypes.Datatype _datatype,
+            T _value,
+            int... _sizes) throws RCPParameterException {
+
+        return createArrayParameter(_label, rootGroup, _datatype, _value, _sizes);
+    }
+
+    public <T, E> ArrayParameter<T, E> createArrayParameter(
+            final String _label,
+            final GroupParameter _group,
+            RcpTypes.Datatype _datatype,
+            T _value,
+            int... _sizes) throws RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        try {
+            final ArrayParameter<T, E> p = ArrayParameter.create(id,
+                                                                 (Class<E>)RCPFactory.getClass(
+                                                                         _datatype),
+                                                                 _value,
+                                                                 _sizes);
+
+            setupParameter(p, _label, _group);
+            return p;
+        }
+        catch (InstantiationException _e) {
+            _e.printStackTrace();
+        }
+        catch (IllegalAccessException _e) {
+            _e.printStackTrace();
+        }
+
+        throw new RCPParameterException("could not create array parameter!");
+    }
 
     /**
      * get next available id

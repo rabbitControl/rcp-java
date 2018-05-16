@@ -1,28 +1,29 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.RCPFactory;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.RcpTypes.StringOptions;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public class ArrayDefinitionFixed<T extends Collection, E> extends DefaultDefinition<T> {
+public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
 
     public static ArrayDefinitionFixed<?, ?> parse(final KaitaiStream _io) throws
-                                                                         RCPDataErrorException {
+                                                                           RCPDataErrorException {
 
         // parse mandatory subtype
         final DefaultDefinition<?> subtype_def = DefaultDefinition.parse(_io);
 
         // read mandatory length
-        final int dimensions = (int)_io.readU4be();
-        int[] dim_sizes = new int[dimensions];
+        final int   dimensions = (int)_io.readU4be();
+        final int[] dim_sizes  = new int[dimensions];
 
         for (int i = 0; i < dimensions; i++) {
             dim_sizes[i] = (int)_io.readU4be();
@@ -39,46 +40,67 @@ public class ArrayDefinitionFixed<T extends Collection, E> extends DefaultDefini
     }
 
     public static ArrayDefinitionFixed<?, ?> create(
-            final DefaultDefinition<?> _sub_type,
-            final int... _dimSizes) {
+            final DefaultDefinition<?> _sub_type, final int... _dimSizes) {
+
+        final Object default_value = Array.newInstance(RCPFactory.getClass(_sub_type.getDatatype()), _dimSizes);
 
         switch (_sub_type.getDatatype()) {
-            case BOOLEAN:
-                return new ArrayDefinitionFixed<Collection, Boolean>((DefaultDefinition<Boolean>)
-                                                                      _sub_type, _dimSizes);
+            case BOOLEAN: {
 
-            case INT8:
-                return new ArrayDefinitionFixed<Collection, Byte>((DefaultDefinition<Byte>)_sub_type, _dimSizes);
-            case UINT8:
-                return new ArrayDefinitionFixed<Collection, Short>((DefaultDefinition<Short>)_sub_type, _dimSizes);
-            case INT16:
-                return new ArrayDefinitionFixed<Collection, Short>((DefaultDefinition<Short>)_sub_type, _dimSizes);
-            case UINT16:
-                return new ArrayDefinitionFixed<Collection, Integer>((DefaultDefinition<Integer>)_sub_type, _dimSizes);
-            case INT32:
-                return new ArrayDefinitionFixed<Collection, Integer>((DefaultDefinition<Integer>)_sub_type, _dimSizes);
-            case UINT32:
-                return new ArrayDefinitionFixed<Collection, Long>((DefaultDefinition<Long>)_sub_type, _dimSizes);
-            case INT64:
-                return new ArrayDefinitionFixed<Collection, Long>((DefaultDefinition<Long>)_sub_type, _dimSizes);
-            case UINT64:
-                return new ArrayDefinitionFixed<Collection, Long>((DefaultDefinition<Long>)_sub_type, _dimSizes);
-            case FLOAT32:
-                return new ArrayDefinitionFixed<Collection, Float>((DefaultDefinition<Float>)_sub_type, _dimSizes);
-            case FLOAT64:
-                return new ArrayDefinitionFixed<Collection, Double>((DefaultDefinition<Double>)_sub_type, _dimSizes);
+                return new ArrayDefinitionFixed<Object, Boolean>((DefaultDefinition<Boolean>)
+                                                                         _sub_type,
+                                                                 default_value,
+                                                                 _dimSizes);
+            }
 
-            case STRING:
-                return new ArrayDefinitionFixed<Collection, String>((DefaultDefinition<String>)_sub_type, _dimSizes);
-
-            case ENUM:
-                return new ArrayDefinitionFixed<Collection, Long>((DefaultDefinition<Long>)_sub_type, _dimSizes);
-
-            case RGB:
-                return new ArrayDefinitionFixed<Collection, Color>((DefaultDefinition<Color>)_sub_type, _dimSizes);
-
-            case RGBA:
-                return new ArrayDefinitionFixed<Collection, Color>((DefaultDefinition<Color>)_sub_type, _dimSizes);
+            case INT8: {
+                return new ArrayDefinitionFixed<Object, Byte>((DefaultDefinition<Byte>)_sub_type,
+                                                              default_value,
+                                                              _dimSizes);
+            }
+            //            case UINT8:
+            //                return new ArrayDefinitionFixed<Object, Short>(
+            // (DefaultDefinition<Short>)_sub_type, _dimSizes);
+            //            case INT16:
+            //                return new ArrayDefinitionFixed<Object, Short>(
+            // (DefaultDefinition<Short>)_sub_type, _dimSizes);
+            //            case UINT16:
+            //                return new ArrayDefinitionFixed<Object, Integer>(
+            // (DefaultDefinition<Integer>)_sub_type, _dimSizes);
+            //            case INT32:
+            //                return new ArrayDefinitionFixed<Object, Integer>(
+            // (DefaultDefinition<Integer>)_sub_type, _dimSizes);
+            //            case UINT32:
+            //                return new ArrayDefinitionFixed<Object, Long>(
+            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
+            //            case INT64:
+            //                return new ArrayDefinitionFixed<Object, Long>(
+            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
+            //            case UINT64:
+            //                return new ArrayDefinitionFixed<Object, Long>(
+            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
+            //            case FLOAT32:
+            //                return new ArrayDefinitionFixed<Object, Float>(
+            // (DefaultDefinition<Float>)_sub_type, _dimSizes);
+            //            case FLOAT64:
+            //                return new ArrayDefinitionFixed<Object, Double>(
+            // (DefaultDefinition<Double>)_sub_type, _dimSizes);
+            //
+            //            case STRING:
+            //                return new ArrayDefinitionFixed<Object, String>(
+            // (DefaultDefinition<String>)_sub_type, _dimSizes);
+            //
+            //            case ENUM:
+            //                return new ArrayDefinitionFixed<Object, Long>(
+            // (DefaultDefinition<Long>)_sub_type, _dimSizes);
+            //
+            //            case RGB:
+            //                return new ArrayDefinitionFixed<Object, Color>(
+            // (DefaultDefinition<Color>)_sub_type, _dimSizes);
+            //
+            //            case RGBA:
+            //                return new ArrayDefinitionFixed<Object, Color>(
+            // (DefaultDefinition<Color>)_sub_type, _dimSizes);
 
             case FIXED_ARRAY:
 
@@ -102,14 +124,22 @@ public class ArrayDefinitionFixed<T extends Collection, E> extends DefaultDefini
 
     //
     private final boolean isFixed           = true;
+
     private       long    totalElementCount = 1;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public ArrayDefinitionFixed(final DefaultDefinition<E> _subtype, final int...
-            _dimSizes) {
 
-        super(Datatype.FIXED_ARRAY);
+    public ArrayDefinitionFixed(
+            final DefaultDefinition<E> _subtype,
+            final T _value,
+            final int... _dimSizes) {
+
+        super(Datatype.FIXED_ARRAY, _value);
+
+        if ((_value == null) || !_value.getClass().isArray()) {
+            throw new RuntimeException("needs an array!");
+        }
 
         subtype = _subtype;
         dimSizes = _dimSizes;
@@ -145,72 +175,158 @@ public class ArrayDefinitionFixed<T extends Collection, E> extends DefaultDefini
         return false;
     }
 
-    @Override
-    public T readValue(final KaitaiStream _io) {
+    private void readToArray(
+            final Object _array,
+            final int _dim,
+            final KaitaiStream _io) {
 
-
-
-
-
-
-        T value;
-
-        for (long i = 0; i < dimensions; i++) {
-            // read from stream
-            //value.add(subtype.readValue(_io));
+        if (_dim >= dimSizes.length) {
+            // error!
+            System.err.println("reading dimension count!!");
+            return;
         }
 
-        //return value.toArray();
-        return null;
-    }
+        final int         max  = dimSizes[_dim];
+        for (int i = 0; i < max; i++) {
 
+            Object o = Array.get(_array, i);
 
-    private void writeCollection(final Collection<?> _value, final OutputStream _outputStream) throws
-                                                                                               IOException {
-        for (final Object o : _value) {
-
-            if (o instanceof Collection) {
-                writeCollection((Collection<?>)o, _outputStream);
-            } else {
-                // write value
-                try {
-                    subtype.writeValue((E)o, _outputStream);
-                } catch (final ClassCastException _e) {
-                    _e.printStackTrace();
-                }
+            if ((o == null) || !o.getClass().isArray()) {
+                E v = subtype.readValue(_io);
+                Array.set(_array, i, v);
+            }
+            else {
+                readToArray(o, _dim + 1, _io);
             }
         }
     }
 
     @Override
-    public void writeValue(final T _value, final OutputStream _outputStream) throws
-                                                                                   IOException {
+    public T readValue(final KaitaiStream _io) {
 
+        Object array = Array.newInstance(RCPFactory.getClass(subtype.getDatatype()), dimSizes);
+
+        readToArray(array, 0, _io);
+
+        //return value.toArray();
+        return (T)array;
+    }
+
+    private void writeArray(
+            final Object _array,
+            final int _dim,
+            final OutputStream _outputStream) throws
+                                              IOException {
+
+        if (_dim >= dimSizes.length) {
+            // error!
+            System.err.println("wring dimension count!!");
+            return;
+        }
+
+        for (int i = 0; i < Array.getLength(_array); i++) {
+
+            final Object o = Array.get(_array, i);
+
+            if (o == null) {
+                subtype.writeValue(null, _outputStream);
+            }
+            else if (o instanceof Collection) {
+                writeCollection((Collection<?>)o, _dim + 1, _outputStream);
+            }
+            else if (o.getClass().isArray()) {
+                writeArray(o, _dim + 1, _outputStream);
+            }
+            else {
+                // write value
+                try {
+                    subtype.writeValue((E)o, _outputStream);
+                }
+                catch (final ClassCastException _e) {
+                    _e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    private void writeCollection(
+            final Collection<?> _value,
+            final int _dim,
+            final OutputStream _outputStream) throws
+                                              IOException {
+
+        if (_dim >= dimSizes.length) {
+            // error!
+            System.err.println("wring dimension count!!");
+            return;
+        }
+
+        final Iterator<?> iter = _value.iterator();
+        final int         max  = dimSizes[_dim];
+
+        for (int i = 0; i < max; i++) {
+            if (iter.hasNext()) {
+                final Object o = iter.next();
+
+                if (o instanceof Collection) {
+                    writeCollection((Collection<?>)o, _dim + 1, _outputStream);
+                }
+                else if (o.getClass().isArray()) {
+                    writeArray(o, _dim + 1, _outputStream);
+                }
+                else {
+                    // write value
+                    try {
+                        subtype.writeValue((E)o, _outputStream);
+                    }
+                    catch (final ClassCastException _e) {
+                        _e.printStackTrace();
+                    }
+
+                }
+
+            }
+            else {
+                // write 0
+                subtype.writeValue(null, _outputStream);
+            }
+        }
+    }
+
+    @Override
+    public void writeValue(final T _value, final OutputStream _outputStream) throws IOException {
 
         if (_value != null) {
-            writeCollection(_value, _outputStream);
+            if (_value.getClass().isArray()) {
+                writeArray(_value, 0, _outputStream);
+            }
+            else {
+                // error
+            }
 
             // check size...
-//            if (_value.size() == arrayLength) {
-//
-//                for (final T t : _value) {
-//                    subtype.writeValue(t, _outputStream);
-//                }
-//
-//            } else {
-//                // error!!
-//                // we have to write something!!
-//                // TODO: handle if _value.size() > arrayLength (truncate list...)
-//
-//                for (int i=0; i<arrayLength; i++) {
-//                    subtype.writeValue(subtype.getDefault(), _outputStream);
-//                }
-//            }
+            //            if (_value.size() == arrayLength) {
+            //
+            //                for (final T t : _value) {
+            //                    subtype.writeValue(t, _outputStream);
+            //                }
+            //
+            //            } else {
+            //                // error!!
+            //                // we have to write something!!
+            //                // TODO: handle if _value.size() > arrayLength (truncate list...)
+            //
+            //                for (int i=0; i<arrayLength; i++) {
+            //                    subtype.writeValue(subtype.getDefault(), _outputStream);
+            //                }
+            //            }
 
-        } else {
+        }
+        else {
 
             // we have to write something
-            for (int i=0; i<totalElementCount; i++) {
+            for (int i = 0; i < totalElementCount; i++) {
                 subtype.writeValue(subtype.getDefault(), _outputStream);
             }
 
@@ -248,7 +364,8 @@ public class ArrayDefinitionFixed<T extends Collection, E> extends DefaultDefini
                     defaultValueChanged = false;
                 }
             }
-        } else if (defaultValueChanged) {
+        }
+        else if (defaultValueChanged) {
 
             _outputStream.write((int)StringOptions.DEFAULT.id());
 
@@ -267,6 +384,11 @@ public class ArrayDefinitionFixed<T extends Collection, E> extends DefaultDefini
     }
 
     public DefaultDefinition<E> getSubtype() {
+
         return subtype;
+    }
+
+    public int[] getDimSizes() {
+        return dimSizes;
     }
 }

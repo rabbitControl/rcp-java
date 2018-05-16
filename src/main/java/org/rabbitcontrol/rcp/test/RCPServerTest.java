@@ -1,6 +1,7 @@
 package org.rabbitcontrol.rcp.test;
 
 import org.rabbitcontrol.rcp.model.RCPCommands;
+import org.rabbitcontrol.rcp.model.RcpTypes;
 import org.rabbitcontrol.rcp.model.exceptions.RCPParameterException;
 import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
@@ -11,7 +12,6 @@ import org.rabbitcontrol.rcp.transport.RCPServer;
 import java.awt.*;
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.List;
 
 public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
@@ -79,6 +79,7 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
     private INumberParameter<Double> theValueDouble;
 
     private INumberParameter<Float> theValueFloat;
+
     private INumberParameter<Float> theValueFloat2;
 
     private INumberParameter<Integer> theValueInt;
@@ -126,103 +127,125 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
         transporter.bind(10000);
 
-
         //------------------------------------------------------------
         //------------------------------------------------------------
 
-//        ArrayParameter<List<String>> bla = new ArrayParameter<List<String>>((short)1, null);
-//
-//        ArrayList<String> list = new ArrayList<String>();
-//        list.add("aa");
-//        bla.setValue(list);
+        //        final Byte[][][] bla = ;
 
+        final ArrayParameter<Byte[][][], Byte> arr = rabbit.createArrayParameter("testarray",
+                                                                                 RcpTypes.Datatype.INT8,
+                                                                                 new Byte[][][] {
+                { { 1,
+                                                                                                      2 },
+                                                                                                    { 3,
+                                                                                                      4 } },
+                                                                                                  { { 11,
+                                                                                                      12 },
+                                                                                                    { 13,
+                                                                                                      14 } },
+                                                                                                  { { 21,
+                                                                                                      22 },
+                                                                                                    { 23,
+                                                                                                      24 } } },
+                                                                                 3,
+                                                                                 2,
+                                                                                 2);
 
-//        ArrayParameter<List<List<Integer>>, Integer> arr = ArrayParameter.create((short)1, Integer
-//                .class, 3, 3);
-//
-//
-//        rabbit.addParameter(arr);
-//        rabbit.update();
+        arr.getValue()[0][0][0] = 111;
 
+        //        ArrayParameter<List<String>, String> bla = new ArrayParameter<List<String>,
+        // String>(
+        //                (short)1, null);
+        //
+        //        ArrayList<String> list = new ArrayList<String>();
+        //        list.add("aa");
+        //        bla.setValue(list);
 
-        // group 1
-        groupParam1 = rabbit.createGroupParameter("GROuP");
-//        groupParam1.setWidgetType((short)123);
+        //
+        //        ArrayParameter<List<List<Integer>>, Integer> arr = ArrayParameter.create(
+        // (short)1, Integer
+        //                .class, 3, 2);
+        //
+        //
+        //        rabbit.addParameter(arr);
+        //        rabbit.update();
 
+        //        // group 1
+        //        groupParam1 = rabbit.createGroupParameter("GROuP");
+        //        //        groupParam1.setWidgetType((short)123);
+        //
+        //        // string
+        //        theValueString = rabbit.createStringParameter("text label", groupParam1);
+        //        theValueString.setValue("This is a text encoded in utf-8. let's test it:
+        // ¬”#£œæýýý‘");
+        //        theValueString.setDescription("test description 2");
+        //        theValueString.setUserdata("some user data?".getBytes());
+        //
+        //        theValueString.setLanguageLabel("eng", "another label");
+        //        theValueString.setLanguageLabel("deu", "deutsches label");
+        //        theValueString.setLanguageLabel("fra", "une label francaise");
+        //
+        //        theValueString.setLanguageDescription("eng", "english description");
+        //        theValueString.setLanguageDescription("deu", "deutsche beschreibung");
+        //        theValueString.setLanguageDescription("fra", "escription francoise");
 
-        // string
-        theValueString = rabbit.createStringParameter("text label", groupParam1);
-        theValueString.setValue("This is a text encoded in utf-8. let's test it: ¬”#£œæýýý‘");
-        theValueString.setDescription("test description 2");
-        theValueString.setUserdata("some user data?".getBytes());
-
-        theValueString.setLanguageLabel("eng", "another label");
-        theValueString.setLanguageLabel("deu", "deutsches label");
-        theValueString.setLanguageLabel("fra", "une label francaise");
-
-        theValueString.setLanguageDescription("eng", "english description");
-        theValueString.setLanguageDescription("deu", "deutsche beschreibung");
-        theValueString.setLanguageDescription("fra", "escription francoise");
-
-//        // enum
-//        enumParameter = rabbit.createEnumParameter("enum test", groupParam1);
-//        enumParameter.getEnumTypeDefinition().addEntry("uno");
-//        enumParameter.getEnumTypeDefinition().addEntry("dos");
-//        enumParameter.getEnumTypeDefinition().addEntry("tres");
-//        enumParameter.getEnumTypeDefinition().addEntry("quattro");
-//        enumParameter.getEnumTypeDefinition().setDefault("tres");
-//        enumParameter.setValue("dos");
-//
+        //        // enum
+        //        enumParameter = rabbit.createEnumParameter("enum test", groupParam1);
+        //        enumParameter.getEnumTypeDefinition().addEntry("uno");
+        //        enumParameter.getEnumTypeDefinition().addEntry("dos");
+        //        enumParameter.getEnumTypeDefinition().addEntry("tres");
+        //        enumParameter.getEnumTypeDefinition().addEntry("quattro");
+        //        enumParameter.getEnumTypeDefinition().setDefault("tres");
+        //        enumParameter.setValue("dos");
+        //
         // RGB color
-        colorparam = rabbit.createRGBParameter("a color", groupParam1);
-        colorparam.setValue(Color.CYAN);
-//
-//
-//        theValueString.getTypeDefinition().setDefault("defaultstring");
-//
-//        // double
-//        theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
-//        theValueDouble.getTypeDefinition().setMaximum(1000.D);
-//        theValueDouble.getTypeDefinition().setMinimum(0.D);
-//        theValueDouble.setDescription("double description");
-//        theValueDouble.setValue(3.14);
-//
-//        // float
-//        theValueFloat = rabbit.createFloatParameter("FLOAT", groupParam1);
-//        theValueFloat.setValue(123.F);
-//
-//        // float
-//        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2", groupParam1);
-//        theValueFloat2.setValue(123.F);
-//
-//        // int
-//        theValueInt = rabbit.createInt32Parameter("INt LABEL", groupParam1);
-//        theValueInt.setValue(333);
-//
-//        // boolean
-//        theValueBool = rabbit.createBooleanParameter("toggle button", groupParam1);
-//        theValueBool.setValue(true);
+        //        colorparam = rabbit.createRGBParameter("a color", groupParam1);
+        //        colorparam.setValue(Color.CYAN);
+        //
+        //
+        //        theValueString.getTypeDefinition().setDefault("defaultstring");
+        //
+        //        // double
+        //        theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
+        //        theValueDouble.getTypeDefinition().setMaximum(1000.D);
+        //        theValueDouble.getTypeDefinition().setMinimum(0.D);
+        //        theValueDouble.setDescription("double description");
+        //        theValueDouble.setValue(3.14);
+        //
+        //        // float
+        //        theValueFloat = rabbit.createFloatParameter("FLOAT", groupParam1);
+        //        theValueFloat.setValue(123.F);
+        //
+        //        // float
+        //        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2", groupParam1);
+        //        theValueFloat2.setValue(123.F);
+        //
+        //        // int
+        //        theValueInt = rabbit.createInt32Parameter("INt LABEL", groupParam1);
+        //        theValueInt.setValue(333);
+        //
+        //        // boolean
+        //        theValueBool = rabbit.createBooleanParameter("toggle button", groupParam1);
+        //        theValueBool.setValue(true);
 
         // long
-//        theValueLong = rabbit.createInt64Parameter("a long number");
-//        theValueLong.setValue((long)10);
+        //        theValueLong = rabbit.createInt64Parameter("a long number");
+        //        theValueLong.setValue((long)10);
 
-//        // group 2
-//        groupParam2 = rabbit.createGroupParameter("foo");
-//
-//        // group 3
-//        groupParam3 = rabbit.createGroupParameter("group 3");
-//        //groupParam3.setWidgetType((short)123);
-
+        //        // group 2
+        //        groupParam2 = rabbit.createGroupParameter("foo");
+        //
+        //        // group 3
+        //        groupParam3 = rabbit.createGroupParameter("group 3");
+        //        //groupParam3.setWidgetType((short)123);
 
         //        groupParam2.addChildren(theValueInt,
         //                                theValueBool,
         //                                theValueLong);
 
-//        rabbit.addParameter(theValueFloat, groupParam2);
-//
-//        rabbit.addParameter(theValueLong, groupParam3);
-
+        //        rabbit.addParameter(theValueFloat, groupParam2);
+        //
+        //        rabbit.addParameter(theValueLong, groupParam3);
 
         rabbit.update();
     }
@@ -237,19 +260,18 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
         if (!init) {
 
-//            System.out.println("adding group");
-//            theValueInt = rabbit.createInt32Parameter("INt LABEL");
-//            theValueInt.setValue(333);
-//
-//            groupParam2 = rabbit.createGroupParameter("foo");
-//
-//            rabbit.addParameter(theValueInt, groupParam2);
-//
-//            rabbit.update();
+            //            System.out.println("adding group");
+            theValueInt = rabbit.createInt32Parameter("INt LABEL");
+            theValueInt.setValue(333);
+            //
+            //            groupParam2 = rabbit.createGroupParameter("foo");
+            //
+            //            rabbit.addParameter(theValueInt, groupParam2);
+            //
+            rabbit.update();
 
             init = true;
         }
-
 
     }
 

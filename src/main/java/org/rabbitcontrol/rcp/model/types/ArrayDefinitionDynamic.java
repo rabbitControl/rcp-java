@@ -5,9 +5,8 @@ import org.rabbitcontrol.rcp.model.RcpTypes;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
 
-public class ArrayDefinitionDynamic<T extends Collection, E> extends DefaultDefinition<T> {
+public class ArrayDefinitionDynamic<T, E> extends DefaultDefinition<T> {
 
     //------------------------------------------------------------
     //------------------------------------------------------------

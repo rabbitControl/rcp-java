@@ -1,13 +1,17 @@
 package org.rabbitcontrol.rcp.test;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.rabbitcontrol.rcp.model.Parameter;
+import org.rabbitcontrol.rcp.model.RcpTypes;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.parameter.ArrayParameter;
+import org.rabbitcontrol.rcp.model.types.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -15,20 +19,38 @@ import java.util.*;
  */
 public class Bytetest {
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws
+                                                 IllegalAccessException,
+                                                 InstantiationException {
 
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
 
-            ArrayParameter<List<List<Byte>>, Byte> arr = ArrayParameter.create((short)1, Byte
-                    .class, 3, 3);
 
-            List<List<Byte>> v = new ArrayList<List<Byte>>();
-            v.add(Arrays.asList((byte)1, (byte)2, (byte)3));
-            v.add(Arrays.asList((byte)4, (byte)5, (byte)6));
-            v.add(Arrays.asList((byte)7, (byte)8, (byte)9));
+            List<List<Boolean>> b;
 
-            arr.setValue(v);
+            final List<Object> ll = new ArrayList<Object>();
+
+            ll.add(Array.newInstance(Boolean.class, 1, 2));
+
+
+            final Object      o  = Array.newInstance(Boolean.class, 1, 2);
+            final Boolean[][] oo = (Boolean[][])o;
+
+//            List<Boolean[][]> lll = ll;
+
+
+            final Byte[][][] bla = { { { 1, 2 }, { 3, 4 } },
+                                     { { 11, 12 }, { 13, 14 } },
+                                     { { 21, 22 }, { 23, 24 } } };
+
+
+            final ArrayParameter<Byte[][][], Byte> arr = ArrayParameter.create(
+                    (short)1,
+                    Byte.class,
+                    bla,
+                    3, 2, 2);
+
 
             arr.write(os, true);
 
@@ -39,6 +61,13 @@ public class Bytetest {
             try {
                 final Parameter param = Parameter.parse(new ByteBufferKaitaiStream(the_bytes));
                 param.dump();
+
+                if (param.getTypeDefinition().getDatatype() == RcpTypes.Datatype.FIXED_ARRAY) {
+
+                    final ArrayParameter p     = (ArrayParameter)param;
+                    final Byte[][][]     blubb = (Byte[][][])p.getValue();
+                    System.out.println("same: " + Arrays.deepEquals(bla, blubb));
+                }
             }
             catch (final RCPUnsupportedFeatureException _e) {
                 _e.printStackTrace();
@@ -48,7 +77,7 @@ public class Bytetest {
             }
 
         }
-        catch (IOException _e) {
+        catch (final IOException _e) {
             _e.printStackTrace();
         }
         finally {
