@@ -81,12 +81,8 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
          if (transporter != null) {
 
             // transport value
-             System.out.println("client update: " + _parameter.getId());
-
-             final Packet packet = new Packet(Command.UPDATE, _parameter);
-
             try {
-                transporter.send(Packet.serialize(packet, false));
+                transporter.send(Packet.serialize(new Packet(Command.UPDATE, _parameter), false));
             }
             catch (final IOException _e) {
                 _e.printStackTrace();

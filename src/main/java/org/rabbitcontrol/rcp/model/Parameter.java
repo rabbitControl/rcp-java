@@ -638,11 +638,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
         System.out.println("type:\t\t\t" + typeDefinition.getDatatype().name());
         System.out.println("label:\t\t\t" + label);
         System.out.println("description:\t" + description);
-        System.out.println("tags:\t" + tags);
-        System.out.println("order:\t" + order);
-        System.out.println("parent:\t" + (parent != null ? parent.getId() : "-"));
+        System.out.println("tags:\t\t\t" + tags);
+        System.out.println("order:\t\t\t" + order);
+        System.out.println("parent:\t\t\t" + (parent != null ? parent.getId() : "-"));
         System.out.println("userdata:\t\t" + userdata);
-        System.out.println("userid:\t\t" + userid);
+        System.out.println("userid:\t\t\t" + userid);
     }
 
     //------------------------------------------------------------

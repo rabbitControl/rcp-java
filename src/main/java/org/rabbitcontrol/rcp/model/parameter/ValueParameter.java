@@ -27,9 +27,15 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     //------------------------------------------------------------
     public ValueParameter(final short _id, final DefaultDefinition<T> _typeDefinition) {
 
+        this(_id, _typeDefinition, null);
+    }
+
+    public ValueParameter(final short _id, final DefaultDefinition<T> _typeDefinition, T _value) {
+
         super(_id, _typeDefinition);
 
         typeDefinition = _typeDefinition;
+        value = _value;
     }
 
     @Override
@@ -95,7 +101,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
         super.dump();
 
-        System.out.println("value:\t\t\t" + value);
+        System.out.println("value:\t\t\t" + getStringValue());
         System.out.println();
     }
 
