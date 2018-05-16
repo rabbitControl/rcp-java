@@ -154,16 +154,23 @@ public class RCPServerTest implements RCPCommands.Update, RCPCommands.Init {
 
         arr.getValue()[0][0][0] = 111;
 
-
         rabbit.createArrayParameter("double array",
                                     RcpTypes.Datatype.FLOAT64,
-                                    new Double[] {1.1, 2.2, 3.3, 4.4, 5.5, 6.6},
+                                    new Double[] { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6 },
                                     6);
 
         rabbit.createArrayParameter("int 2D",
                                     RcpTypes.Datatype.INT32,
-                                    new Integer[][] {{1024, 2048}, {3333, 6666}, {10000, 10001}},
-                                    3, 2);
+                                    new Integer[][] { { 1024, 2048 },
+                                                      { 3333, 6666 },
+                                                      { 10000, 10001 } },
+                                    3,
+                                    2);
+
+        rabbit.createArrayParameter("String Array",
+                                    RcpTypes.Datatype.STRING,
+                                    new String[] { "test", "string", "array" },
+                                    3);
 
         //        ArrayParameter<List<String>, String> bla = new ArrayParameter<List<String>,
         // String>(
