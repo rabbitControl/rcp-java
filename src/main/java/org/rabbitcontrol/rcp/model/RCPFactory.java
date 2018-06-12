@@ -50,7 +50,7 @@ public class RCPFactory {
             case GROUP:
                 return new GroupParameter(_id);
 
-            case FIXED_ARRAY:
+            case ARRAY:
 
 
         }
@@ -139,7 +139,7 @@ public class RCPFactory {
             case GROUP:
 //                return new GroupDefinition();
 
-            case FIXED_ARRAY:
+            case ARRAY:
 
 
 
@@ -189,7 +189,7 @@ public class RCPFactory {
             case GROUP:
                 //                return new GroupDefinition();
 
-            case FIXED_ARRAY:
+            case ARRAY:
 
 
 

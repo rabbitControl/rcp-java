@@ -39,15 +39,15 @@ public abstract class Parameter implements IParameter, IParameterChild {
         final Parameter param;
 
         // handle certain datatypes...
-        if (datatype == Datatype.FIXED_ARRAY) {
+        if (datatype == Datatype.ARRAY) {
 
             // create ArrayDefinitionFixed
             final ArrayDefinitionFixed<?, ?> array_def = ArrayDefinitionFixed.parse(_io);
 
-            param = ArrayParameter.createFixed(parameter_id, array_def, array_def.getSubtype());
+            param = ArrayParameter.createFixed(parameter_id, array_def, array_def.getElementType());
             // !! type definition options already parsed
         }
-        else if (datatype == Datatype.DYNAMIC_ARRAY) {
+        else if (datatype == Datatype.LIST) {
 
             // read mandatory sub-type
             param = null;

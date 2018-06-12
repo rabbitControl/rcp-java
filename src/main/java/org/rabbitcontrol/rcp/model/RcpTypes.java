@@ -65,17 +65,14 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum WidgetOptions {
-        TYPE(80),
-        ENABLED(81),
-        VISIBLE(82),
-        LABEL_VISIBLE(83),
-        VALUE_VISIBLE(84),
-        LABEL_POSITION(85);
+        ENABLED(80),
+        LABEL_VISIBLE(81),
+        VALUE_VISIBLE(82);
 
         private final long id;
         WidgetOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, WidgetOptions> byId = new HashMap<Long, WidgetOptions>(6);
+        private static final Map<Long, WidgetOptions> byId = new HashMap<Long, WidgetOptions>(3);
         static {
             for (WidgetOptions e : WidgetOptions.values())
                 byId.put(e.id(), e);
@@ -250,18 +247,18 @@ public class RcpTypes extends KaitaiStruct {
         public static DialOptions byId(long id) { return byId.get(id); }
     }
 
-    public enum DynamicArrayOptions {
+    public enum RangeOptions {
         DEFAULT(48);
 
         private final long id;
-        DynamicArrayOptions(long id) { this.id = id; }
+        RangeOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, DynamicArrayOptions> byId = new HashMap<Long, DynamicArrayOptions>(1);
+        private static final Map<Long, RangeOptions> byId = new HashMap<Long, RangeOptions>(1);
         static {
-            for (DynamicArrayOptions e : DynamicArrayOptions.values())
+            for (RangeOptions e : RangeOptions.values())
                 byId.put(e.id(), e);
         }
-        public static DynamicArrayOptions byId(long id) { return byId.get(id); }
+        public static RangeOptions byId(long id) { return byId.get(id); }
     }
 
     public enum LabelPosition {
@@ -344,6 +341,21 @@ public class RcpTypes extends KaitaiStruct {
         public static StringOptions byId(long id) { return byId.get(id); }
     }
 
+    public enum ArrayOptions {
+        DEFAULT(48),
+        STRUCTURE(49);
+
+        private final long id;
+        ArrayOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, ArrayOptions> byId = new HashMap<Long, ArrayOptions>(2);
+        static {
+            for (ArrayOptions e : ArrayOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static ArrayOptions byId(long id) { return byId.get(id); }
+    }
+
     public enum NumberboxFormat {
         DEC(1),
         HEX(2),
@@ -383,18 +395,19 @@ public class RcpTypes extends KaitaiStruct {
         RGB(34),
         RGBA(35),
         ENUM(36),
-        FIXED_ARRAY(37),
-        DYNAMIC_ARRAY(38),
+        ARRAY(37),
+        LIST(38),
         BANG(39),
         GROUP(40),
         URI(42),
         IPV4(43),
-        IPV6(44);
+        IPV6(44),
+        RANGE(45);
 
         private final long id;
         Datatype(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(29);
+        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(30);
         static {
             for (Datatype e : Datatype.values())
                 byId.put(e.id(), e);
@@ -482,6 +495,22 @@ public class RcpTypes extends KaitaiStruct {
         public static TextboxOptions byId(long id) { return byId.get(id); }
     }
 
+    public enum ListOptions {
+        DEFAULT(48),
+        MINIMUM(49),
+        MAXIMUM(50);
+
+        private final long id;
+        ListOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, ListOptions> byId = new HashMap<Long, ListOptions>(3);
+        static {
+            for (ListOptions e : ListOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static ListOptions byId(long id) { return byId.get(id); }
+    }
+
     public enum CustomwidgetOptions {
         UUID(86),
         CONFIG(87);
@@ -495,20 +524,6 @@ public class RcpTypes extends KaitaiStruct {
                 byId.put(e.id(), e);
         }
         public static CustomwidgetOptions byId(long id) { return byId.get(id); }
-    }
-
-    public enum FixedArrayOptions {
-        DEFAULT(48);
-
-        private final long id;
-        FixedArrayOptions(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, FixedArrayOptions> byId = new HashMap<Long, FixedArrayOptions>(1);
-        static {
-            for (FixedArrayOptions e : FixedArrayOptions.values())
-                byId.put(e.id(), e);
-        }
-        public static FixedArrayOptions byId(long id) { return byId.get(id); }
     }
 
     public RcpTypes(KaitaiStream _io) {

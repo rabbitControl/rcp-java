@@ -24,7 +24,7 @@ public class ArrayDefinitionDynamic<T, E> extends DefaultDefinition<T> {
 
     public ArrayDefinitionDynamic(final DefaultDefinition<E> _subtype, final int... _dimSizes) {
 
-        super(RcpTypes.Datatype.DYNAMIC_ARRAY);
+        super(RcpTypes.Datatype.LIST);
 
         subtype = _subtype;
         dimSizes = _dimSizes;

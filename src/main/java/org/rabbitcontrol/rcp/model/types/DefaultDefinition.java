@@ -55,11 +55,11 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
             case GROUP:
                 // no default definition...
 
-            case FIXED_ARRAY:
+            case ARRAY:
                 definition = ArrayDefinitionFixed.parse(_io);
                 break;
 
-            case DYNAMIC_ARRAY:
+            case LIST:
                 // dont handle these...?
                 // TODO: handle these...
                 // read special needs before...
