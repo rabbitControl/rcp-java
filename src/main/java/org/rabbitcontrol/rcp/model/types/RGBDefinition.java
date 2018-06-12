@@ -24,10 +24,17 @@ public class RGBDefinition extends DefaultDefinition<Color> {
     public void writeValue(final Color _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
+        final Color value_to_write;
         if (_value != null) {
+            value_to_write = _value;
+        } else {
+            value_to_write = defaultValue;
+        }
+
+        if (value_to_write != null) {
 
             // write rgb to stream
-            int c = (_value.getBlue() << 16) | (_value.getGreen() << 8) | _value.getRed();
+            int c = (value_to_write.getBlue() << 16) | (value_to_write.getGreen() << 8) | value_to_write.getRed();
 
             _outputStream.write(ByteBuffer.allocate(4).putInt(c).array());
         } else {

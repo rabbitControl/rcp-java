@@ -62,6 +62,8 @@ public class StringDefinition extends DefaultDefinition<String> {
                                                                                   IOException {
         if (_value != null) {
             RCPParser.writeLongString(_value, _outputStream);
+        } else if (defaultValue != null) {
+            RCPParser.writeLongString(defaultValue, _outputStream);
         } else {
             RCPParser.writeLongString("", _outputStream);
         }

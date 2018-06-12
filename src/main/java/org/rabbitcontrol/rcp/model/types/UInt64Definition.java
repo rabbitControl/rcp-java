@@ -61,6 +61,8 @@ public class UInt64Definition extends NumberDefinition<Long> {
 
         if (_value != null) {
             _outputStream.write(ByteBuffer.allocate(8).putLong(_value).array());
+        } else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(8).putLong(defaultValue).array());
         } else {
             _outputStream.write(ByteBuffer.allocate(8).putLong(0).array());
         }

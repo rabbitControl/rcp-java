@@ -59,9 +59,14 @@ public class Int8Definition extends NumberDefinition<Byte> {
 
         if (_value != null) {
             _outputStream.write(_value);
-        } else {
+        }
+        else if (defaultValue != null) {
+            _outputStream.write(defaultValue);
+        }
+        else {
             _outputStream.write(0);
         }
+
     }
 
     //------------------------------------------------------------

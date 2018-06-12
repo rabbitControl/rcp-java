@@ -25,7 +25,7 @@ public class Int32Definition extends NumberDefinition<Integer> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -56,11 +56,16 @@ public class Int32Definition extends NumberDefinition<Integer> {
     }
 
     @Override
-    public void writeValue(final Integer _value, final OutputStream _outputStream) throws IOException {
+    public void writeValue(final Integer _value, final OutputStream _outputStream) throws
+                                                                                   IOException {
 
         if (_value != null) {
             _outputStream.write(ByteBuffer.allocate(4).putInt(_value).array());
-        } else {
+        }
+        else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(4).putInt(defaultValue).array());
+        }
+        else {
             _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
         }
     }

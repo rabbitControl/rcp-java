@@ -25,7 +25,7 @@ public class Int64Definition extends NumberDefinition<Long> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -60,6 +60,8 @@ public class Int64Definition extends NumberDefinition<Long> {
 
         if (_value != null) {
             _outputStream.write(ByteBuffer.allocate(8).putLong(_value).array());
+        } else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(8).putLong(defaultValue).array());
         } else {
             _outputStream.write(ByteBuffer.allocate(8).putLong(0).array());
         }

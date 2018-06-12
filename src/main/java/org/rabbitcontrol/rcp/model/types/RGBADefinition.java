@@ -22,11 +22,18 @@ public class RGBADefinition extends DefaultDefinition<Color> {
     public void writeValue(final Color _value, final OutputStream _outputStream) throws
                                                                                  IOException {
 
+        final Color value_to_write;
         if (_value != null) {
+            value_to_write = _value;
+        } else {
+            value_to_write = defaultValue;
+        }
+
+        if (value_to_write != null) {
 
             // write rgb to stream
-            int c = (_value.getAlpha() << 24) | (_value.getBlue() << 16) | (_value.getGreen() << 8)
-                                             | _value.getRed();
+            final int c = (value_to_write.getAlpha() << 24) | (value_to_write.getBlue() << 16) | (value_to_write.getGreen() << 8)
+                          | value_to_write.getRed();
 
             _outputStream.write(ByteBuffer.allocate(4).putInt(c).array());
         } else {
@@ -39,7 +46,7 @@ public class RGBADefinition extends DefaultDefinition<Color> {
 
 
         // read 4 bytes from stream
-        int color = _io.readS4be();
+        final int color = _io.readS4be();
 
         final Color c = new Color(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff,
                                   (color >> 24) & 0xff);

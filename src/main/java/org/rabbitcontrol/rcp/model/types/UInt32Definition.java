@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 
 public class UInt32Definition extends NumberDefinition<Integer> {
 
-    public static long getUnsigned(int _value) {
+    public static long getUnsigned(final int _value) {
         return ((long) _value) & 0xffffffffL;
     }
 
@@ -29,7 +29,7 @@ public class UInt32Definition extends NumberDefinition<Integer> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;

@@ -7,34 +7,44 @@ import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EnumDefinition extends DefaultDefinition<String> {
 
-    public static final int MAX_ENTRY_SIZE = (2^16)-1;
+    public static final int MAX_ENTRY_SIZE = (2 ^ 16) - 1;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
     private List<String> entries;
-    private boolean entriesChanged;
+
+    private boolean      entriesChanged;
 
     private Boolean multiselect;
+
     private boolean multiselectChanged;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
     public EnumDefinition() {
+
         super(Datatype.ENUM);
     }
 
     @Override
     public void writeValue(final String _value, final OutputStream _outputStream) throws
-                                                                                   IOException {
+                                                                                  IOException {
+
         if (_value != null) {
             RCPParser.writeTinyString(_value, _outputStream);
-        } else {
+        }
+        else if (defaultValue != null) {
+            RCPParser.writeTinyString(defaultValue, _outputStream);
+        }
+        else {
             RCPParser.writeTinyString("", _outputStream);
         }
+
     }
 
     @Override
@@ -52,18 +62,15 @@ public class EnumDefinition extends DefaultDefinition<String> {
             return false;
         }
 
-
         switch (option) {
             case DEFAULT:
                 setDefault(readValue(_io));
                 return true;
 
-            case ENTRIES:
-            {
+            case ENTRIES: {
                 final List<String> _entris = new ArrayList<String>();
 
                 // read amount of entries
-
 
                 while (true) {
                     final TinyString tinyString = new TinyString(_io);
@@ -78,8 +85,7 @@ public class EnumDefinition extends DefaultDefinition<String> {
                 return true;
             }
 
-            case MULTISELECT:
-            {
+            case MULTISELECT: {
                 setMultiselect(_io.readS1() != 0);
                 return true;
             }
@@ -109,14 +115,14 @@ public class EnumDefinition extends DefaultDefinition<String> {
                     defaultValueChanged = false;
                 }
             }
-        } else if (defaultValueChanged) {
+        }
+        else if (defaultValueChanged) {
 
             _outputStream.write((int)EnumOptions.DEFAULT.id());
             writeValue(null, _outputStream);
 
             defaultValueChanged = false;
         }
-
 
         //
         // entries
@@ -138,7 +144,8 @@ public class EnumDefinition extends DefaultDefinition<String> {
                     entriesChanged = false;
                 }
             }
-        } else if (entriesChanged) {
+        }
+        else if (entriesChanged) {
 
             _outputStream.write((int)EnumOptions.ENTRIES.id());
 
@@ -163,7 +170,8 @@ public class EnumDefinition extends DefaultDefinition<String> {
                     multiselectChanged = false;
                 }
             }
-        } else if (multiselectChanged) {
+        }
+        else if (multiselectChanged) {
 
             _outputStream.write((int)EnumOptions.MULTISELECT.id());
 
@@ -180,22 +188,20 @@ public class EnumDefinition extends DefaultDefinition<String> {
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
-
-
-
     //------------------------------------------------------------
     //------------------------------------------------------------
 
     @Override
     public void setDefault(final String _default) {
+
         super.setDefault(_default);
     }
 
     //------------------------------------------------------------
 
-
     // TODO: unmodifyable list?
     public List<String> getEntries() {
+
         return entries;
     }
 
@@ -249,11 +255,11 @@ public class EnumDefinition extends DefaultDefinition<String> {
             }
         }
 
-
         return removed;
     }
 
     public int getEntrySize() {
+
         if (entries == null) {
             return 0;
         }
@@ -270,14 +276,15 @@ public class EnumDefinition extends DefaultDefinition<String> {
         return entries.contains(_value);
     }
 
-
     public boolean isMultiselect() {
+
         return multiselect;
     }
 
     public void setMultiselect(final boolean _multiselect) {
 
-        if ((multiselect == _multiselect) || ((multiselect != null) && multiselect.equals(_multiselect))) {
+        if ((multiselect == _multiselect) || ((multiselect != null) && multiselect.equals(
+                _multiselect))) {
             return;
         }
 

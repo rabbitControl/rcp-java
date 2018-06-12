@@ -26,7 +26,6 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
             return false;
         }
 
-
         switch (option) {
             case DEFAULT:
                 setDefault(readValue(_io));
@@ -38,17 +37,24 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
 
     @Override
     public Boolean readValue(final KaitaiStream _io) {
+
         return _io.readS1() != 0;
     }
 
     @Override
     public void writeValue(final Boolean _value, final OutputStream _outputStream) throws
                                                                                    IOException {
+
         if (_value != null) {
             _outputStream.write(_value ? 1 : 0);
-        } else {
+        }
+        else if (defaultValue != null) {
+            _outputStream.write(defaultValue ? 1 : 0);
+        }
+        else {
             _outputStream.write(0);
         }
+
     }
 
     @Override
@@ -69,7 +75,8 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
                     defaultValueChanged = false;
                 }
             }
-        } else if (defaultValueChanged) {
+        }
+        else if (defaultValueChanged) {
 
             _outputStream.write((int)BooleanOptions.DEFAULT.id());
             writeValue(null, _outputStream);

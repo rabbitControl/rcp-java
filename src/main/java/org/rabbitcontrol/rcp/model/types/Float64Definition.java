@@ -7,7 +7,6 @@ import org.rabbitcontrol.rcp.model.RcpTypes.NumberOptions;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class Float64Definition extends NumberDefinition<Double> {
 
@@ -26,12 +25,11 @@ public class Float64Definition extends NumberDefinition<Double> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
         }
-
 
         switch (option) {
             case DEFAULT:
@@ -59,31 +57,38 @@ public class Float64Definition extends NumberDefinition<Double> {
 
     @Override
     public void writeValue(final Double _value, final OutputStream _outputStream) throws
-                                                                                 IOException {
+                                                                                  IOException {
 
         if (_value != null) {
             // write big-endian!
-            _outputStream.write(ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putDouble(_value).array
-                    ());
-        } else {
+            _outputStream.write(ByteBuffer.allocate(8).putDouble(_value).array());
+        }
+        else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(8).putDouble(defaultValue).array());
+        }
+        else {
             _outputStream.write(ByteBuffer.allocate(8).putDouble(0).array());
         }
+
     }
 
     //------------------------------------------------------------
     //------------------------------------------------------------
     @Override
     public void setMin(final Number _value) {
+
         setMinimum(_value.doubleValue());
     }
 
     @Override
     public void setMax(final Number _value) {
+
         setMaximum(_value.doubleValue());
     }
 
     @Override
     public void setMult(final Number _value) {
+
         setMultipleof(_value.doubleValue());
     }
 

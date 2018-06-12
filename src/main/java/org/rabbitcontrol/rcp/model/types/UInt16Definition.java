@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 
 public class UInt16Definition extends NumberDefinition<Short> {
 
-    public static int getUnsigned(short _value) {
+    public static int getUnsigned(final short _value) {
         return ((int) _value) & 0xffff;
     }
 
@@ -29,7 +29,7 @@ public class UInt16Definition extends NumberDefinition<Short> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -65,6 +65,8 @@ public class UInt16Definition extends NumberDefinition<Short> {
 
         if (_value != null) {
             _outputStream.write(ByteBuffer.allocate(2).putShort(_value).array());
+        } else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(2).putShort(defaultValue).array());
         } else {
             _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
         }

@@ -61,7 +61,11 @@ public class Int16Definition extends NumberDefinition<Short> {
 
         if (_value != null) {
             _outputStream.write(ByteBuffer.allocate(2).putShort(_value).array());
-        } else {
+        }
+        else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(2).putShort(defaultValue).array());
+        }
+        else {
             _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
         }
     }

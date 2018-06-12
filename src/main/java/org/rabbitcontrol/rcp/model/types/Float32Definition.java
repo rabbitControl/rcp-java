@@ -25,12 +25,11 @@ public class Float32Definition extends NumberDefinition<Float> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
         }
-
 
         switch (option) {
             case DEFAULT:
@@ -62,7 +61,11 @@ public class Float32Definition extends NumberDefinition<Float> {
 
         if (_value != null) {
             _outputStream.write(ByteBuffer.allocate(4).putFloat(_value).array());
-        } else {
+        }
+        else if (defaultValue != null) {
+            _outputStream.write(ByteBuffer.allocate(4).putFloat(defaultValue).array());
+        }
+        else {
             _outputStream.write(ByteBuffer.allocate(4).putFloat(0).array());
         }
     }
@@ -71,16 +74,19 @@ public class Float32Definition extends NumberDefinition<Float> {
     //------------------------------------------------------------
     @Override
     public void setMin(final Number _value) {
+
         setMinimum(_value.floatValue());
     }
 
     @Override
     public void setMax(final Number _value) {
+
         setMaximum(_value.floatValue());
     }
 
     @Override
     public void setMult(final Number _value) {
+
         setMultipleof(_value.floatValue());
     }
 
