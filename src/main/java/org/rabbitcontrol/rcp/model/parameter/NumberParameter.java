@@ -1,11 +1,16 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
-import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.RcpTypes.NumberScale;
+import io.kaitai.struct.KaitaiStream;
+import org.rabbitcontrol.rcp.model.RcpTypes.*;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
 import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
 import org.rabbitcontrol.rcp.model.types.NumberDefinition;
+import org.rabbitcontrol.rcp.model.widgets.NumberboxWidget;
+import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
+
+import static org.rabbitcontrol.rcp.model.RcpTypes.ParameterOptions.WIDGET;
 
 public abstract class NumberParameter<T extends Number> extends ValueParameter<T> implements
                                                                          INumberParameter<T>,
@@ -18,12 +23,24 @@ public abstract class NumberParameter<T extends Number> extends ValueParameter<T
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public NumberParameter(final short _id, Datatype _datatype) {
+    public NumberParameter(final short _id, final Datatype _datatype) {
 
         // create correct
         super(_id, (DefaultDefinition<T>)NumberDefinition.create(_datatype));
 
         typeDefinition = (INumberDefinition<T>)super.getTypeDefinition();
+    }
+
+    @Override
+    protected boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
+                                                                                  RCPDataErrorException {
+
+        if (ParameterOptions.byId(_propertyId) == WIDGET) {
+            setWidget(WidgetImpl.parse(_io, this));
+            return true;
+        }
+
+        return super.handleOption(_propertyId, _io);
     }
 
     //------------------------------------------------------------
@@ -119,5 +136,10 @@ public abstract class NumberParameter<T extends Number> extends ValueParameter<T
     public Datatype getDatatype() {
 
         return typeDefinition.getDatatype();
+    }
+
+    //
+    public void setWidget(final NumberboxWidget<T> widget) {
+        super.setWidget(widget);
     }
 }
