@@ -52,4 +52,8 @@ public class ArrayDefinitionDynamic<T, E> extends DefaultDefinition<T> {
     public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
 
     }
+    public DefaultDefinition<E> getElementType() {
+
+        return subtype;
+    }
 }

@@ -80,7 +80,7 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
     //------------------------------------------------------------
     //------------------------------------------------------------
     // optional
-    private T defaultValue;
+    protected T defaultValue;
     protected boolean defaultValueChanged;
 
     //------------------------------------------------------------

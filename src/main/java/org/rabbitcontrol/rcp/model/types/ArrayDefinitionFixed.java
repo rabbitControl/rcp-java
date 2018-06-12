@@ -3,37 +3,24 @@ package org.rabbitcontrol.rcp.model.types;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPFactory;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
-import org.rabbitcontrol.rcp.model.RcpTypes.StringOptions;
+import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPParameterException;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Iterator;
 
 public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
 
     public static ArrayDefinitionFixed<?, ?> parse(final KaitaiStream _io) throws
                                                                            RCPDataErrorException {
 
-        // parse mandatory subtype
+        // parse mandatory elementType
         final DefaultDefinition<?> subtype_def = DefaultDefinition.parse(_io);
 
-        // read mandatory length
-        final int   dimensions = (int)_io.readU4be();
-        final int[] dim_sizes  = new int[dimensions];
-
-        for (int i = 0; i < dimensions; i++) {
-            dim_sizes[i] = (int)_io.readU4be();
-        }
-
         // create ArrayDefinitionFixed
-        final ArrayDefinitionFixed<?, ?> definition = create(subtype_def, dim_sizes);
+        final ArrayDefinitionFixed<?, ?> definition = create(subtype_def);
 
         if (definition != null) {
             definition.parseOptions(_io);
@@ -45,22 +32,20 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
     public static ArrayDefinitionFixed<?, ?> create(
             final DefaultDefinition<?> _sub_type, final int... _dimSizes) {
 
-        final Object default_value = Array.newInstance(RCPFactory.getClass(_sub_type.getDatatype()), _dimSizes);
+        final Object default_value = null;
 
         switch (_sub_type.getDatatype()) {
-            case BOOLEAN: {
+            case BOOLEAN:
 
                 return new ArrayDefinitionFixed<Object, Boolean>((DefaultDefinition<Boolean>)
                                                                          _sub_type,
                                                                  default_value,
                                                                  _dimSizes);
-            }
 
-            case INT8: {
+            case INT8:
                 return new ArrayDefinitionFixed<Object, Byte>((DefaultDefinition<Byte>)_sub_type,
                                                               default_value,
                                                               _dimSizes);
-            }
             case UINT8:
                 return new ArrayDefinitionFixed<Object, Short>((DefaultDefinition<Short>)_sub_type,
                                                                default_value,
@@ -123,9 +108,11 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
                                                                default_value,
                                                                _dimSizes);
 
-            case FIXED_ARRAY:
+            case ARRAY:
                 //throw new RCPParameterException("no array of array...");
                 break;
+
+            case LIST:
 
             default:
                 break;
@@ -137,11 +124,11 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
     //------------------------------------------------------------
     //------------------------------------------------------------
     // mandatory
-    final DefaultDefinition<E> subtype;
+    final DefaultDefinition<E> elementType;
 
-    private final int dimensions;
+    private int dimensions;
 
-    private final int[] dimSizes;
+    private int[] dimSizes;
 
     //
     private final boolean isFixed           = true;
@@ -152,17 +139,13 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
     //------------------------------------------------------------
 
     public ArrayDefinitionFixed(
-            final DefaultDefinition<E> _subtype,
+            final DefaultDefinition<E> _elementType,
             final T _value,
             final int... _dimSizes) {
 
-        super(Datatype.FIXED_ARRAY, _value);
+        super(Datatype.ARRAY, _value);
 
-        if ((_value == null) || !_value.getClass().isArray()) {
-            throw new RuntimeException("needs an array!");
-        }
-
-        subtype = _subtype;
+        elementType = _elementType;
         dimSizes = _dimSizes;
         dimensions = _dimSizes.length;
 
@@ -181,7 +164,7 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
-        final StringOptions option = StringOptions.byId(_propertyId);
+        final ArrayOptions option = ArrayOptions.byId(_propertyId);
 
         if (option == null) {
             return false;
@@ -191,6 +174,19 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
             case DEFAULT:
                 setDefault(readValue(_io));
                 return true;
+
+            case STRUCTURE: {
+
+                final int   dims = _io.readS4be();
+                final int[] dim_sizes  = new int[dims];
+                for (int i = 0; i < dims; i++) {
+                    dim_sizes[i] = _io.readS4be();
+                }
+
+                // this defines our structure!
+                dimensions = dims;
+                dimSizes = dim_sizes;
+            }
         }
 
         return false;
@@ -199,69 +195,182 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
     private void readToArray(
             final Object _array,
             final int _dim,
+            final int[] _dim_sizes,
             final KaitaiStream _io) {
 
-        if (_dim >= dimSizes.length) {
+        if (_dim >= _dim_sizes.length) {
             // error!
             System.err.println("reading dimension count!!");
             return;
         }
 
-        final int         max  = dimSizes[_dim];
+        final int         max  = _dim_sizes[_dim];
         for (int i = 0; i < max; i++) {
 
-            Object o = Array.get(_array, i);
+            final Object o = Array.get(_array, i);
 
             if ((o == null) || !o.getClass().isArray()) {
-                E v = subtype.readValue(_io);
+                final E v = elementType.readValue(_io);
                 Array.set(_array, i, v);
             }
             else {
-                readToArray(o, _dim + 1, _io);
+                readToArray(o, _dim + 1, _dim_sizes, _io);
             }
         }
     }
 
     @Override
-    public T readValue(final KaitaiStream _io) {
+    public T readValue(final KaitaiStream _io) throws ClassCastException {
 
-        Object array = Array.newInstance(RCPFactory.getClass(subtype.getDatatype()), dimSizes);
+        final int   dims      = _io.readS4be();
+        final int[] dim_sizes = new int[dims];
+        for (int i = 0; i < dims; i++) {
+            dim_sizes[i] = _io.readS4be();
+        }
 
-        readToArray(array, 0, _io);
+        if ((dimensions == 0) && (dimSizes.length == 0)) {
+            dimensions = dims;
+            dimSizes = dim_sizes;
+        }
 
-        //return value.toArray();
+        if (dimensions != dims) {
+            // error!
+            System.err.println("dimension mismatch");
+        }
+
+        // create array
+        final Object array = Array.newInstance(RCPFactory.getClass(elementType.getDatatype()), dim_sizes);
+
+        readToArray(array, 0, dim_sizes, _io);
+
+        // this may fail if dimensions are different...
         return (T)array;
     }
 
-    private void writeArray(
+//    private void writeArray(
+//            final Object _array,
+//            final int _dim,
+//            final int[] _dimSizes,
+//            final OutputStream _outputStream) throws
+//                                              IOException {
+//
+//        if (_dim >= _dimSizes.length) {
+//            // error!
+//            System.err.println("wrong dimension count!!");
+//            return;
+//        }
+//
+//        for (int i = 0; i < Array.getLength(_array); i++) {
+//
+//            final Object o = Array.get(_array, i);
+//
+//            if (o instanceof Collection) {
+//                writeCollection((Collection<?>)o, _dim + 1, _dimSizes, _outputStream);
+//            }
+//            else if (o.getClass().isArray()) {
+//                writeArray(o, _dim + 1, _dimSizes, _outputStream);
+//            }
+//            else {
+//                // write value
+//                try {
+//                    elementType.writeValue((E)o, _outputStream);
+//                }
+//                catch (final ClassCastException _e) {
+//                    _e.printStackTrace();
+//                }
+//            }
+//        }
+//
+//    }
+//
+//    private void writeCollection(
+//            final Collection<?> _value,
+//            final int _dim, final int[] _dimSizes,
+//            final OutputStream _outputStream) throws
+//                                              IOException {
+//
+//        if (_dim >= _dimSizes.length) {
+//            // error!
+//            System.err.println("wring dimension count!!");
+//            return;
+//        }
+//
+//        final Iterator<?> iter = _value.iterator();
+//        final int         max  = dimSizes[_dim];
+//
+//        for (int i = 0; i < max; i++) {
+//            if (iter.hasNext()) {
+//                final Object o = iter.next();
+//
+//                if (o instanceof Collection) {
+//                    writeCollection((Collection<?>)o, _dim + 1, _dimSizes, _outputStream);
+//                }
+//                else if (o.getClass().isArray()) {
+//                    writeArray(o, _dim + 1, _dimSizes, _outputStream);
+//                }
+//                else {
+//                    // write value
+//                    try {
+//                        elementType.writeValue((E)o, _outputStream);
+//                    }
+//                    catch (final ClassCastException _e) {
+//                        _e.printStackTrace();
+//                    }
+//
+//                }
+//
+//            }
+//            else {
+//                // write 0
+//                elementType.writeValue(null, _outputStream);
+//            }
+//        }
+//    }
+
+    void writeArrayData(
             final Object _array,
             final int _dim,
-            final OutputStream _outputStream) throws
-                                              IOException {
+            final int[] _dimSizes,
+            final OutputStream _outputStream) throws IOException {
 
-        if (_dim >= dimSizes.length) {
-            // error!
-            System.err.println("wring dimension count!!");
+        if (_dim >= _dimSizes.length) {
+            System.err.println("dimensions > size of dimensions sizes!");
             return;
         }
 
+        if (!_array.getClass().isArray()) {
+            throw new RuntimeException("object is not an array!");
+        }
+
+        // get array length
+        final int arr_length = Array.getLength(_array);
+
+        if ((_dimSizes[_dim] > 0) && (_dimSizes[_dim] != arr_length)) {
+            throw new RuntimeException("can not write jagged array!");
+        }
+
+        // set dimension size
+        _dimSizes[_dim] = arr_length;
+
+        // iterate array, set values...
         for (int i = 0; i < Array.getLength(_array); i++) {
 
+            // get object from array
             final Object o = Array.get(_array, i);
 
             if (o == null) {
-                subtype.writeValue(null, _outputStream);
+                // write default value
+                elementType.writeValue(null, _outputStream);
+                continue;
             }
-            else if (o instanceof Collection) {
-                writeCollection((Collection<?>)o, _dim + 1, _outputStream);
-            }
-            else if (o.getClass().isArray()) {
-                writeArray(o, _dim + 1, _outputStream);
-            }
-            else {
+
+            if (o.getClass().isArray()) {
+                writeArrayData(o, _dim + 1, _dimSizes, _outputStream);
+            } else {
+                // write 0
                 // write value
                 try {
-                    subtype.writeValue((E)o, _outputStream);
+                    elementType.writeValue((E)o, _outputStream);
                 }
                 catch (final ClassCastException _e) {
                     _e.printStackTrace();
@@ -271,86 +380,54 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
 
     }
 
-    private void writeCollection(
-            final Collection<?> _value,
-            final int _dim,
-            final OutputStream _outputStream) throws
-                                              IOException {
-
-        if (_dim >= dimSizes.length) {
-            // error!
-            System.err.println("wring dimension count!!");
-            return;
-        }
-
-        final Iterator<?> iter = _value.iterator();
-        final int         max  = dimSizes[_dim];
-
-        for (int i = 0; i < max; i++) {
-            if (iter.hasNext()) {
-                final Object o = iter.next();
-
-                if (o instanceof Collection) {
-                    writeCollection((Collection<?>)o, _dim + 1, _outputStream);
-                }
-                else if (o.getClass().isArray()) {
-                    writeArray(o, _dim + 1, _outputStream);
-                }
-                else {
-                    // write value
-                    try {
-                        subtype.writeValue((E)o, _outputStream);
-                    }
-                    catch (final ClassCastException _e) {
-                        _e.printStackTrace();
-                    }
-
-                }
-
-            }
-            else {
-                // write 0
-                subtype.writeValue(null, _outputStream);
-            }
-        }
-    }
-
     @Override
     public void writeValue(final T _value, final OutputStream _outputStream) throws IOException {
 
+        final T value_to_write;
         if (_value != null) {
-            if (_value.getClass().isArray()) {
-                writeArray(_value, 0, _outputStream);
+            value_to_write = _value;
+        } else {
+            value_to_write = defaultValue;
+        }
+
+        if (value_to_write != null) {
+
+            if (value_to_write.getClass().isArray()) {
+
+                // write structure
+                final int[] dim_sizes = new int[dimensions];
+
+                final ByteArrayOutputStream array_data = new ByteArrayOutputStream();
+                try {
+                    writeArrayData(value_to_write, 0, dim_sizes, array_data);
+
+                    // write dimensions
+                    _outputStream.write(ByteBuffer.allocate(4).putInt(dimensions).array());
+
+                    // write dim_sizes
+                    for (int i = 0; i < dim_sizes.length; i++) {
+                        _outputStream.write(ByteBuffer.allocate(4).putInt(dim_sizes[i]).array());
+                    }
+
+                    // write data
+                    _outputStream.write(array_data.toByteArray());
+
+                } catch (final RuntimeException _e) {
+                    throw new IOException(_e.getMessage());
+                } finally {
+                    array_data.close();
+                }
+
             }
             else {
-                // error
+                // error - write 0
+                _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
             }
-
-            // check size...
-            //            if (_value.size() == arrayLength) {
-            //
-            //                for (final T t : _value) {
-            //                    subtype.writeValue(t, _outputStream);
-            //                }
-            //
-            //            } else {
-            //                // error!!
-            //                // we have to write something!!
-            //                // TODO: handle if _value.size() > arrayLength (truncate list...)
-            //
-            //                for (int i=0; i<arrayLength; i++) {
-            //                    subtype.writeValue(subtype.getDefault(), _outputStream);
-            //                }
-            //            }
 
         }
         else {
-
-            // we have to write something
-            for (int i = 0; i < totalElementCount; i++) {
-                subtype.writeValue(subtype.getDefault(), _outputStream);
-            }
-
+            // write 0
+            _outputStream.write(ByteBuffer.allocate(4).putInt(0).array());
         }
 
     }
@@ -361,16 +438,8 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
 
-        // write subtype
-        subtype.write(_outputStream, _all);
-
-        // write dimensions (4byte)
-        _outputStream.write(ByteBuffer.allocate(4).putInt(dimensions).array());
-
-        // write length for dimensions
-        for (final int dimSize : dimSizes) {
-            _outputStream.write(ByteBuffer.allocate(4).putInt(dimSize).array());
-        }
+        // write elementType
+        elementType.write(_outputStream, _all);
 
         // write options
         if (getDefault() != null) {
@@ -390,7 +459,7 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
 
             _outputStream.write((int)StringOptions.DEFAULT.id());
 
-            // write list of subtype default values
+            // write list of elementType default values
             writeValue(null, _outputStream);
 
             defaultValueChanged = false;
@@ -404,9 +473,9 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
-    public DefaultDefinition<E> getSubtype() {
+    public DefaultDefinition<E> getElementType() {
 
-        return subtype;
+        return elementType;
     }
 
     public int[] getDimSizes() {
