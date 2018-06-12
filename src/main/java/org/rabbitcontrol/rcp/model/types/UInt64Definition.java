@@ -14,7 +14,7 @@ public class UInt64Definition extends NumberDefinition<Long> {
     //------------------------------------------------------------
     public UInt64Definition() {
 
-        super(Datatype.UINT64);
+        super(Datatype.UINT64, Long.class);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class UInt64Definition extends NumberDefinition<Long> {
             return true;
         }
 
-        NumberOptions option = NumberOptions.byId(_propertyId);
+        final NumberOptions option = NumberOptions.byId(_propertyId);
 
         if (option == null) {
             return false;

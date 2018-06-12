@@ -13,7 +13,7 @@ public class Int8Definition extends NumberDefinition<Byte> {
     //------------------------------------------------------------
     public Int8Definition() {
 
-        super(Datatype.INT8);
+        super(Datatype.INT8, Byte.class);
     }
 
     @Override

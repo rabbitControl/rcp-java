@@ -14,7 +14,7 @@ public class Float32Definition extends NumberDefinition<Float> {
     //------------------------------------------------------------
     public Float32Definition() {
 
-        super(Datatype.FLOAT32);
+        super(Datatype.FLOAT32, Float.class);
     }
 
     @Override

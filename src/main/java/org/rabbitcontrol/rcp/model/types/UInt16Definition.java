@@ -18,7 +18,7 @@ public class UInt16Definition extends NumberDefinition<Short> {
     //------------------------------------------------------------
     public UInt16Definition() {
 
-        super(Datatype.UINT16);
+        super(Datatype.UINT16, Short.class);
     }
 
     @Override

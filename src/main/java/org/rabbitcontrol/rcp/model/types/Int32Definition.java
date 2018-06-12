@@ -14,7 +14,7 @@ public class Int32Definition extends NumberDefinition<Integer> {
     //------------------------------------------------------------
     public Int32Definition() {
 
-        super(Datatype.INT32);
+        super(Datatype.INT32, Integer.class);
     }
 
     @Override

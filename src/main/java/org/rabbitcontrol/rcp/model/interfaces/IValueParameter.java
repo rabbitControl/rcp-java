@@ -11,5 +11,5 @@ public interface IValueParameter<T> extends IParameter {
 
     void setValue(T _value);
 
-    void setObjectValue(Object _value);
+    boolean setObjectValue(Object _value);
 }

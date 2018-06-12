@@ -18,7 +18,7 @@ public class UInt32Definition extends NumberDefinition<Integer> {
     //------------------------------------------------------------
     public UInt32Definition() {
 
-        super(Datatype.UINT32);
+        super(Datatype.UINT32, Integer.class);
     }
 
     @Override

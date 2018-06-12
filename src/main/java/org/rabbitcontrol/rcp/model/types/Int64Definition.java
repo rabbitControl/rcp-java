@@ -14,7 +14,7 @@ public class Int64Definition extends NumberDefinition<Long> {
     //------------------------------------------------------------
     public Int64Definition() {
 
-        super(Datatype.INT64);
+        super(Datatype.INT64, Long.class);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class UInt8Definition extends NumberDefinition<Byte> {
     //------------------------------------------------------------
     public UInt8Definition() {
 
-        super(Datatype.UINT8);
+        super(Datatype.UINT8, Byte.class);
     }
 
     @Override

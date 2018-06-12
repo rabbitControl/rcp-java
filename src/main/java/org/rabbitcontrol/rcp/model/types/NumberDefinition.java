@@ -84,11 +84,15 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     private String unit;
     private boolean unitChanged;
 
+    final Class<T> typeClass;
+
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public NumberDefinition(final Datatype _datatype) {
+    public NumberDefinition(final Datatype _datatype, Class<T> _tClass) {
 
         super(_datatype);
+
+        typeClass = _tClass;
     }
 
     @Override
@@ -119,6 +123,34 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
     public void writeValue(final T _value, final OutputStream _outputStream) throws IOException {
         // nop
         throw new RuntimeException("not implemented");
+    }
+
+    public T convertNumberValue(final Number num) {
+
+        if (typeClass == num.getClass()) {
+            return (T)num;
+        }
+
+        if (typeClass == Integer.class) {
+            return (T)new Integer(num.intValue());
+        }
+        else if (typeClass ==  Short.class) {
+            return (T)new Short(num.shortValue());
+        }
+        else if (typeClass ==  Byte.class) {
+            return (T)new Byte(num.byteValue());
+        }
+        else if (typeClass ==  Long.class) {
+            return (T)new Long(num.longValue());
+        }
+        else if (typeClass ==  Float.class) {
+            return (T)new Float(num.floatValue());
+        }
+        else if (typeClass ==  Double.class) {
+            return (T)new Double(num.doubleValue());
+        } else {
+            throw new RuntimeException("number not handled");
+        }
     }
 
     @Override

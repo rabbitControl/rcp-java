@@ -15,7 +15,7 @@ public class Float64Definition extends NumberDefinition<Double> {
     //------------------------------------------------------------
     public Float64Definition() {
 
-        super(Datatype.FLOAT64);
+        super(Datatype.FLOAT64, Double.class);
     }
 
     @Override

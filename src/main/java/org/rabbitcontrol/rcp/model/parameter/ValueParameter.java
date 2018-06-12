@@ -3,12 +3,16 @@ package org.rabbitcontrol.rcp.model.parameter;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RcpTypes.ParameterOptions;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
+import org.rabbitcontrol.rcp.model.types.NumberDefinition;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+
+import static org.rabbitcontrol.rcp.model.RcpTypes.ParameterOptions.VALUE;
 
 public abstract class ValueParameter<T> extends Parameter implements IValueParameter<T> {
 
@@ -30,7 +34,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         this(_id, _typeDefinition, null);
     }
 
-    public ValueParameter(final short _id, final DefaultDefinition<T> _typeDefinition, T _value) {
+    public ValueParameter(final short _id, final DefaultDefinition<T> _typeDefinition, final T _value) {
 
         super(_id, _typeDefinition);
 
@@ -46,14 +50,12 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     }
 
     @Override
-    protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
+    protected boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
+                                                                                  RCPDataErrorException {
 
-        final ParameterOptions option = ParameterOptions.byId(_propertyId);
-
-        switch (option) {
-            case VALUE:
-                setValue(typeDefinition.readValue(_io));
-                return true;
+        if (ParameterOptions.byId(_propertyId) == VALUE) {
+            setValue(typeDefinition.readValue(_io));
+            return true;
         }
 
         return false;
@@ -73,7 +75,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
             if (_all || valueChanged || initialWrite) {
 
-                _outputStream.write((int)ParameterOptions.VALUE.id());
+                _outputStream.write((int)VALUE.id());
                 typeDefinition.writeValue(value, _outputStream);
 
                 if (!_all) {
@@ -83,7 +85,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         }
         else if (valueChanged) {
 
-            _outputStream.write((int)ParameterOptions.VALUE.id());
+            _outputStream.write((int)VALUE.id());
             typeDefinition.writeValue(typeDefinition.getDefault(), _outputStream);
 
             valueChanged = false;
@@ -133,15 +135,53 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     }
 
     @Override
-    public void setObjectValue(final Object _value) {
+    public boolean setObjectValue(final Object _value) {
+
+        if (_value == null) {
+            return false;
+        }
 
         try {
             setValue((T)_value);
         }
-        catch (ClassCastException _e) {
-            _e.printStackTrace();
+        catch (final ClassCastException _e) {
+
+            if ((getTypeDefinition() instanceof NumberDefinition) &&
+                (_value instanceof Number)) {
+
+                value = (T)((NumberDefinition)getTypeDefinition()).convertNumberValue
+                        ((Number)_value);
+
+                return true;
+            }
+            else if (value instanceof Map) {
+
+                //TODO: do this better
+
+                if (_value instanceof Map) {
+
+                    ((Map)value).clear();
+
+                    for (final Object key : ((Map)_value).keySet()) {
+                        ((Map)value).put(key, ((Map)_value).get(key));
+                    }
+
+                    return true;
+                }
+                else {
+                    System.err.println("other value is not a map");
+                }
+
+            }
+            else {
+                System.err.println("cannot updated value from type: " +
+                                   value.getClass().getName() +
+                                   " other: " +
+                                   _value.getClass().getName());
+            }
         }
 
+        return false;
     }
 
     @Override
@@ -155,75 +195,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         boolean changed = false;
 
         // set fields directly, no change-flag ist set!
-
         if (_parameter instanceof ValueParameter) {
-
-            final Object otherValue = ((ValueParameter)_parameter).getValue();
-
-            if (otherValue != null) {
-
-                try {
-                    value = (T)value.getClass().cast(otherValue);
-                    changed = true;
-                }
-                catch (final ClassCastException e) {
-
-                    if ((value instanceof Number) && (otherValue instanceof Number)) {
-
-                        if (value instanceof Integer) {
-                            value = (T)new Integer(((Number)otherValue).intValue());
-                            changed = true;
-                        }
-                        else if (value instanceof Short) {
-                            value = (T)new Short(((Number)otherValue).shortValue());
-                            changed = true;
-                        }
-                        else if (value instanceof Byte) {
-                            value = (T)new Byte(((Number)otherValue).byteValue());
-                            changed = true;
-                        }
-                        else if (value instanceof Long) {
-                            value = (T)new Long(((Number)otherValue).longValue());
-                            changed = true;
-                        }
-                        else if (value instanceof Float) {
-                            value = (T)new Float(((Number)otherValue).floatValue());
-                            changed = true;
-                        }
-                        else if (value instanceof Double) {
-                            value = (T)new Double(((Number)otherValue).doubleValue());
-                            changed = true;
-                        }
-                    }
-                    else if (value instanceof Map) {
-
-                        //TODO: do this better
-
-                        if (otherValue instanceof Map) {
-
-                            ((Map)value).clear();
-
-                            for (Object key : ((Map)otherValue).keySet()) {
-                                ((Map)value).put(key, ((Map)otherValue).get(key));
-                            }
-
-                            changed = true;
-
-                        }
-                        else {
-                            System.err.println("other value is not a map");
-                        }
-
-                    }
-                    else {
-                        System.err.println("cannot updated value from type: " +
-                                           value.getClass().getName() +
-                                           " other: " +
-                                           otherValue.getClass().getName());
-                    }
-                }
-
-            }
+            changed = setObjectValue(((ValueParameter)_parameter).getValue());
         }
 
         if (changed) {
@@ -235,6 +208,10 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     @Override
     public String getStringValue() {
+
+        if (value == null) {
+            return "";
+        }
 
         return value.toString();
     }
