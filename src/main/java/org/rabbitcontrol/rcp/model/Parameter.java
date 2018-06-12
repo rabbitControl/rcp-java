@@ -8,6 +8,7 @@ import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.parameter.ArrayParameter;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinitionFixed;
+import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -115,10 +116,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
     private boolean parentChanged = false;
 
     // widget
-    private Short widgetType;
+    private Widget widget;
 
-    private boolean widgetTypeChanged = false;
+    private boolean widgetChanged = false;
 
+    //
     protected byte[] userdata;
 
     private boolean userdataChanged = false;
@@ -151,7 +153,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
         return RCPFactory.createParameter(id, typeDefinition.getDatatype());
     }
 
-    protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);
+    protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
+                                                                                           RCPDataErrorException;
 
     private void parseTypeOptions(final KaitaiStream _io) throws RCPDataErrorException {
 
@@ -284,10 +287,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
                 }
                 break;
 
-                case WIDGET:
-                    // skip...
-                    throw new RCPUnsupportedFeatureException();
-
                 case USERDATA:
                     final Userdata ud = new Userdata(_io);
                     setUserdata(ud.data());
@@ -297,7 +296,13 @@ public abstract class Parameter implements IParameter, IParameterChild {
                 case VALUE:
                 default:
                     if (!handleOption(property_id, _io)) {
-                        throw new RCPDataErrorException();
+                        // widget may be handled by NumberParameter
+                        // if not then we handle it here!
+                        if (option == ParameterOptions.WIDGET) {
+                            setWidget(WidgetImpl.parse(_io));
+                        } else {
+                            throw new RCPDataErrorException();
+                        }
                     }
             }
 
@@ -384,7 +389,6 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     labelChanged = false;
                 }
             }
-
         }
         else if (labelChanged) {
             // send default value
@@ -485,25 +489,27 @@ public abstract class Parameter implements IParameter, IParameterChild {
             parentChanged = false;
         }
 
-        // TODO: write widget -widgetType
-        if (widgetType != null) {
+        //
+        // widget
+        //
+        if (widget != null) {
 
-            if (_all || widgetTypeChanged || initialWrite) {
+            if (_all || widgetChanged || initialWrite) {
 
                 _outputStream.write((int)ParameterOptions.WIDGET.id());
-                _outputStream.write(ByteBuffer.allocate(2).putShort(widgetType).array());
+                widget.write(_outputStream, _all);
 
                 if (!_all) {
-                    widgetTypeChanged = false;
+                    widgetChanged = false;
                 }
             }
         }
-        else if (widgetTypeChanged) {
+        else if (widgetChanged) {
 
             _outputStream.write((int)ParameterOptions.WIDGET.id());
-            _outputStream.write(ByteBuffer.allocate(2).putShort(widgetType).array());
+            _outputStream.write(RCPParser.TERMINATOR);
 
-            widgetTypeChanged = false;
+            widgetChanged = false;
         }
 
         //
@@ -643,6 +649,10 @@ public abstract class Parameter implements IParameter, IParameterChild {
         System.out.println("parent:\t\t\t" + (parent != null ? parent.getId() : "-"));
         System.out.println("userdata:\t\t" + userdata);
         System.out.println("userid:\t\t\t" + userid);
+
+        if (widget != null) {
+            widget.dump();
+        }
     }
 
     //------------------------------------------------------------
@@ -890,10 +900,22 @@ public abstract class Parameter implements IParameter, IParameterChild {
     }
 
     @Override
-    public void setWidgetType(final short type) {
+    public Widget getWidget() {
+        return widget;
+    }
 
-        widgetType = type;
-        widgetTypeChanged = true;
+    @Override
+    public void setWidget(final Widget _widget) {
+
+        if (widget != null) {
+            widget.setParameter(null);
+        }
+
+        widget = _widget;
+        widgetChanged = true;
+
+        widget.setParameter(this);
+
         setDirty();
     }
 

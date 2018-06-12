@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp.model.interfaces;
 import org.rabbitcontrol.rcp.model.Parameter.PARAMETER_UPDATED;
 import org.rabbitcontrol.rcp.model.Parameter.PARAMETER_VALUE_UPDATED;
 import org.rabbitcontrol.rcp.model.RCPWritable;
+import org.rabbitcontrol.rcp.model.Widget;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
 import java.util.Set;
@@ -57,7 +58,9 @@ public interface IParameter extends RCPWritable {
 
     //    void setParent(GroupParameter _parent);
 
-    void setWidgetType(short type);
+    Widget getWidget();
+
+    void setWidget(Widget _widget);
 
     String getUserid();
 
