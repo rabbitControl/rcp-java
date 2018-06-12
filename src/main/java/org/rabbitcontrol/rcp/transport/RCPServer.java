@@ -314,17 +314,15 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public <T, E> ArrayParameter<T, E> createArrayParameter(
             final String _label,
             RcpTypes.Datatype _datatype,
-            T _value,
             int... _sizes) throws RCPParameterException {
 
-        return createArrayParameter(_label, rootGroup, _datatype, _value, _sizes);
+        return createArrayParameter(_label, rootGroup, _datatype, _sizes);
     }
 
     public <T, E> ArrayParameter<T, E> createArrayParameter(
             final String _label,
             final GroupParameter _group,
             RcpTypes.Datatype _datatype,
-            T _value,
             int... _sizes) throws RCPParameterException {
 
         final short id = availableId();
@@ -336,7 +334,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             final ArrayParameter<T, E> p = ArrayParameter.create(id,
                                                                  (Class<E>)RCPFactory.getClass(
                                                                          _datatype),
-                                                                 _value,
                                                                  _sizes);
 
             setupParameter(p, _label, _group);
@@ -514,8 +511,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
      */
     public void update() {
 
-        // TODO: multithreading??
-
         // update dirty params
         for (final IParameter parameter : dirtyParams) {
             // send to all
@@ -555,6 +550,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             try {
                 final Packet packet = new Packet(Command.UPDATE, _value);
                 final byte[] data   = Packet.serialize(packet, false);
+
+
 
                 for (final ServerTransporter transporter : transporterList) {
                     System.out.println("update : " + _value.getId());
@@ -615,7 +612,13 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
             if (_packet.getCmd() == Command.UPDATE) {
 
-                _update(_packet, _transporter, _id);
+                if (_update(_packet, _transporter, _id)) {
+                    // update all clients, bypass deserialize and serialize...
+                    for (final ServerTransporter transporter : transporterList) {
+                        transporter.sendToAll(_data, _id);
+                    }
+                }
+
             }
             else if (_packet.getCmd() == Command.VERSION) {
 
@@ -647,7 +650,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
     }
 
-    private void _update(
+    private boolean _update(
             final Packet _packet, final ServerTransporter _transporter, final Object _id) {
 
         try {
@@ -665,19 +668,19 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 if (updateListener != null) {
                     updateListener.parameterUpdated(cached_parameter);
                 }
+
+                return true;
             }
             else {
                 System.err.println("server: update: parameter not found in valuecache - " +
                                    "ignoring");
             }
 
-            // update all clients...
-            update(parameter, _id);
-
         } catch (final ClassCastException _e) {
             // nop
         }
 
+        return false;
     }
 
     private void _init(final ServerTransporter _transporter, final Object _id) {
