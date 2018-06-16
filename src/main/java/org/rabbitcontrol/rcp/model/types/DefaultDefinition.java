@@ -36,6 +36,12 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
                 definition =  NumberDefinition.create(type);
                 break;
 
+            case RANGE:
+                // parse element type
+//                DefaultDefinition<?> element_definition = parse(_io);
+//                definition = new RangeDefinition(element_definition);
+                break;
+
             case STRING:
                 definition =  new StringDefinition();
                 break;

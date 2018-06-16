@@ -5,8 +5,7 @@ import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.interfaces.*;
-import org.rabbitcontrol.rcp.model.parameter.ArrayParameter;
-import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
+import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinitionFixed;
 import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
 
@@ -40,7 +39,24 @@ public abstract class Parameter implements IParameter, IParameterChild {
         final Parameter param;
 
         // handle certain datatypes...
-        if (datatype == Datatype.ARRAY) {
+        if (datatype == Datatype.RANGE) {
+            param = null;
+            // read element-type
+            final Datatype element_datatype = Datatype.byId(_io.readU1());
+
+            RangeParameter<?> range_param = RCPFactory.createRangeParameter(parameter_id,
+                                                                     element_datatype);
+
+
+            //...
+            // parse element type options
+
+
+//            if (param != null) {
+//                param.parseTypeOptions(_io);
+//            }
+        }
+        else if (datatype == Datatype.ARRAY) {
 
             // create ArrayDefinitionFixed
             final ArrayDefinitionFixed<?, ?> array_def = ArrayDefinitionFixed.parse(_io);

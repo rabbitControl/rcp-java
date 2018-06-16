@@ -2,43 +2,44 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.RcpTypes.*;
-import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
+import org.rabbitcontrol.rcp.model.RcpTypes.RangeOptions;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public abstract class RangeDefinition<T extends Number> extends DefaultDefinition<T> implements
-                                                                             INumberDefinition<T> {
+public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T>> {
 
-    public static <T extends Number> RangeDefinition<T> create(final Datatype _datatype) {
+
+    public static <T extends Number> DefaultDefinition<Range<T>> create(final Datatype _datatype,
+                                                                        Class<T> _cls) {
 
         switch (_datatype) {
 
-//            case INT8:
-//                return (RangeDefinition<T>)new Int8Definition();
-//            case UINT8:
-//                return (RangeDefinition<T>)new UInt8Definition();
-//            case INT16:
-//                return (RangeDefinition<T>)new Int16Definition();
-//            case UINT16:
-//                return (RangeDefinition<T>)new UInt16Definition();
-//            case INT32:
-//                return (RangeDefinition<T>)new Int32Definition();
-//            case UINT32:
-//                return (RangeDefinition<T>)new UInt32Definition();
-//            case INT64:
-//                return (RangeDefinition<T>)new Int64Definition();
-//            case UINT64:
-//                return (RangeDefinition<T>)new UInt64Definition();
-//            case FLOAT32:
-//                return (RangeDefinition<T>)new Float32Definition();
-//            case FLOAT64:
-//                return (RangeDefinition<T>)new Float64Definition();
+            case INT8:
+                return (RangeDefinition<T>)new RangeDefinition<Byte>(new Int8Definition());
+            case UINT8:
+                return (RangeDefinition<T>)new RangeDefinition<Byte>(new UInt8Definition());
+            case INT16:
+                return (RangeDefinition<T>)new RangeDefinition<Short>(new Int16Definition());
+            case UINT16:
+                return (RangeDefinition<T>)new RangeDefinition<Short>(new UInt16Definition());
+            case INT32:
+                return (RangeDefinition<T>)new RangeDefinition<Integer>(new Int32Definition());
+            case UINT32:
+                return (RangeDefinition<T>)new RangeDefinition<Integer>(new UInt32Definition());
+            case INT64:
+                return (RangeDefinition<T>)new RangeDefinition<Long>(new Int64Definition());
+            case UINT64:
+                return (RangeDefinition<T>)new RangeDefinition<Long>(new UInt64Definition());
+            case FLOAT32:
+                return (RangeDefinition<T>)new RangeDefinition<Float>(new Float32Definition());
+            case FLOAT64:
+                return (RangeDefinition<T>)new RangeDefinition<Double>(new Float64Definition());
 
         }
 
-        throw new RuntimeException("datatype not handled");
+        throw new RuntimeException("unhandled element type for RangeDefinition");
     }
 
     //------------------------------------------------------------
@@ -65,60 +66,45 @@ public abstract class RangeDefinition<T extends Number> extends DefaultDefinitio
 //        }
 //    }
 
-    //------------------------------------------------------------
-    //------------------------------------------------------------
-    // optional
-    //----------------------------------------------------
-    private T minimum;
-    private boolean minimumChanged;
-
-    private T maximum;
-    private boolean maximumChanged;
-
-    private T multipleof;
-    private boolean multipleofChanged;
-
-    private NumberScale scale;
-    private boolean scaleChanged;
-
-    private String unit;
-    private boolean unitChanged;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public RangeDefinition(final Datatype _datatype) {
+    private final NumberDefinition<T> elementType;
 
-        super(_datatype);
+    //------------------------------------------------------------
+    //------------------------------------------------------------
+    public RangeDefinition(final NumberDefinition<T> elementType) {
+        super(Datatype.RANGE);
+
+        this.elementType = elementType;
     }
 
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
-
-        // handle option scale, unit
-
-        final NumberOptions option = NumberOptions.byId(_propertyId);
-
-        if (option == null) {
-            return false;
-        }
-
-        switch (option) {
-            case SCALE:
-                setScale(NumberScale.byId(_io.readU1()));
-                return true;
-            case UNIT:
-                final TinyString tinyString = new TinyString(_io);
-                setUnit(tinyString.data());
-                return true;
-        }
-
+        final RangeOptions option = RangeOptions.byId(_propertyId);
         return false;
     }
 
     @Override
-    public void writeValue(final T _value, final OutputStream _outputStream) throws IOException {
-        // nop
-        throw new RuntimeException("not implemented");
+    public Range<T> readValue(final KaitaiStream _io) {
+
+        final T v1 = elementType.readValue(_io);
+        final T v2 = elementType.readValue(_io);
+
+        return new Range<T>(v1, v2);
+    }
+
+    @Override
+    public void writeValue(final Range<T> _value, final OutputStream _outputStream) throws
+                                                                                 IOException {
+        if (_value != null) {
+            elementType.writeValue(_value.getValue1(), _outputStream);
+            elementType.writeValue(_value.getValue2(), _outputStream);
+        }
+        else {
+            elementType.writeValue(defaultValue.getValue1(), _outputStream);
+            elementType.writeValue(defaultValue.getValue2(), _outputStream);
+        }
     }
 
     @Override
@@ -126,6 +112,8 @@ public abstract class RangeDefinition<T extends Number> extends DefaultDefinitio
 
         // write mandatory fields and defaultValue
         _outputStream.write((int)getDatatype().id());
+
+        elementType.write(_outputStream, _all);
 
         //
         // default
@@ -135,7 +123,7 @@ public abstract class RangeDefinition<T extends Number> extends DefaultDefinitio
             if (_all || defaultValueChanged || initialWrite) {
 
                 // use any of the default values id
-                _outputStream.write((int)NumberOptions.DEFAULT.id());
+                _outputStream.write((int)RangeOptions.DEFAULT.id());
                 writeValue(getDefault(), _outputStream);
 
                 if (!_all) {
@@ -144,123 +132,10 @@ public abstract class RangeDefinition<T extends Number> extends DefaultDefinitio
             }
         } else if (defaultValueChanged) {
 
-            _outputStream.write((int)NumberOptions.DEFAULT.id());
+            _outputStream.write((int)RangeOptions.DEFAULT.id());
             writeValue(null, _outputStream);
 
             defaultValueChanged = false;
-        }
-
-
-        // write other options
-
-        //
-        // minimum
-        //
-        if (getMinimum() != null) {
-
-            if (_all || minimumChanged || initialWrite) {
-
-                _outputStream.write((int)NumberOptions.MINIMUM.id());
-                writeValue(minimum, _outputStream);
-
-                if (!_all) {
-                    minimumChanged = false;
-                }
-            }
-        } else if (minimumChanged) {
-
-            _outputStream.write((int)NumberOptions.MINIMUM.id());
-            writeValue(null, _outputStream);
-
-            minimumChanged = false;
-        }
-
-        //
-        // maximum
-        //
-        if (getMaximum() != null) {
-
-            if (_all || maximumChanged || initialWrite) {
-
-                _outputStream.write((int)NumberOptions.MAXIMUM.id());
-                writeValue(maximum, _outputStream);
-
-                if (!_all) {
-                    maximumChanged = false;
-                }
-            }
-        } else if (maximumChanged) {
-
-            _outputStream.write((int)NumberOptions.MAXIMUM.id());
-            writeValue(null, _outputStream);
-
-            maximumChanged = false;
-        }
-
-        //
-        // multipleof
-        //
-        if (getMultipleof() != null) {
-
-            if (_all || multipleofChanged || initialWrite) {
-
-                _outputStream.write((int)NumberOptions.MULTIPLEOF.id());
-                writeValue(multipleof, _outputStream);
-
-                if (!_all) {
-                    multipleofChanged = false;
-                }
-            }
-        } else if (multipleofChanged) {
-
-            _outputStream.write((int)NumberOptions.MULTIPLEOF.id());
-            writeValue(null, _outputStream);
-
-            multipleofChanged = false;
-        }
-
-        //
-        // scale
-        //
-        if (scale != null) {
-
-            if (_all || scaleChanged || initialWrite) {
-
-                _outputStream.write((int)NumberOptions.SCALE.id());
-                _outputStream.write((int)scale.id());
-
-                if (!_all) {
-                    scaleChanged = false;
-                }
-            }
-        } else if (scaleChanged) {
-
-            _outputStream.write((int)NumberOptions.SCALE.id());
-            _outputStream.write((int)NumberScale.LINEAR.id());
-
-            scaleChanged = false;
-        }
-
-        //
-        // unit
-        //
-        if (unit != null) {
-
-            if (_all || unitChanged || initialWrite) {
-
-                _outputStream.write((int)NumberOptions.UNIT.id());
-                RCPParser.writeTinyString(unit, _outputStream);
-
-                if (!_all) {
-                    unitChanged = false;
-                }
-            }
-        } else if (unitChanged) {
-
-            _outputStream.write((int)NumberOptions.UNIT.id());
-            RCPParser.writeTinyString("", _outputStream);
-
-            unitChanged = false;
         }
 
         if (!_all) {
@@ -271,136 +146,6 @@ public abstract class RangeDefinition<T extends Number> extends DefaultDefinitio
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
-//    private T toType(final Number _number) {
-//
-//
-//        if (getDefault() instanceof Byte) {
-//            return (T)(Byte)_number.byteValue();
-//        }
-//        else if (getDefault() instanceof Short) {
-//            return (T)(Short)_number.shortValue();
-//        }
-//        else if (getDefault() instanceof Integer) {
-//            return (T)(Integer)_number.intValue();
-//        }
-//        else if (getDefault() instanceof Long) {
-//            return (T)(Long)_number.longValue();
-//        }
-//        else if (getDefault() instanceof Float) {
-//            return (T)(Float)_number.floatValue();
-//        }
-//        else if (getDefault() instanceof Byte) {
-//            return (T)(Double)_number.doubleValue();
-//        }
-//
-//        throw new NumberFormatException();
-//    }
-
     //------------------------------------------------------------
     //------------------------------------------------------------
-    @Override
-    public T getMinimum() {
-
-        return minimum;
-    }
-
-    @Override
-    public void setMinimum(final T _minimum) {
-
-        if ((minimum == _minimum) || ((minimum != null) && minimum.equals(_minimum))) {
-            return;
-        }
-
-        minimum = _minimum;
-        minimumChanged = true;
-
-        if (parameter != null) {
-            parameter.setDirty();
-        }
-    }
-
-
-    @Override
-    public T getMaximum() {
-
-        return maximum;
-    }
-
-    @Override
-    public void setMaximum(final T _maximum) {
-
-        if ((maximum == _maximum) || ((maximum != null) && maximum.equals(_maximum))) {
-            return;
-        }
-
-        maximum = _maximum;
-        maximumChanged = true;
-
-        if (parameter != null) {
-            parameter.setDirty();
-        }
-    }
-
-    @Override
-    public T getMultipleof() {
-
-        return multipleof;
-    }
-
-    @Override
-    public void setMultipleof(final T _multipleof) {
-
-        if ((multipleof == _multipleof) || (multipleof != null && multipleof.equals(_multipleof))) {
-            return;
-        }
-
-        multipleof = _multipleof;
-        multipleofChanged = true;
-
-        if (parameter != null) {
-            parameter.setDirty();
-        }
-    }
-
-    @Override
-    public NumberScale getScale() {
-
-        return scale;
-    }
-
-    @Override
-    public void setScale(final NumberScale _scale) {
-
-        if ((scale == _scale) || ((scale != null) && scale.equals(_scale))) {
-            return;
-        }
-
-        scale = _scale;
-        scaleChanged = true;
-
-        if (parameter != null) {
-            parameter.setDirty();
-        }
-    }
-
-    @Override
-    public String getUnit() {
-
-        return unit;
-    }
-
-    @Override
-    public void setUnit(final String _unit) {
-
-        if ((unit == _unit) || ((unit != null) && unit.equals(_unit))) {
-            return;
-        }
-
-        unit = _unit;
-        unitChanged = true;
-
-        if (parameter != null) {
-            parameter.setDirty();
-        }
-    }
 }

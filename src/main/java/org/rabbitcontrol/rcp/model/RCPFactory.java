@@ -52,20 +52,58 @@ public class RCPFactory {
 
             case ARRAY:
 
-
         }
 
         return null;
     }
 
-//    public static <T extends Collection, E> ArrayParameter<T, E> createArrayParameter(final short
-//                                                                                             _id, final
-//    Datatype
-//            _datatype) {
-//
-//        return new ArrayParameter<T>(_id, _datatype, 1);
-//    }
+    //    public static <T extends Collection, E> ArrayParameter<T, E> createArrayParameter(final
+    // short
+    //
+    //  _id, final
+    //    Datatype
+    //            _datatype) {
+    //
+    //        return new ArrayParameter<T>(_id, _datatype, 1);
+    //    }
 
+    public static <T extends Number> RangeParameter<T> createRangeParameter(
+            final short _id, final Datatype element_type) {
+
+        switch (element_type) {
+
+            case INT8:
+                return (RangeParameter<T>)new RangeParameter<Byte>(_id, element_type, Byte.class);
+            case UINT8:
+                return (RangeParameter<T>)new RangeParameter<Byte>(_id, element_type, Byte.class);
+            case INT16:
+                return (RangeParameter<T>)new RangeParameter<Short>(_id, element_type, Short.class);
+            case UINT16:
+                return (RangeParameter<T>)new RangeParameter<Short>(_id, element_type, Short.class);
+            case INT32:
+                return (RangeParameter<T>)new RangeParameter<Integer>(_id,
+                                                                      element_type,
+                                                                      Integer.class);
+            case UINT32:
+                return (RangeParameter<T>)new RangeParameter<Integer>(_id,
+                                                                      element_type,
+                                                                      Integer.class);
+            case INT64:
+                return (RangeParameter<T>)new RangeParameter<Long>(_id, element_type, Long.class);
+            case UINT64:
+                return (RangeParameter<T>)new RangeParameter<Long>(_id, element_type, Long.class);
+            case FLOAT32:
+                return (RangeParameter<T>)new RangeParameter<Float>(_id, element_type, Float.class);
+            case FLOAT64:
+                return (RangeParameter<T>)new RangeParameter<Double>(_id,
+                                                                     element_type,
+                                                                     Double.class);
+
+        }
+
+        return null;
+
+    }
 
     public static <T> DefaultDefinition createDefaultTypeDefinition(final Class<T> _class) {
 
@@ -75,23 +113,32 @@ public class RCPFactory {
 
         if (_class.equals(Boolean.class)) {
             return new BooleanDefinition();
-        } else if (_class.equals(Byte.class)) {
+        }
+        else if (_class.equals(Byte.class)) {
             return new Int8Definition();
-        } else if (_class.equals(Short.class)) {
+        }
+        else if (_class.equals(Short.class)) {
             return new Int16Definition();
-        } else if (_class.equals(Integer.class)) {
+        }
+        else if (_class.equals(Integer.class)) {
             return new Int32Definition();
-        } else if (_class.equals(Long.class)) {
+        }
+        else if (_class.equals(Long.class)) {
             return new Int64Definition();
-        } else if (_class.equals(Float.class)) {
+        }
+        else if (_class.equals(Float.class)) {
             return new Float32Definition();
-        } else if (_class.equals(Double.class)) {
+        }
+        else if (_class.equals(Double.class)) {
             return new Float64Definition();
-        } else if (_class.equals(String.class)) {
+        }
+        else if (_class.equals(String.class)) {
             return new StringDefinition();
-        } else if (_class.equals(Color.class)) {
+        }
+        else if (_class.equals(Color.class)) {
             return new RGBADefinition();
-        } else if (_class.equals(Enum.class)) {
+        }
+        else if (_class.equals(Enum.class)) {
             return new EnumDefinition();
         }
 
@@ -99,6 +146,7 @@ public class RCPFactory {
     }
 
     public static DefaultDefinition createDefaultTypeDefinition(final Datatype _datatype) {
+
         switch (_datatype) {
             case BOOLEAN:
                 return new BooleanDefinition();
@@ -137,11 +185,9 @@ public class RCPFactory {
                 return new EnumDefinition();
 
             case GROUP:
-//                return new GroupDefinition();
+                //                return new GroupDefinition();
 
             case ARRAY:
-
-
 
         }
 
@@ -149,6 +195,7 @@ public class RCPFactory {
     }
 
     public static Class<?> getClass(final Datatype _datatype) {
+
         switch (_datatype) {
             case BOOLEAN:
                 return Boolean.class;
@@ -190,8 +237,6 @@ public class RCPFactory {
                 //                return new GroupDefinition();
 
             case ARRAY:
-
-
 
         }
 

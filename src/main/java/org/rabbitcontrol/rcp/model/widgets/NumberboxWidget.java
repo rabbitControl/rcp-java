@@ -41,7 +41,7 @@ public class NumberboxWidget<T extends Number> extends WidgetImpl {
         switch (option) {
 
             case PRECISION:
-                setPrecision((byte)_io.readU1());
+                setPrecision(_io.readU1());
                 return true;
 
             case FORMAT:
@@ -194,13 +194,15 @@ public class NumberboxWidget<T extends Number> extends WidgetImpl {
         return precision;
     }
 
-    public void setPrecision(final Byte _precision) {
+    public void setPrecision(final Integer _precision) {
 
-        if ((precision == _precision) || ((precision != null) && precision.equals(_precision))) {
+        final Byte new_precision = _precision.byteValue();
+
+        if ((precision == new_precision) || (new_precision.equals(precision))) {
             return;
         }
 
-        precision = _precision;
+        precision = new_precision;
         precisionChanged = true;
 
         if (parameter != null) {
