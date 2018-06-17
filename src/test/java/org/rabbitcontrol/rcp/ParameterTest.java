@@ -9,6 +9,7 @@ import org.rabbitcontrol.rcp.model.RcpTypes.NumberboxFormat;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.parameter.*;
+import org.rabbitcontrol.rcp.model.types.Range;
 import org.rabbitcontrol.rcp.model.widgets.NumberboxWidget;
 import org.rabbitcontrol.rcp.model.widgets.TextboxWidget;
 
@@ -37,6 +38,7 @@ public class ParameterTest {
     //
     //
     //    }
+
 
     @Test
     public void testWidget() {
@@ -103,7 +105,7 @@ public class ParameterTest {
         Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
     }
 
-    private static Parameter writeAndParse(final RCPWritable _writable) {
+    public static Parameter writeAndParse(final RCPWritable _writable) {
 
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
