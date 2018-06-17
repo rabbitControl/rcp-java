@@ -435,4 +435,15 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
             parameter.setDirty();
         }
     }
+
+    @Override
+    public void dump() {
+
+        super.dump();
+        System.out.println("minimum: " + getMinimum());
+        System.out.println("maximum: " + getMaximum());
+        System.out.println("multipleof: " + getMultipleof());
+        System.out.println("scale: " + getScale());
+        System.out.println("unit: " + getUnit());
+    }
 }

@@ -157,4 +157,16 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
 
     //------------------------------------------------------------
     //------------------------------------------------------------
+    @Override
+    public void dump() {
+
+        System.out.println("--- rangetype ---");
+        super.dump();
+
+        System.out.println("--- element type ---");
+        elementType.dump();
+        System.out.println("------");
+
+        System.out.println("default value: " + getDefault());
+    }
 }

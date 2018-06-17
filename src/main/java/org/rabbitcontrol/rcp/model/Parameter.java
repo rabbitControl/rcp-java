@@ -663,6 +663,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
         if (widget != null) {
             widget.dump();
         }
+
+        typeDefinition.dump();
     }
 
     //------------------------------------------------------------

@@ -62,4 +62,8 @@ public abstract class TypeDefinition implements ITypeDefinition {
     public void setParameter(IParameter _parameter) {
         parameter = _parameter;
     }
+
+    public void dump() {
+        System.out.println("datatype: " + datatype.name());
+    }
 }
