@@ -157,6 +157,10 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
 
     //------------------------------------------------------------
     //------------------------------------------------------------
+    public NumberDefinition<T> getElementType() {
+        return elementType;
+    }
+
     @Override
     public void dump() {
 
