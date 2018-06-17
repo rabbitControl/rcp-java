@@ -3,9 +3,11 @@ package org.rabbitcontrol.rcp.model.types;
 public class Range<T extends Number> {
 
     private T value1;
+
     private T value2;
 
     public Range(final T value1, final T value2) {
+
         this.value1 = value1;
         this.value2 = value2;
     }
@@ -29,4 +31,19 @@ public class Range<T extends Number> {
 
         value2 = _value2;
     }
+
+    @Override
+    public String toString() {
+
+        return value1 + ":" + value2;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+
+        return obj != null &&
+               value1 == ((Range)obj).getValue1() &&
+               value2 == ((Range)obj).getValue2();
+    }
+
 }

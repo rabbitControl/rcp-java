@@ -12,7 +12,7 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
 
 
     public static <T extends Number> DefaultDefinition<Range<T>> create(final Datatype _datatype,
-                                                                        Class<T> _cls) {
+                                                                        final Class<T> _cls) {
 
         switch (_datatype) {
 
@@ -82,6 +82,15 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
         final RangeOptions option = RangeOptions.byId(_propertyId);
+
+        switch (option) {
+            case DEFAULT:
+                final T v1 = elementType.readValue(_io);
+                final T v2 = elementType.readValue(_io);
+                setDefault(new Range<T>(v1, v2));
+                return true;
+        }
+
         return false;
     }
 

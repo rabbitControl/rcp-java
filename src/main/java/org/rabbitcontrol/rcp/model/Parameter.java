@@ -40,21 +40,15 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         // handle certain datatypes...
         if (datatype == Datatype.RANGE) {
-            param = null;
+
             // read element-type
             final Datatype element_datatype = Datatype.byId(_io.readU1());
 
-            RangeParameter<?> range_param = RCPFactory.createRangeParameter(parameter_id,
-                                                                     element_datatype);
+            param = RCPFactory.createRangeParameter(parameter_id, element_datatype);
 
-
-            //...
-            // parse element type options
-
-
-//            if (param != null) {
-//                param.parseTypeOptions(_io);
-//            }
+            if (param != null) {
+                param.parseTypeOptions(_io);
+            }
         }
         else if (datatype == Datatype.ARRAY) {
 
@@ -172,7 +166,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
                                                                                            RCPDataErrorException;
 
-    private void parseTypeOptions(final KaitaiStream _io) throws RCPDataErrorException {
+    protected void parseTypeOptions(final KaitaiStream _io) throws RCPDataErrorException {
 
         typeDefinition.parseOptions(_io);
     }
