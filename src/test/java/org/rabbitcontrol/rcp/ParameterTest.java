@@ -69,32 +69,6 @@ public class ParameterTest {
     }
 
     @Test
-    public void testArray() throws IllegalAccessException, InstantiationException {
-
-        final Byte[][][] bla = { { { 1, 2 }, { 3, 4 } },
-                                 { { 11, 12 }, { 13, 14 } },
-                                 { { 21, 22 }, { 23, 24 } } };
-
-        final ArrayParameter<Byte[][][], Byte> arr = ArrayParameter.create((short)1,
-                                                                           Byte.class,
-                                                                           3,
-                                                                           2,
-                                                                           2);
-        arr.setValue(bla);
-
-        // write and parse
-        final Parameter parsed_parameter = writeAndParse(arr);
-
-        Assert.assertEquals("wrong datatype",
-                            parsed_parameter.getTypeDefinition().getDatatype(),
-                            Datatype.ARRAY);
-
-        final ArrayParameter p = (ArrayParameter)parsed_parameter;
-
-        Assert.assertArrayEquals("array not equal", bla, (Byte[][][])p.getValue());
-    }
-
-    @Test
     public void testString() {
 
         final StringParameter sp         = new StringParameter((short)1);

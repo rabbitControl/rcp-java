@@ -10,75 +10,75 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
 
     public static Parameter createFixed(
             final short param_id,
-            final ArrayDefinitionFixed<?, ?> _arrayDefinition,
+            final ArrayDefinition<?, ?> _arrayDefinition,
             final DefaultDefinition<?> _sub_type) {
 
         switch (_sub_type.getDatatype()) {
 
             case BOOLEAN:
                 return new ArrayParameter<Object, Boolean>(param_id,
-                                                           (ArrayDefinitionFixed<Object, 
-                                                                   Boolean>)_arrayDefinition);
+                                                           (ArrayDefinition<Object,
+                                                                                                                              Boolean>)_arrayDefinition);
 
             case INT8:
                 return new ArrayParameter<Object, Byte>(param_id,
-                                                        (ArrayDefinitionFixed<Object, Byte>)
+                                                        (ArrayDefinition<Object, Byte>)
                                                                 _arrayDefinition);
             case UINT8:
                 return new ArrayParameter<Object,Short>(param_id,
-                                                              (ArrayDefinitionFixed<Object, Short>)
+                                                              (ArrayDefinition<Object, Short>)
                                                                       _arrayDefinition);
             case INT16:
                 return new ArrayParameter<Object,Short>(param_id,
-                                                        (ArrayDefinitionFixed<Object, Short>)
+                                                        (ArrayDefinition<Object, Short>)
                                                                 _arrayDefinition);
             case UINT16:
                 return new ArrayParameter<Object,Integer>(param_id,
-                                                          (ArrayDefinitionFixed<Object, Integer>)
+                                                          (ArrayDefinition<Object, Integer>)
                                                                   _arrayDefinition);
             case INT32:
                 return new ArrayParameter<Object,Integer>(param_id,
-                                                          (ArrayDefinitionFixed<Object, Integer>)
+                                                          (ArrayDefinition<Object, Integer>)
                                                                   _arrayDefinition);
             case UINT32:
                 return new ArrayParameter<Object,Long>(param_id,
-                                                       (ArrayDefinitionFixed<Object, Long>)
+                                                       (ArrayDefinition<Object, Long>)
                                                                _arrayDefinition);
             case INT64:
                 return new ArrayParameter<Object,Long>(param_id,
-                                                       (ArrayDefinitionFixed<Object, Long>)
+                                                       (ArrayDefinition<Object, Long>)
                                                                _arrayDefinition);
             case UINT64:
                 return new ArrayParameter<Object,Long>(param_id,
-                                                       (ArrayDefinitionFixed<Object, Long>)
+                                                       (ArrayDefinition<Object, Long>)
                                                                _arrayDefinition);
             case FLOAT32:
                 return new ArrayParameter<Object,Float>(param_id,
-                                                        (ArrayDefinitionFixed<Object, Float>)
+                                                        (ArrayDefinition<Object, Float>)
                                                                 _arrayDefinition);
             case FLOAT64:
                 return new ArrayParameter<Object,Double>(param_id,
-                                                         (ArrayDefinitionFixed<Object, Double>)
+                                                         (ArrayDefinition<Object, Double>)
                                                                  _arrayDefinition);
 
             case STRING:
                 return new ArrayParameter<Object,String>(param_id,
-                                                         (ArrayDefinitionFixed<Object, String>)
+                                                         (ArrayDefinition<Object, String>)
                                                                  _arrayDefinition);
 
             case ENUM:
                 return new ArrayParameter<Object,String>(param_id,
-                                                       (ArrayDefinitionFixed<Object, String>)
+                                                       (ArrayDefinition<Object, String>)
                                                                _arrayDefinition);
 
             case RGB:
                 return new ArrayParameter<Object,Color>(param_id,
-                                                        (ArrayDefinitionFixed<Object, Color>)
+                                                        (ArrayDefinition<Object, Color>)
                                                                 _arrayDefinition);
 
             case RGBA:
                 return new ArrayParameter<Object,Color>(param_id,
-                                                        (ArrayDefinitionFixed<Object, Color>)
+                                                        (ArrayDefinition<Object, Color>)
                                                                 _arrayDefinition);
 
             case ARRAY:
@@ -141,9 +141,9 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
 //                                           _dimSizes);
 
             // create fixed array parameter
-            final ArrayDefinitionFixed<T, E>
+            final ArrayDefinition<T, E>
                     def
-                    = new ArrayDefinitionFixed<T, E>(_elementDefinition, null, _dimSizes);
+                    = new ArrayDefinition<T, E>(_elementDefinition, null, _dimSizes);
 
             return new ArrayParameter<T, E>(_id, def);
         }
@@ -152,7 +152,7 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
             System.out.println("creating arrayParameter with dynamic array definition");
 
             // create dynamic array parameter
-            final ArrayDefinitionDynamic<T, E> def = new ArrayDefinitionDynamic<T, E>(
+            final ListDefinition<T, E> def = new ListDefinition<T, E>(
                     _elementDefinition,
                     _dimSizes);
 
@@ -162,29 +162,29 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    private final ArrayDefinitionFixed<T, E> arrayDefinitionFixed;
+    private final ArrayDefinition<T, E> arrayDefinition;
 
-    private final ArrayDefinitionDynamic<T, E> arrayDefinitionDynamic;
+    private final ListDefinition<T, E> listDefinition;
 
     //------------------------------------------------------------
     //------------------------------------------------------------
     private ArrayParameter(
             final short _id,
-            final ArrayDefinitionFixed<T, E> _fixedDefinition) throws RuntimeException {
+            final ArrayDefinition<T, E> _fixedDefinition) throws RuntimeException {
 
         super(_id, _fixedDefinition);
 
-        arrayDefinitionFixed = _fixedDefinition;
-        arrayDefinitionDynamic = null;
+        arrayDefinition = _fixedDefinition;
+        listDefinition = null;
     }
 
     private ArrayParameter(
-            final short _id, final ArrayDefinitionDynamic<T, E> _dynamic) {
+            final short _id, final ListDefinition<T, E> _dynamic) {
 
         super(_id, _dynamic);
 
-        arrayDefinitionFixed = null;
-        arrayDefinitionDynamic = _dynamic;
+        arrayDefinition = null;
+        listDefinition = _dynamic;
     }
 
     @Override
@@ -227,21 +227,21 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
         return builder.toString().trim();
     }
 
-    public ArrayDefinitionFixed<T, E> getArrayDefinitionFixed() {
-        return arrayDefinitionFixed;
+    public ArrayDefinition<T, E> getArrayDefinition() {
+        return arrayDefinition;
     }
 
-    public ArrayDefinitionDynamic<T, E> getArrayDefinitionDynamic() {
-        return arrayDefinitionDynamic;
+    public ListDefinition<T, E> getListDefinition() {
+        return listDefinition;
     }
 
     public DefaultDefinition<E> getElementType() {
 
-        if (arrayDefinitionFixed != null) {
-            return arrayDefinitionFixed.getElementType();
+        if (arrayDefinition != null) {
+            return arrayDefinition.getElementType();
         }
 
-        return arrayDefinitionDynamic.getElementType();
+        return listDefinition.getElementType();
     }
 
 }

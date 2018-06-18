@@ -11,16 +11,16 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 
-public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
+public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
 
-    public static ArrayDefinitionFixed<?, ?> parse(final KaitaiStream _io) throws
+    public static ArrayDefinition<?, ?> parse(final KaitaiStream _io) throws
                                                                            RCPDataErrorException {
 
         // parse mandatory elementType
         final DefaultDefinition<?> subtype_def = DefaultDefinition.parse(_io);
 
-        // create ArrayDefinitionFixed
-        final ArrayDefinitionFixed<?, ?> definition = create(subtype_def);
+        // create ArrayDefinition
+        final ArrayDefinition<?, ?> definition = create(subtype_def);
 
         if (definition != null) {
             definition.parseOptions(_io);
@@ -29,7 +29,7 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
         return definition;
     }
 
-    public static ArrayDefinitionFixed<?, ?> create(
+    public static ArrayDefinition<?, ?> create(
             final DefaultDefinition<?> _sub_type, final int... _dimSizes) {
 
         final Object default_value = null;
@@ -37,76 +37,76 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
         switch (_sub_type.getDatatype()) {
             case BOOLEAN:
 
-                return new ArrayDefinitionFixed<Object, Boolean>((DefaultDefinition<Boolean>)
+                return new ArrayDefinition<Object, Boolean>((DefaultDefinition<Boolean>)
                                                                          _sub_type,
-                                                                 default_value,
-                                                                 _dimSizes);
+                                                            default_value,
+                                                            _dimSizes);
 
             case INT8:
-                return new ArrayDefinitionFixed<Object, Byte>((DefaultDefinition<Byte>)_sub_type,
-                                                              default_value,
-                                                              _dimSizes);
+                return new ArrayDefinition<Object, Byte>((DefaultDefinition<Byte>)_sub_type,
+                                                         default_value,
+                                                         _dimSizes);
             case UINT8:
-                return new ArrayDefinitionFixed<Object, Short>((DefaultDefinition<Short>)_sub_type,
-                                                               default_value,
-                                                               _dimSizes);
+                return new ArrayDefinition<Object, Short>((DefaultDefinition<Short>)_sub_type,
+                                                          default_value,
+                                                          _dimSizes);
             case INT16:
-                return new ArrayDefinitionFixed<Object, Short>((DefaultDefinition<Short>)_sub_type,
-                                                               default_value,
-                                                               _dimSizes);
+                return new ArrayDefinition<Object, Short>((DefaultDefinition<Short>)_sub_type,
+                                                          default_value,
+                                                          _dimSizes);
             case UINT16:
-                return new ArrayDefinitionFixed<Object, Integer>((DefaultDefinition<Integer>)
+                return new ArrayDefinition<Object, Integer>((DefaultDefinition<Integer>)
                                                                          _sub_type,
-                                                                 default_value,
-                                                                 _dimSizes);
+                                                            default_value,
+                                                            _dimSizes);
             case INT32:
-                return new ArrayDefinitionFixed<Object, Integer>((DefaultDefinition<Integer>)
+                return new ArrayDefinition<Object, Integer>((DefaultDefinition<Integer>)
                                                                          _sub_type,
-                                                                 default_value,
-                                                                 _dimSizes);
+                                                            default_value,
+                                                            _dimSizes);
             case UINT32:
-                return new ArrayDefinitionFixed<Object, Long>((DefaultDefinition<Long>)_sub_type,
-                                                              default_value,
-                                                              _dimSizes);
+                return new ArrayDefinition<Object, Long>((DefaultDefinition<Long>)_sub_type,
+                                                         default_value,
+                                                         _dimSizes);
             case INT64:
-                return new ArrayDefinitionFixed<Object, Long>((DefaultDefinition<Long>)_sub_type,
-                                                              default_value,
-                                                              _dimSizes);
+                return new ArrayDefinition<Object, Long>((DefaultDefinition<Long>)_sub_type,
+                                                         default_value,
+                                                         _dimSizes);
             case UINT64:
-                return new ArrayDefinitionFixed<Object, Long>((DefaultDefinition<Long>)_sub_type,
-                                                              default_value,
-                                                              _dimSizes);
+                return new ArrayDefinition<Object, Long>((DefaultDefinition<Long>)_sub_type,
+                                                         default_value,
+                                                         _dimSizes);
             case FLOAT32:
-                return new ArrayDefinitionFixed<Object, Float>((DefaultDefinition<Float>)_sub_type,
-                                                               default_value,
-                                                               _dimSizes);
+                return new ArrayDefinition<Object, Float>((DefaultDefinition<Float>)_sub_type,
+                                                          default_value,
+                                                          _dimSizes);
             case FLOAT64:
-                return new ArrayDefinitionFixed<Object, Double>((DefaultDefinition<Double>)
+                return new ArrayDefinition<Object, Double>((DefaultDefinition<Double>)
                                                                         _sub_type,
-                                                                default_value,
-                                                                _dimSizes);
+                                                           default_value,
+                                                           _dimSizes);
 
             case STRING:
-                return new ArrayDefinitionFixed<Object, String>((DefaultDefinition<String>)
+                return new ArrayDefinition<Object, String>((DefaultDefinition<String>)
                                                                         _sub_type,
-                                                                default_value,
-                                                                _dimSizes);
+                                                           default_value,
+                                                           _dimSizes);
 
             case ENUM:
-                return new ArrayDefinitionFixed<Object, String>((DefaultDefinition<String>)
+                return new ArrayDefinition<Object, String>((DefaultDefinition<String>)
                                                                         _sub_type,
-                                                                default_value,
-                                                              _dimSizes);
+                                                           default_value,
+                                                           _dimSizes);
 
             case RGB:
-                return new ArrayDefinitionFixed<Object, Color>((DefaultDefinition<Color>)_sub_type,
-                                                               default_value,
-                                                               _dimSizes);
+                return new ArrayDefinition<Object, Color>((DefaultDefinition<Color>)_sub_type,
+                                                          default_value,
+                                                          _dimSizes);
 
             case RGBA:
-                return new ArrayDefinitionFixed<Object, Color>((DefaultDefinition<Color>)_sub_type,
-                                                               default_value,
-                                                               _dimSizes);
+                return new ArrayDefinition<Object, Color>((DefaultDefinition<Color>)_sub_type,
+                                                          default_value,
+                                                          _dimSizes);
 
             case ARRAY:
                 //throw new RCPParameterException("no array of array...");
@@ -138,7 +138,7 @@ public class ArrayDefinitionFixed<T, E> extends DefaultDefinition<T> {
     //------------------------------------------------------------
     //------------------------------------------------------------
 
-    public ArrayDefinitionFixed(
+    public ArrayDefinition(
             final DefaultDefinition<E> _elementType,
             final T _value,
             final int... _dimSizes) {

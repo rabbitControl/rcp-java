@@ -6,7 +6,7 @@ import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.parameter.*;
-import org.rabbitcontrol.rcp.model.types.ArrayDefinitionFixed;
+import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
 
 import java.io.IOException;
@@ -52,8 +52,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
         }
         else if (datatype == Datatype.ARRAY) {
 
-            // create ArrayDefinitionFixed
-            final ArrayDefinitionFixed<?, ?> array_def = ArrayDefinitionFixed.parse(_io);
+            // create ArrayDefinition
+            final ArrayDefinition<?, ?> array_def = ArrayDefinition.parse(_io);
 
             param = ArrayParameter.createFixed(parameter_id, array_def, array_def.getElementType());
             // !! type definition options already parsed

@@ -6,7 +6,7 @@ import org.rabbitcontrol.rcp.model.RcpTypes;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ArrayDefinitionDynamic<T, E> extends DefaultDefinition<T> {
+public class ListDefinition<T, E> extends DefaultDefinition<T> {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -18,11 +18,11 @@ public class ArrayDefinitionDynamic<T, E> extends DefaultDefinition<T> {
     final int[] dimSizes;
 
 
-    public ArrayDefinitionDynamic(final DefaultDefinition<E> _subtype) {
+    public ListDefinition(final DefaultDefinition<E> _subtype) {
         this(_subtype, -1);
     }
 
-    public ArrayDefinitionDynamic(final DefaultDefinition<E> _subtype, final int... _dimSizes) {
+    public ListDefinition(final DefaultDefinition<E> _subtype, final int... _dimSizes) {
 
         super(RcpTypes.Datatype.LIST);
 
