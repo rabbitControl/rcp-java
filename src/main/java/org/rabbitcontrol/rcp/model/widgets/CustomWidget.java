@@ -105,12 +105,12 @@ public class CustomWidget extends WidgetImpl{
     }
 
     //
-    private UUID getUuid() {
+    public UUID getUuid() {
 
         return uuid;
     }
 
-    private void setUuid(final UUID _uuid) {
+    public void setUuid(final UUID _uuid) {
 
         if ((uuid == _uuid) || ((uuid != null) && uuid.equals(_uuid))) {
             return;
@@ -124,12 +124,12 @@ public class CustomWidget extends WidgetImpl{
         }
     }
 
-    private byte[] getConfig() {
+    public byte[] getConfig() {
 
         return config;
     }
 
-    private void setConfig(final byte[] _config) {
+    public void setConfig(final byte[] _config) {
 
         config = _config;
         configChanged = true;
