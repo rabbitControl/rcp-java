@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.types.Range;
 import org.rabbitcontrol.rcp.model.types.RangeDefinition;
@@ -12,10 +11,9 @@ public class RangeParameter<T extends Number> extends ValueParameter<Range<T>> {
 
     final RangeDefinition<T> rangeDefinition;
 
-    public RangeParameter(
-            final short _id, final Datatype _datatype, Class<T> _cls) {
+    public RangeParameter(final short _id, final Class<T> _cls) {
 
-        super(_id, RangeDefinition.create(_datatype, _cls));
+        super(_id, RangeDefinition.create(_cls));
 
         rangeDefinition = (RangeDefinition<T>)getTypeDefinition();
     }

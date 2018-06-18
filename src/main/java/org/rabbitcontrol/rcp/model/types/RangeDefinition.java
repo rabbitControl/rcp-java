@@ -10,62 +10,29 @@ import java.io.OutputStream;
 
 public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T>> {
 
+    public static <T extends Number> DefaultDefinition<Range<T>> create(final Class<T> _cls) {
 
-    public static <T extends Number> DefaultDefinition<Range<T>> create(final Datatype _datatype,
-                                                                        final Class<T> _cls) {
-
-        switch (_datatype) {
-
-            case INT8:
-                return (RangeDefinition<T>)new RangeDefinition<Byte>(new Int8Definition());
-            case UINT8:
-                return (RangeDefinition<T>)new RangeDefinition<Byte>(new UInt8Definition());
-            case INT16:
-                return (RangeDefinition<T>)new RangeDefinition<Short>(new Int16Definition());
-            case UINT16:
-                return (RangeDefinition<T>)new RangeDefinition<Short>(new UInt16Definition());
-            case INT32:
-                return (RangeDefinition<T>)new RangeDefinition<Integer>(new Int32Definition());
-            case UINT32:
-                return (RangeDefinition<T>)new RangeDefinition<Integer>(new UInt32Definition());
-            case INT64:
-                return (RangeDefinition<T>)new RangeDefinition<Long>(new Int64Definition());
-            case UINT64:
-                return (RangeDefinition<T>)new RangeDefinition<Long>(new UInt64Definition());
-            case FLOAT32:
-                return (RangeDefinition<T>)new RangeDefinition<Float>(new Float32Definition());
-            case FLOAT64:
-                return (RangeDefinition<T>)new RangeDefinition<Double>(new Float64Definition());
-
+        if (_cls == Byte.class) {
+            return (RangeDefinition<T>)new RangeDefinition<Byte>(new Int8Definition());
+        }
+        if (_cls == Short.class) {
+            return (RangeDefinition<T>)new RangeDefinition<Short>(new Int16Definition());
+        }
+        if (_cls == Integer.class) {
+            return (RangeDefinition<T>)new RangeDefinition<Integer>(new Int32Definition());
+        }
+        if (_cls == Long.class) {
+            return (RangeDefinition<T>)new RangeDefinition<Long>(new Int64Definition());
+        }
+        if (_cls == Float.class) {
+            return (RangeDefinition<T>)new RangeDefinition<Float>(new Float32Definition());
+        }
+        if (_cls == Double.class) {
+            return (RangeDefinition<T>)new RangeDefinition<Double>(new Float64Definition());
         }
 
         throw new RuntimeException("unhandled element type for RangeDefinition");
     }
-
-    //------------------------------------------------------------
-    //------------------------------------------------------------
-//    public static void parseOption(
-//            final NumberDefinition<?> _typeDefinition,
-//            final NumberProperty _dataid,
-//            final KaitaiStream _io) throws RCPDataErrorException {
-//
-//        switch (_dataid) {
-//
-//            case SCALE:
-//                _typeDefinition.setScale(NumberScale.byId(_io.readU1()));
-//                break;
-//
-//            case UNIT:
-//                final TinyString tinyString = new TinyString(_io);
-//                _typeDefinition.setUnit(tinyString.data());
-//                break;
-//
-//            default:
-//                // not a number data id!!
-//                throw new RCPDataErrorException();
-//        }
-//    }
-
 
     //------------------------------------------------------------
     //------------------------------------------------------------
@@ -74,6 +41,7 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
     //------------------------------------------------------------
     //------------------------------------------------------------
     public RangeDefinition(final NumberDefinition<T> elementType) {
+
         super(Datatype.RANGE);
 
         this.elementType = elementType;
@@ -81,6 +49,7 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
 
     @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
+
         final RangeOptions option = RangeOptions.byId(_propertyId);
 
         switch (option) {
@@ -105,7 +74,8 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
 
     @Override
     public void writeValue(final Range<T> _value, final OutputStream _outputStream) throws
-                                                                                 IOException {
+                                                                                    IOException {
+
         if (_value != null) {
             elementType.writeValue(_value.getValue1(), _outputStream);
             elementType.writeValue(_value.getValue2(), _outputStream);
@@ -139,7 +109,8 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
                     defaultValueChanged = false;
                 }
             }
-        } else if (defaultValueChanged) {
+        }
+        else if (defaultValueChanged) {
 
             _outputStream.write((int)RangeOptions.DEFAULT.id());
             writeValue(null, _outputStream);
@@ -158,6 +129,7 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
     //------------------------------------------------------------
     //------------------------------------------------------------
     public NumberDefinition<T> getElementType() {
+
         return elementType;
     }
 

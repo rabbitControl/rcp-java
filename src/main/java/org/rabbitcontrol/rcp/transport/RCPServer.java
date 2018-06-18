@@ -216,6 +216,33 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+
+    // range
+    public <T extends Number> RangeParameter<T> createRangeParameter(final String _label, final
+    Class<T>
+            _class) throws
+                                                                       RCPParameterException {
+
+        return createRangeParameter(_label, rootGroup, _class);
+    }
+
+    public <T extends Number> RangeParameter<T> createRangeParameter(
+            final String _label, final GroupParameter _group, final Class<T> _class) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final RangeParameter<T> p = new RangeParameter<T>(id, _class);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+
+
+
     // string
     public StringParameter createStringParameter(final String _label) throws RCPParameterException {
 

@@ -14,9 +14,7 @@ public class RangeParameterTest {
     @Test
     public void testRangeParameter() {
 
-        RangeParameter<Byte> param = new RangeParameter<Byte>((short)1,
-                                                              RcpTypes.Datatype.INT8,
-                                                              Byte.class);
+        final RangeParameter<Byte> param = new RangeParameter<Byte>((short)1, Byte.class);
 
         param.setValue(new Range<Byte>((byte)1, (byte)2));
         param.getTypeDefinition().setDefault(new Range<Byte>((byte)0, (byte)0));

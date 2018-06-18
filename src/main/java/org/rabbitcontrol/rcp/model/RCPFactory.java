@@ -70,34 +70,32 @@ public class RCPFactory {
     public static <T extends Number> RangeParameter<T> createRangeParameter(
             final short _id, final Datatype element_type) {
 
+        if (element_type == null) {
+            return null;
+        }
+
         switch (element_type) {
 
             case INT8:
-                return (RangeParameter<T>)new RangeParameter<Byte>(_id, element_type, Byte.class);
+                return (RangeParameter<T>)new RangeParameter<Byte>(_id, Byte.class);
             case UINT8:
-                return (RangeParameter<T>)new RangeParameter<Byte>(_id, element_type, Byte.class);
+                return (RangeParameter<T>)new RangeParameter<Byte>(_id, Byte.class);
             case INT16:
-                return (RangeParameter<T>)new RangeParameter<Short>(_id, element_type, Short.class);
+                return (RangeParameter<T>)new RangeParameter<Short>(_id, Short.class);
             case UINT16:
-                return (RangeParameter<T>)new RangeParameter<Short>(_id, element_type, Short.class);
+                return (RangeParameter<T>)new RangeParameter<Short>(_id, Short.class);
             case INT32:
-                return (RangeParameter<T>)new RangeParameter<Integer>(_id,
-                                                                      element_type,
-                                                                      Integer.class);
+                return (RangeParameter<T>)new RangeParameter<Integer>(_id, Integer.class);
             case UINT32:
-                return (RangeParameter<T>)new RangeParameter<Integer>(_id,
-                                                                      element_type,
-                                                                      Integer.class);
+                return (RangeParameter<T>)new RangeParameter<Integer>(_id, Integer.class);
             case INT64:
-                return (RangeParameter<T>)new RangeParameter<Long>(_id, element_type, Long.class);
+                return (RangeParameter<T>)new RangeParameter<Long>(_id, Long.class);
             case UINT64:
-                return (RangeParameter<T>)new RangeParameter<Long>(_id, element_type, Long.class);
+                return (RangeParameter<T>)new RangeParameter<Long>(_id, Long.class);
             case FLOAT32:
-                return (RangeParameter<T>)new RangeParameter<Float>(_id, element_type, Float.class);
+                return (RangeParameter<T>)new RangeParameter<Float>(_id, Float.class);
             case FLOAT64:
-                return (RangeParameter<T>)new RangeParameter<Double>(_id,
-                                                                     element_type,
-                                                                     Double.class);
+                return (RangeParameter<T>)new RangeParameter<Double>(_id, Double.class);
 
         }
 
@@ -238,6 +236,48 @@ public class RCPFactory {
 
             case ARRAY:
 
+        }
+
+        return null;
+    }
+
+    public static <T> Datatype getDatatype(Class<T> _class) {
+
+        if (_class == Boolean.class) {
+            return Datatype.BOOLEAN;
+        }
+        else if (_class == Byte.class) {
+            return Datatype.INT8;
+        }
+        else if (_class == Short.class) {
+            return Datatype.INT16;
+        }
+        else if (_class == Integer.class) {
+            return Datatype.INT32;
+        }
+        else if (_class == Long.class) {
+            return Datatype.INT64;
+        }
+        else if (_class == Float.class) {
+            return Datatype.FLOAT32;
+        }
+        else if (_class == Double.class) {
+            return Datatype.FLOAT64;
+        }
+        else if (_class == String.class) {
+            return Datatype.STRING;
+        }
+        else if (_class == Color.class) {
+            return Datatype.RGBA;
+        }
+        else if (_class == List.class) {
+            return Datatype.LIST;
+        }
+        else if (_class == Range.class) {
+            return Datatype.RANGE;
+        }
+        else if (_class.isArray()) {
+            return Datatype.ARRAY;
         }
 
         return null;
