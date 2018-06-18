@@ -35,25 +35,30 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     //------------------------------------------------------------
     //
-    public RCPServer(final ServerTransporter _transporter) {
+    public RCPServer(final ServerTransporter... _transporter) {
 
         addTransporter(_transporter);
     }
 
-    public void addTransporter(final ServerTransporter _transporter) {
+    public void addTransporter(final ServerTransporter... _transporter) {
 
-        if (!transporterList.contains(_transporter)) {
-            transporterList.add(_transporter);
-            _transporter.addListener(this);
+        for (final ServerTransporter serverTransporter : _transporter) {
+            if (!transporterList.contains(serverTransporter)) {
+                transporterList.add(serverTransporter);
+                serverTransporter.addListener(this);
+            }
         }
     }
 
-    public void removeTransporter(final RCPTransporter _transporter) {
+    public void removeTransporter(final ServerTransporter... _transporter) {
 
-        if (transporterList.contains(_transporter)) {
-            transporterList.remove(_transporter);
+        for (final ServerTransporter serverTransporter : _transporter) {
+            if (transporterList.contains(serverTransporter)) {
+                transporterList.remove(serverTransporter);
+                serverTransporter.removeListener(this);
 
-            // TODO: shutdown transporter
+                // TODO: shutdown transporter - unbind?
+            }
         }
     }
 
