@@ -36,7 +36,7 @@ task runServer(type: JavaExec) {
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
+    gradleVersion = '4.9'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
