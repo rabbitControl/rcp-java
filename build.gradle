@@ -28,10 +28,12 @@ dependencies {
     testCompile "junit:junit:4.12"
 }
 
-
 task runServer(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = "org.rabbitcontrol.rcp.test.RCPServerTest"
+    if(System.getProperty("exec.args") != null) {
+        args System.getProperty("exec.args").split()
+    }
 }
 
 

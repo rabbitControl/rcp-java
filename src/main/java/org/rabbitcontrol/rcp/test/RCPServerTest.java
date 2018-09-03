@@ -15,10 +15,15 @@ import org.rabbitcontrol.rcp.test.websocket.server.WebsocketServerTransporterNet
 import org.rabbitcontrol.rcp.transport.RCPServer;
 
 import java.awt.*;
-import java.io.IOException;
-import java.security.cert.CertificateException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.UUID;
 
+/**
+ * start with
+ * ./gradlew run -Dexec.args="-c exposeSingleFLoat"
+ */
 public class RCPServerTest implements Update, Init {
 
     public static boolean doAutoUpdate = true;
@@ -34,30 +39,62 @@ public class RCPServerTest implements Update, Init {
     //
     public static void main(final String[] args) {
 
-        try {
-            final RCPServerTest test = new RCPServerTest();
+        String config_string = "exposeSingleFLoat";
+        for (int i = 0; i < args.length; i++) {
 
-            if (doAutoUpdate) {
+            final String arg = args[i];
 
-                final Thread t = new Thread(new Runnable() {
+            if ("--config".equals(arg) || "-c".equals(arg)) {
+                i++;
+                if (i <args.length) {
+                    System.out.println("setting config string: " + args[i]);
+                    config_string = args[i];
+                }
+            } else if ("-m".equals(arg)) {
 
-                    @Override
-                    public void run() {
-                        // some automatic value update...
-                        while (!Thread.interrupted()) {
+                System.out.println("callable method-names:");
+                final Method[] methods = RCPServerTest.class.getDeclaredMethods();
 
-                            try {
-                                Thread.sleep(10000);
-                                test.updateVar2();
-                            }
-                            catch (final InterruptedException _e) {
-                                break;
-                            }
-                        }
+                for (final Method method : methods) {
+                    final Class<?>[] ex_types = method.getExceptionTypes();
+                    if (Arrays.toString(ex_types).contains("RCPParameterException")) {
+                        System.out.println(method.getName());
                     }
-                });
-                t.start();
+                }
+
+                System.out.println("\nuse -c method-name to call the method on start");
+
+                return;
+            } else if ("-h".equals(arg)) {
+                System.out.println("help");
+                return;
             }
+        }
+
+        try {
+            final RCPServerTest test = new RCPServerTest(config_string);
+
+//            if (doAutoUpdate) {
+//
+//                final Thread t = new Thread(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        // some automatic value update...
+//                        while (!Thread.interrupted()) {
+//
+//                            try {
+//                                Thread.sleep(10000);
+//                                test.updateVar2();
+//                            }
+//                            catch (final InterruptedException _e) {
+//                                break;
+//                            }
+//                        }
+//                    }
+//                });
+//                t.start();
+//            }
         }
         catch (final RCPParameterException _e) {
             _e.printStackTrace();
@@ -96,7 +133,7 @@ public class RCPServerTest implements Update, Init {
 
     //------------------------------------------------------------
     //
-    public RCPServerTest() throws RCPParameterException {
+    public RCPServerTest(final String config) throws RCPParameterException {
 
         // a udp transporter
         //        final UDPServerTransporter transporter = new UDPServerTransporter(8181);
@@ -123,7 +160,23 @@ public class RCPServerTest implements Update, Init {
         //------------------------------------------------------------
         // expose parameters
 
-        exposeRange();
+        try {
+            final Method config_method = RCPServerTest.class.getDeclaredMethod(config);
+
+            System.out.println("calling method: " + config_method.getName());
+            config_method.invoke(this);
+        }
+        catch (NoSuchMethodException _e) {
+            _e.printStackTrace();
+        }
+        catch (IllegalAccessException _e) {
+            _e.printStackTrace();
+        }
+        catch (InvocationTargetException _e) {
+            _e.printStackTrace();
+        }
+
+        //        exposeRange();
 //        exposeArray();
 //        exposeList();
 //        exposeGroupWithCustomWidget();
@@ -136,6 +189,7 @@ public class RCPServerTest implements Update, Init {
 
 
     private void exposeRange() throws RCPParameterException {
+
         final RangeParameter<Byte> rangeParameter = rabbit.createRangeParameter("range",
                                                                                 Byte.class);
 
@@ -257,6 +311,22 @@ public class RCPServerTest implements Update, Init {
 
         theValueLong = rabbit.createInt64Parameter("a long number");
         theValueLong.setValue(10L);
+    }
+
+    private void exposeSingleFLoat() throws RCPParameterException {
+
+
+
+        for (int i = 0; i <1; i++) {
+            INumberParameter<Float> p = rabbit.createFloatParameter("FLOAT", groupParam1);
+            p.setValue(123.F);
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(200.F);
+
+            rabbit.addParameter(p);
+        }
+
+
     }
 
     private void exposeParameterInGroups() throws RCPParameterException {
