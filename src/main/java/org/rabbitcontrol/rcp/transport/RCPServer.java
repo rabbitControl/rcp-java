@@ -345,8 +345,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     public <T, E> ArrayParameter<T, E> createArrayParameter(
             final String _label,
-            RcpTypes.Datatype _datatype,
-            int... _sizes) throws RCPParameterException {
+            final RcpTypes.Datatype _datatype,
+            final int... _sizes) throws RCPParameterException {
 
         return createArrayParameter(_label, rootGroup, _datatype, _sizes);
     }
@@ -354,8 +354,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public <T, E> ArrayParameter<T, E> createArrayParameter(
             final String _label,
             final GroupParameter _group,
-            RcpTypes.Datatype _datatype,
-            int... _sizes) throws RCPParameterException {
+            final RcpTypes.Datatype _datatype,
+            final int... _sizes) throws RCPParameterException {
 
         final short id = availableId();
         if (id == 0) {
@@ -371,10 +371,10 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             setupParameter(p, _label, _group);
             return p;
         }
-        catch (InstantiationException _e) {
+        catch (final InstantiationException _e) {
             _e.printStackTrace();
         }
-        catch (IllegalAccessException _e) {
+        catch (final IllegalAccessException _e) {
             _e.printStackTrace();
         }
 
@@ -465,7 +465,10 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         //------------------------------------------------
         // add parameter to valueCache (flat map)
         valueCache.put(_parameter.getId(), _parameter);
-        dirtyParams.add(_parameter);
+
+        if (!dirtyParams.contains(_parameter)) {
+            dirtyParams.add(_parameter);
+        }
 
         if (!ids.contains(_parameter.getId())) {
             ids.add(_parameter.getId());
@@ -656,7 +659,18 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
                 // TODO:
                 // try to convert to version object
-                System.out.println("version object yet to be specified");
+
+                // answer with version
+                final Packet versionPacket = new Packet(Command.VERSION);
+                versionPacket.setData(new VersionData("0.0.0"));
+
+                try {
+                    _transporter.sendToOne(versionPacket.serialize(true), _id);
+                }
+                catch (final IOException _e) {
+                    _e.printStackTrace();
+                }
+
             }
             else if (_packet.getCmd() == Command.INITIALIZE) {
 
