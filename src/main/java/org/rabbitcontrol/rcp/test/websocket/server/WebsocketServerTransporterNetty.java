@@ -80,6 +80,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
                      .childHandler(new WebSocketServerInitializer(sslCtx, this, listener, this));
 
             ch = bootstrap.bind(port).sync().channel();
+            serverPort = port;
 
             System.out.println("Open your web browser and navigate to " +
                                (SSL ? "https" : "http") +
@@ -140,7 +141,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
     @Override
     public void sendToAll(final byte[] _data, final Object _excludeId) {
 
-        System.out.println("send to all except: " + _excludeId);
+        System.out.println(serverPort + ": send to all except: " + _excludeId);
 
         if (_excludeId instanceof Channel) {
 
