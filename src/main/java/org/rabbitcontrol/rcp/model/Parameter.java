@@ -773,7 +773,11 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     @Override
     public void clearLanguageLabel() {
+
         languageLabels.clear();
+        labelChanged = true;
+
+        setDirty();
     }
 
     @Override
@@ -827,6 +831,9 @@ public abstract class Parameter implements IParameter, IParameterChild {
     @Override
     public void clearLangaugeDescription() {
         languageDescriptions.clear();
+        descriptionChanged = true;
+
+        setDirty();
     }
 
     @Override
