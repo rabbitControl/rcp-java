@@ -92,11 +92,37 @@ public abstract class RCPBase implements IParameterManager {
         return null;
     }
 
+    public IParameter getParameter(final String _label) {
+
+        for (Short key : valueCache.keySet()){
+            final IParameter p = valueCache.get(key);
+            if (p.getLabel().equals(_label)) {
+                return p;
+            }
+        }
+
+
+        return null;
+    }
+
+    public IParameter getParameterByUserid(final String _label) {
+
+        for (Short key : valueCache.keySet()){
+            final IParameter p = valueCache.get(key);
+            if ((p.getUserid() != null) && p.getUserid().equals(_label)) {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void setParameterDirty(final IParameter _parameter) {
 
         if (!valueCache.containsKey(_parameter.getId())) {
             System.err.println("parameter not added - skip update...");
+            return;
         }
 
         if (!dirtyParams.contains(_parameter)) {
