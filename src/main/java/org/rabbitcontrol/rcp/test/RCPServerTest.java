@@ -9,16 +9,15 @@ import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.Range;
-import org.rabbitcontrol.rcp.model.widgets.CustomWidget;
-import org.rabbitcontrol.rcp.model.widgets.TextboxWidget;
+import org.rabbitcontrol.rcp.model.types.Vector3;
+import org.rabbitcontrol.rcp.model.widgets.*;
 import org.rabbitcontrol.rcp.test.websocket.server.WebsocketServerTransporterNetty;
 import org.rabbitcontrol.rcp.transport.RCPServer;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * start with
@@ -40,6 +39,8 @@ public class RCPServerTest implements Update, Init {
     public static void main(final String[] args) {
 
         String config_string = "exposeSingleFLoat";
+        int port = 10000;
+
         for (int i = 0; i < args.length; i++) {
 
             final String arg = args[i];
@@ -57,7 +58,10 @@ public class RCPServerTest implements Update, Init {
 
                 for (final Method method : methods) {
                     final Class<?>[] ex_types = method.getExceptionTypes();
-                    if (Arrays.toString(ex_types).contains("RCPParameterException")) {
+                    if (!method.getName().startsWith("_") &&
+                        Arrays.toString(ex_types).contains
+                            ("RCPParameterException"))
+                    {
                         System.out.println(method.getName());
                     }
                 }
@@ -68,11 +72,18 @@ public class RCPServerTest implements Update, Init {
             } else if ("-h".equals(arg)) {
                 System.out.println("help");
                 return;
+            } else if ("-p".equals(arg)) {
+                i++;
+
+                if (i <args.length) {
+                    port = Integer.parseInt(args[i]);
+                    System.out.println("setting port: " + port);
+                }
             }
         }
 
         try {
-            final RCPServerTest test = new RCPServerTest(config_string);
+            final RCPServerTest test = new RCPServerTest(config_string, port);
 
 //            if (doAutoUpdate) {
 //
@@ -133,7 +144,7 @@ public class RCPServerTest implements Update, Init {
 
     //------------------------------------------------------------
     //
-    public RCPServerTest(final String config) throws RCPParameterException {
+    public RCPServerTest(final String config, int port) throws RCPParameterException {
 
         // a udp transporter
         //        final UDPServerTransporter transporter = new UDPServerTransporter(8181);
@@ -144,17 +155,17 @@ public class RCPServerTest implements Update, Init {
 
         // a websocket transporter
         final WebsocketServerTransporterNetty transporter = new WebsocketServerTransporterNetty();
-        final WebsocketServerTransporterNetty transporter2 = new WebsocketServerTransporterNetty();
+        ///final WebsocketServerTransporterNetty transporter2 = new
+        // WebsocketServerTransporterNetty();
 
         // create rabbit
         rabbit = new RCPServer(transporter);
-        rabbit.addTransporter(transporter2);
+        //rabbit.addTransporter(transporter2);
 
         rabbit.setUpdateListener(this);
         rabbit.setInitListener(this);
 
-        transporter.bind(10000);
-        transporter2.bind(12000);
+        transporter.bind(port);
 
         //------------------------------------------------------------
         //------------------------------------------------------------
@@ -166,13 +177,13 @@ public class RCPServerTest implements Update, Init {
             System.out.println("calling method: " + config_method.getName());
             config_method.invoke(this);
         }
-        catch (NoSuchMethodException _e) {
+        catch (final NoSuchMethodException _e) {
             _e.printStackTrace();
         }
-        catch (IllegalAccessException _e) {
+        catch (final IllegalAccessException _e) {
             _e.printStackTrace();
         }
-        catch (InvocationTargetException _e) {
+        catch (final InvocationTargetException _e) {
             _e.printStackTrace();
         }
 
@@ -318,7 +329,7 @@ public class RCPServerTest implements Update, Init {
 
 
         for (int i = 0; i <1; i++) {
-            INumberParameter<Float> p = rabbit.createFloatParameter("FLOAT", groupParam1);
+            final INumberParameter<Float> p = rabbit.createFloatParameter("FLOAT", groupParam1);
             p.setValue(123.F);
             p.getTypeDefinition().setMinimum(0.F);
             p.getTypeDefinition().setMaximum(200.F);
@@ -407,7 +418,14 @@ public class RCPServerTest implements Update, Init {
             //            rabbit.update();
 
             init = true;
+        } else {
+            for (final INumberParameter<Float> p : floatParameter) {
+                p.setValue((float)Math.random());
+            }
+            rabbit.update();
         }
+
+
 
     }
 
