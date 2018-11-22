@@ -8,7 +8,8 @@ import org.rabbitcontrol.rcp.model.interfaces.INumberDefinition;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public abstract class NumberDefinition<T extends Number> extends DefaultDefinition<T> implements
+public abstract class NumberDefinition<T extends Number> extends DefaultDefinition<T>
+implements
                                                                              INumberDefinition<T> {
 
     public static <T extends Number> NumberDefinition<T> create(final Datatype _datatype) {
@@ -35,6 +36,18 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
                 return (NumberDefinition<T>)new Float32Definition();
             case FLOAT64:
                 return (NumberDefinition<T>)new Float64Definition();
+
+            // vectors
+            case VECTOR3F32:
+                return (NumberDefinition<T>)new Vector3Float32Definition();
+
+
+            case VECTOR2F32:
+            case VECTOR2I32:
+            case VECTOR3I32:
+            case VECTOR4F32:
+            case VECTOR4I32:
+                break;
 
         }
 
@@ -148,7 +161,11 @@ public abstract class NumberDefinition<T extends Number> extends DefaultDefiniti
         }
         else if (typeClass ==  Double.class) {
             return (T)new Double(num.doubleValue());
-        } else {
+        }
+        else if (typeClass ==  VectorBase.class) {
+            throw new RuntimeException("vector not implementd");
+        }
+        else {
             throw new RuntimeException("number not handled");
         }
     }

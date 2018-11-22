@@ -22,7 +22,7 @@ public class CustomWidget extends WidgetImpl{
 
     public CustomWidget() {
 
-        super(Widgettype.CUSTOMWIDGET);
+        super(Widgettype.CUSTOM);
     }
 
     @Override

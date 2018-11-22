@@ -3,10 +3,9 @@ package org.rabbitcontrol.rcp.model.parameter;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RcpTypes.ParameterOptions;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.*;
-import org.rabbitcontrol.rcp.model.types.DefaultDefinition;
-import org.rabbitcontrol.rcp.model.types.NumberDefinition;
+import org.rabbitcontrol.rcp.model.types.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -185,11 +184,15 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
     }
 
     @Override
-    public void update(final IParameter _parameter) {
+    public void update(final IParameter _parameter) throws RCPException {
 
         // check id
         if (_parameter.getId() != id) {
-            return;
+            throw new RCPException("id missmatch");
+        }
+
+        if (_parameter.getTypeDefinition().getDatatype() != getTypeDefinition().getDatatype()) {
+            throw new RCPException("type missmatch");
         }
 
         boolean changed = false;

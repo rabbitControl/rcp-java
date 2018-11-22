@@ -67,12 +67,13 @@ public class RcpTypes extends KaitaiStruct {
     public enum WidgetOptions {
         ENABLED(80),
         LABEL_VISIBLE(81),
-        VALUE_VISIBLE(82);
+        VALUE_VISIBLE(82),
+        NEEDS_CONFIRMATION(83);
 
         private final long id;
         WidgetOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, WidgetOptions> byId = new HashMap<Long, WidgetOptions>(3);
+        private static final Map<Long, WidgetOptions> byId = new HashMap<Long, WidgetOptions>(4);
         static {
             for (WidgetOptions e : WidgetOptions.values())
                 byId.put(e.id(), e);
@@ -103,12 +104,13 @@ public class RcpTypes extends KaitaiStruct {
         PARENTID(37),
         WIDGET(38),
         USERDATA(39),
-        USERID(40);
+        USERID(40),
+        READONLY(41);
 
         private final long id;
         ParameterOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, ParameterOptions> byId = new HashMap<Long, ParameterOptions>(9);
+        private static final Map<Long, ParameterOptions> byId = new HashMap<Long, ParameterOptions>(10);
         static {
             for (ParameterOptions e : ParameterOptions.values())
                 byId.put(e.id(), e);
@@ -164,7 +166,8 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum Widgettype {
-        CUSTOMWIDGET(1),
+        DEFAULT(1),
+        CUSTOM(2),
         INFO(16),
         TEXTBOX(17),
         BANG(18),
@@ -189,7 +192,7 @@ public class RcpTypes extends KaitaiStruct {
         private final long id;
         Widgettype(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Widgettype> byId = new HashMap<Long, Widgettype>(21);
+        private static final Map<Long, Widgettype> byId = new HashMap<Long, Widgettype>(22);
         static {
             for (Widgettype e : Widgettype.values())
                 byId.put(e.id(), e);

@@ -1,0 +1,30 @@
+package org.rabbitcontrol.rcp.model.types;
+
+
+
+public abstract class VectorBase extends Number {
+
+    @Override
+    public int intValue() {
+
+        return 0;
+    }
+
+    @Override
+    public long longValue() {
+
+        return 0;
+    }
+
+    @Override
+    public float floatValue() {
+
+        return 0;
+    }
+
+    @Override
+    public double doubleValue() {
+
+        return 0;
+    }
+}

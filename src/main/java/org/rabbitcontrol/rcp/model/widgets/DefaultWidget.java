@@ -6,10 +6,10 @@ import org.rabbitcontrol.rcp.model.RcpTypes.Widgettype;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class RadiobuttonWidget extends WidgetImpl {
+public class DefaultWidget extends WidgetImpl {
 
-    public RadiobuttonWidget() {
-        super(Widgettype.RADIOBUTTON);
+    public DefaultWidget() {
+        super(Widgettype.DEFAULT);
     }
 
     @Override

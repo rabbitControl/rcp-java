@@ -50,8 +50,23 @@ public class RCPFactory {
             case GROUP:
                 return new GroupParameter(_id);
 
-            case ARRAY:
+            case BANG:
+                return new BangParameter(_id);
 
+            case ARRAY:
+                break;
+
+            // vectors
+            case VECTOR3F32:
+                return new Vector3Float32Parameter(_id);
+
+
+            case VECTOR2F32:
+            case VECTOR2I32:
+            case VECTOR3I32:
+            case VECTOR4F32:
+            case VECTOR4I32:
+                break;
         }
 
         return null;

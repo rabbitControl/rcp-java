@@ -52,7 +52,10 @@ public abstract class WidgetImpl implements Widget {
 
         switch (wt) {
 
-            case CUSTOMWIDGET:
+            case DEFAULT:
+                widget = new DefaultWidget();
+                break;
+            case CUSTOM:
                 widget = new CustomWidget();
                 break;
             case INFO:
@@ -129,14 +132,17 @@ public abstract class WidgetImpl implements Widget {
     private final Widgettype widgettype;
 
     // optional
-    private boolean enabled = true;
+    private Boolean enabled = null;
     private boolean enableChanged;
 
-    private boolean labelVisible = true;
+    private Boolean labelVisible = null;
     private boolean labelVisibleChanged;
 
-    private boolean valueVisible = true;
+    private Boolean valueVisible = null;
     private boolean valueVisibleChanged;
+
+    private Boolean needsConfirmation = null;
+    private boolean needsConfirmationChanged;
 
     protected boolean initialWrite = true; // one-time-flag
 
@@ -183,6 +189,9 @@ public abstract class WidgetImpl implements Widget {
                 case VALUE_VISIBLE:
                     setValueVisible(_io.readU1() > 0);
                     break;
+                case NEEDS_CONFIRMATION:
+                    setNeedsConfirmation(_io.readU1() > 0);
+                    break;
 
                 default:
                     if (!handleOption(property_id, _io)) {
@@ -202,44 +211,103 @@ public abstract class WidgetImpl implements Widget {
         //
         // enabled
         //
-        if (_all || enableChanged || initialWrite) {
+        if (enabled != null) {
 
-            _outputStream.write((int)WidgetOptions.ENABLED.id());
-            _outputStream.write(enabled ? 1 : 0);
+            if (_all || enableChanged || initialWrite) {
 
-            // clear flag
-            if (!_all) {
-                enableChanged = false;
+                _outputStream.write((int)WidgetOptions.ENABLED.id());
+                _outputStream.write(enabled ? 1 : 0);
+
+                // clear flag
+                if (!_all) {
+                    enableChanged = false;
+                }
             }
         }
+        else if (enableChanged) {
+
+            _outputStream.write((int)WidgetOptions.ENABLED.id());
+            _outputStream.write(1);
+
+            enableChanged = false;
+        }
+
+
+
 
         //
         // label visible
         //
-        if (_all || labelVisibleChanged || initialWrite) {
+        if (labelVisible != null) {
+
+            if (_all || labelVisibleChanged || initialWrite) {
+
+                _outputStream.write((int)WidgetOptions.LABEL_VISIBLE.id());
+                _outputStream.write(labelVisible ? 1 : 0);
+
+                // clear flag
+                if (!_all) {
+                    labelVisibleChanged = false;
+                }
+            }
+        }
+        else if (labelVisibleChanged) {
 
             _outputStream.write((int)WidgetOptions.LABEL_VISIBLE.id());
-            _outputStream.write(labelVisible ? 1 : 0);
+            _outputStream.write(1);
 
-            // clear flag
-            if (!_all) {
-                labelVisibleChanged = false;
-            }
+            labelVisibleChanged = false;
         }
 
 
         //
         // value visible
         //
-        if (_all || valueVisibleChanged || initialWrite) {
+        if (valueVisible != null) {
+
+            if (_all || valueVisibleChanged || initialWrite) {
+
+                _outputStream.write((int)WidgetOptions.VALUE_VISIBLE.id());
+                _outputStream.write(valueVisible ? 1 : 0);
+
+                // clear flag
+                if (!_all) {
+                    valueVisibleChanged = false;
+                }
+            }
+
+        } else if (valueVisibleChanged) {
 
             _outputStream.write((int)WidgetOptions.VALUE_VISIBLE.id());
-            _outputStream.write(valueVisible ? 1 : 0);
+            _outputStream.write(1);
 
-            // clear flag
-            if (!_all) {
-                valueVisibleChanged = false;
+            valueVisibleChanged = false;
+        }
+
+
+        //
+        // needs confirmation
+        //
+        if (needsConfirmation != null) {
+
+            if (_all || needsConfirmationChanged || initialWrite) {
+
+                _outputStream.write((int)WidgetOptions.NEEDS_CONFIRMATION.id());
+                _outputStream.write(needsConfirmation ? 1 : 0);
+
+                // clear flag
+                if (!_all) {
+                    needsConfirmationChanged = false;
+                }
             }
+
+        }
+        else if (needsConfirmationChanged) {
+
+            _outputStream.write((int)WidgetOptions.NEEDS_CONFIRMATION.id());
+            _outputStream.write(0);
+
+            needsConfirmationChanged = false;
         }
 
 
@@ -257,7 +325,7 @@ public abstract class WidgetImpl implements Widget {
     @Override
     public void setEnabled(final boolean enable) {
 
-        if (enabled == enable) {
+        if ((enabled != null) && (enabled == enable)) {
             return;
         }
 
@@ -278,7 +346,7 @@ public abstract class WidgetImpl implements Widget {
     @Override
     public void setLabelVisible(final boolean visible) {
 
-        if (labelVisible == visible) {
+        if ((labelVisible != null) && (labelVisible == visible)) {
             return;
         }
 
@@ -299,7 +367,7 @@ public abstract class WidgetImpl implements Widget {
     @Override
     public void setValueVisible(final boolean visible) {
 
-        if (valueVisible == visible) {
+        if ((valueVisible != null) && (valueVisible == visible)) {
             return;
         }
 
@@ -315,6 +383,26 @@ public abstract class WidgetImpl implements Widget {
     public boolean isValueVisible() {
 
         return valueVisible;
+    }
+
+    @Override
+    public void setNeedsConfirmation(final boolean value) {
+
+        if ((needsConfirmation != null) && (needsConfirmation == value)) {
+            return;
+        }
+
+        needsConfirmation = value;
+        needsConfirmationChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
+    }
+
+    @Override
+    public boolean isNeedsConfirmation() {
+        return needsConfirmation;
     }
 
     @Override

@@ -4,8 +4,7 @@ import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.*;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 
@@ -181,11 +180,16 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
             }
             else {
 
-                ((Parameter)cached_parameter).update(parameter);
+                try {
+                    ((Parameter)cached_parameter).update(parameter);
 
-                // inform listener
-                if (updateListener != null) {
-                    updateListener.parameterUpdated(cached_parameter);
+                    // inform listener
+                    if (updateListener != null) {
+                        updateListener.parameterUpdated(cached_parameter);
+                    }
+                }
+                catch (RCPException _e) {
+                    _e.printStackTrace();
                 }
 
             }

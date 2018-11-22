@@ -19,6 +19,10 @@ public interface Widget extends RCPWritable {
 
     boolean isValueVisible();
 
+    void setNeedsConfirmation(final boolean needsConfirmation);
+
+    boolean isNeedsConfirmation();
+
     void dump();
 
     void setParameter(IParameter parameter);

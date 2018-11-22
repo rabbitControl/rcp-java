@@ -80,7 +80,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         addParameter(_parameter, _group);
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // boolean
+    //----------------------------------------------------
+    //----------------------------------------------------
     public BooleanParameter createBooleanParameter(
             final String _label) throws RCPParameterException {
 
@@ -100,7 +104,36 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+
+    //----------------------------------------------------
+    //----------------------------------------------------
+    // bang
+    //----------------------------------------------------
+    //----------------------------------------------------
+    public BangParameter createBangParameter(
+            final String _label) throws RCPParameterException {
+
+        return createBangParameter(_label, rootGroup);
+    }
+
+    public BangParameter createBangParameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final BangParameter p = new BangParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    //----------------------------------------------------
+    //----------------------------------------------------
     // int8
+    //----------------------------------------------------
+    //----------------------------------------------------
     public Int8Parameter createInt8Parameter(final String _label) throws RCPParameterException {
 
         return createInt8Parameter(_label, rootGroup);
@@ -120,7 +153,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // int16
+    //----------------------------------------------------
+    //----------------------------------------------------
     public Int32Parameter createInt16Parameter(final String _label) throws RCPParameterException {
 
         return createInt16Parameter(_label, rootGroup);
@@ -140,7 +177,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // int32
+    //----------------------------------------------------
+    //----------------------------------------------------
     public Int32Parameter createInt32Parameter(final String _label) throws RCPParameterException {
 
         return createInt32Parameter(_label, rootGroup);
@@ -160,7 +201,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // int64
+    //----------------------------------------------------
+    //----------------------------------------------------
     public Int64Parameter createInt64Parameter(final String _label) throws RCPParameterException {
 
         return createInt64Parameter(_label, rootGroup);
@@ -180,7 +225,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // float
+    //----------------------------------------------------
+    //----------------------------------------------------
     public Float32Parameter createFloatParameter(final String _label) throws RCPParameterException {
 
         return createFloatParameter(_label, rootGroup);
@@ -200,7 +249,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // double
+    //----------------------------------------------------
+    //----------------------------------------------------
     public Float64Parameter createDoubleParameter(final String _label) throws
                                                                        RCPParameterException {
 
@@ -221,8 +274,36 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
+    // vectors
+    //----------------------------------------------------
+    //----------------------------------------------------
+    public Vector3Float32Parameter createVector3Float32Parameter(final String _label) throws
+                                                                       RCPParameterException {
 
+        return createVector3Float32Parameter(_label, rootGroup);
+    }
+
+    public Vector3Float32Parameter createVector3Float32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Vector3Float32Parameter p = new Vector3Float32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    //----------------------------------------------------
+    //----------------------------------------------------
     // range
+    //----------------------------------------------------
+    //----------------------------------------------------
     public <T extends Number> RangeParameter<T> createRangeParameter(final String _label, final
     Class<T>
             _class) throws
@@ -246,9 +327,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
 
-
-
+    //----------------------------------------------------
+    //----------------------------------------------------
     // string
+    //----------------------------------------------------
+    //----------------------------------------------------
     public StringParameter createStringParameter(final String _label) throws RCPParameterException {
 
         return createStringParameter(_label, rootGroup);
@@ -267,7 +350,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // enum
+    //----------------------------------------------------
+    //----------------------------------------------------
     public EnumParameter createEnumParameter(final String _label) throws RCPParameterException {
 
         return createEnumParameter(_label, rootGroup);
@@ -286,7 +373,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // RGB
+    //----------------------------------------------------
+    //----------------------------------------------------
     public RGBParameter createRGBParameter(final String _label) throws RCPParameterException {
 
         return createRGBParameter(_label, rootGroup);
@@ -305,7 +396,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // RGBA
+    //----------------------------------------------------
+    //----------------------------------------------------
     public RGBAParameter createRGBAParameter(final String _label) throws RCPParameterException {
 
         return createRGBAParameter(_label, rootGroup);
@@ -324,7 +419,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
     // group
+    //----------------------------------------------------
+    //----------------------------------------------------
     public GroupParameter createGroupParameter(final String _label) throws RCPParameterException {
 
         return createGroupParameter(_label, rootGroup);
@@ -637,6 +736,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public void received(
             final byte[] _data, final ServerTransporter _transporter, final Object _id) {
 
+        System.out.println(_data);
+
         try {
             final Packet _packet = Packet.parse(new ByteBufferKaitaiStream(_data));
 
@@ -708,14 +809,19 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             if (cached_parameter != null) {
 
                 // update cached
-                ((Parameter)cached_parameter).update(parameter);
+                try {
+                    ((Parameter)cached_parameter).update(parameter);
 
-                // call listeners with cached...
-                if (updateListener != null) {
-                    updateListener.parameterUpdated(cached_parameter);
+                    // call listeners with cached...
+                    if (updateListener != null) {
+                        updateListener.parameterUpdated(cached_parameter);
+                    }
+
+                    return true;
                 }
-
-                return true;
+                catch (RCPException _e) {
+                    _e.printStackTrace();
+                }
             }
             else {
                 System.err.println("server: update: parameter not found in valuecache - " +

@@ -2,8 +2,7 @@ package org.rabbitcontrol.rcp.model;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RcpTypes.*;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
@@ -574,13 +573,13 @@ public abstract class Parameter implements IParameter, IParameterChild {
         }
     }
 
-    public void update(final IParameter _parameter) {
+    public void update(final IParameter _parameter) throws RCPException {
 
         boolean changed = false;
 
         // check id
         if (_parameter.getId() != id) {
-            return;
+            throw new RCPException("id missmatch");
         }
 
         // set fields directly, no change-flag ist set!
