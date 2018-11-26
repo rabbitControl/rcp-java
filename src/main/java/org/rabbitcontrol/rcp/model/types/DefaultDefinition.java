@@ -66,7 +66,6 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
                 break;
 
             case LIST:
-                // dont handle these...?
                 // TODO: handle these...
                 // read special needs before...
                 break;

@@ -1,7 +1,6 @@
 package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
-import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RcpTypes.BooleanOptions;
 import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 
@@ -58,10 +57,8 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
-
-        // write mandatory fields and defaultValue
-        _outputStream.write((int)getDatatype().id());
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws
+                                                                                   IOException {
 
         if (getDefault() != null) {
 
@@ -84,11 +81,5 @@ public class BooleanDefinition extends DefaultDefinition<Boolean> {
             defaultValueChanged = false;
         }
 
-        if (!_all) {
-            initialWrite = false;
-        }
-
-        // finalize with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
     }
 }

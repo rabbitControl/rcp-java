@@ -5,6 +5,7 @@ import org.rabbitcontrol.rcp.model.RCPFactory;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 
 import java.awt.*;
 import java.io.*;
@@ -21,10 +22,6 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
 
         // create ArrayDefinition
         final ArrayDefinition<?, ?> definition = create(subtype_def);
-
-        if (definition != null) {
-            definition.parseOptions(_io);
-        }
 
         return definition;
     }
@@ -159,6 +156,18 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
         }
 
         System.out.println("total element count: " + totalElementCount);
+    }
+
+    @Override
+    public void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {
+
+        if (elementType == null) {
+            throw new RCPDataErrorException("no element type in arraydefinition");
+        }
+
+        elementType.parseOptions(_io);
+
+        super.parseOptions(_io);
     }
 
     @Override
@@ -432,14 +441,30 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
 
     }
 
+    // override to write mandatory data after datatype and before options
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
+    public void writeMandatory(final OutputStream _outputStream) throws RCPException, IOException {
 
-        // write mandatory fields and defaultValue
-        _outputStream.write((int)getDatatype().id());
+        if (elementType == null) {
+            throw new RCPException("no elementtype");
+        }
+
+        _outputStream.write((int)elementType.getDatatype().id());
+        elementType.writeMandatory(_outputStream);
+    }
+
+    @Override
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws
+                                                                                   IOException,
+                                                                                   RCPException {
 
         // write elementType
-        elementType.write(_outputStream, _all);
+        if (elementType == null) {
+            throw new RCPException("no elementtype");
+        }
+        elementType.writeOptions(_outputStream, _all);
+        _outputStream.write(RCPParser.TERMINATOR);
+
 
         // write options
         if (getDefault() != null) {
@@ -465,12 +490,6 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
             defaultValueChanged = false;
         }
 
-        if (!_all) {
-            initialWrite = false;
-        }
-
-        // finalize with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     public DefaultDefinition<E> getElementType() {

@@ -92,19 +92,15 @@ public class RCPFactory {
         switch (element_type) {
 
             case INT8:
-                return (RangeParameter<T>)new RangeParameter<Byte>(_id, Byte.class);
             case UINT8:
                 return (RangeParameter<T>)new RangeParameter<Byte>(_id, Byte.class);
             case INT16:
-                return (RangeParameter<T>)new RangeParameter<Short>(_id, Short.class);
             case UINT16:
                 return (RangeParameter<T>)new RangeParameter<Short>(_id, Short.class);
             case INT32:
-                return (RangeParameter<T>)new RangeParameter<Integer>(_id, Integer.class);
             case UINT32:
                 return (RangeParameter<T>)new RangeParameter<Integer>(_id, Integer.class);
             case INT64:
-                return (RangeParameter<T>)new RangeParameter<Long>(_id, Long.class);
             case UINT64:
                 return (RangeParameter<T>)new RangeParameter<Long>(_id, Long.class);
             case FLOAT32:

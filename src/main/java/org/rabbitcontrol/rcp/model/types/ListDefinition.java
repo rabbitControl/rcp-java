@@ -49,9 +49,10 @@ public class ListDefinition<T, E> extends DefaultDefinition<T> {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws IOException {
 
     }
+
     public DefaultDefinition<E> getElementType() {
 
         return subtype;

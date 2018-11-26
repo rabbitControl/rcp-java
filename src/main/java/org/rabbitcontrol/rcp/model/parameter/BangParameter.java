@@ -2,14 +2,9 @@ package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.Parameter;
-import org.rabbitcontrol.rcp.model.RCPParser;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.types.BangDefinition;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 public class BangParameter extends Parameter {
 
@@ -25,8 +20,7 @@ public class BangParameter extends Parameter {
     }
 
     @Override
-    protected boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
-                                                                                  RCPDataErrorException {
+    protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
         return false;
     }
@@ -41,21 +35,6 @@ public class BangParameter extends Parameter {
         doBang();
     }
 
-    @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
-
-        // write mandatory id
-        writeId(id, _outputStream);
-
-        // write mandatory typeDefinition
-        typeDefinition.write(_outputStream, _all);
-
-        // write other options
-        super.write(_outputStream, _all);
-
-        // finalize parameter with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
-    }
 
     @Override
     public void update(final IParameter _parameter) throws RCPException {

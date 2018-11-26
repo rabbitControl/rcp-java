@@ -71,7 +71,7 @@ public class RCPParser {
         final KaitaiStream _io = new RandomAccessFileKaitaiStream(fileName);
 
         // we read from a file: no magic expected
-        //        _io.ensureFixedContents(Packet.TOI_MAGIC);
+        //        _io.ensureFixedContents(Packet.RABBIT_MAGIC);
 
         // got magic parse packet
         final Packet packet = Packet.parse(_io);

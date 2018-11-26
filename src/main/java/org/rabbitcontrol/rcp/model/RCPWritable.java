@@ -1,5 +1,7 @@
 package org.rabbitcontrol.rcp.model;
 
+import org.rabbitcontrol.rcp.model.exceptions.RCPException;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -8,5 +10,7 @@ import java.io.OutputStream;
  */
 public interface RCPWritable {
 
-    void write(final OutputStream _outputStream, final boolean _all) throws IOException;
+    void write(final OutputStream _outputStream, final boolean _all) throws
+                                                                     IOException,
+                                                                     RCPException;
 }

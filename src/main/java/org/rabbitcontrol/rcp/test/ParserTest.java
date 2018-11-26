@@ -1,8 +1,7 @@
 package org.rabbitcontrol.rcp.test;
 
 import org.rabbitcontrol.rcp.model.*;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import org.rabbitcontrol.rcp.model.exceptions.*;
 
 import java.io.*;
 
@@ -128,6 +127,9 @@ public class ParserTest {
             _e.printStackTrace();
         }
         catch (RCPUnsupportedFeatureException _e) {
+            _e.printStackTrace();
+        }
+        catch (RCPException _e) {
             _e.printStackTrace();
         }
 

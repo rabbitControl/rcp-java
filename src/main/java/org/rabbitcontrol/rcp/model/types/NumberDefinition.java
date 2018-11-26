@@ -171,10 +171,7 @@ implements
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
-
-        // write mandatory fields and defaultValue
-        _outputStream.write((int)getDatatype().id());
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws IOException {
 
         //
         // default
@@ -312,12 +309,6 @@ implements
             unitChanged = false;
         }
 
-        if (!_all) {
-            initialWrite = false;
-        }
-
-        // finalize with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
     }
 
 //    private T toType(final Number _number) {

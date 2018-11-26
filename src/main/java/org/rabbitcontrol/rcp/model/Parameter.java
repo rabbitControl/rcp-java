@@ -4,7 +4,8 @@ import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.*;
-import org.rabbitcontrol.rcp.model.parameter.*;
+import org.rabbitcontrol.rcp.model.parameter.ArrayParameter;
+import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
 
@@ -25,6 +26,35 @@ public abstract class Parameter implements IParameter, IParameterChild {
                                                           RCPUnsupportedFeatureException,
                                                           RCPDataErrorException {
 
+        // TODO: precheck if we have enough data
+        // minimum packet: 4,18,0,9,39,0,0,0
+        // min bytes to read: 6
+
+        // create parameter from stream
+        final Parameter param = createParameterFromStream(_io);
+
+        // read options from stream
+        param.parseTypeOptions(_io);
+        param.parseOptions(_io);
+        return param;
+    }
+
+    public static Parameter parseValueUpdate(final KaitaiStream _io) throws
+                                                                     RCPUnsupportedFeatureException,
+                                                                     RCPDataErrorException {
+
+        // create parameter from stream
+        final Parameter param = createParameterFromStream(_io);
+
+        // read value from stream
+        param.handleOption((int)ParameterOptions.VALUE.id(), _io);
+        return param;
+    }
+
+    private static Parameter createParameterFromStream(final KaitaiStream _io) throws
+                                                                     RCPDataErrorException,
+                                                                     RCPUnsupportedFeatureException {
+
         // get mandatory id
         final short parameter_id = _io.readS2be();
 
@@ -35,48 +65,27 @@ public abstract class Parameter implements IParameter, IParameterChild {
             throw new RCPDataErrorException();
         }
 
-        final Parameter param;
-
         // handle certain datatypes...
         if (datatype == Datatype.RANGE) {
 
             // read element-type
             final Datatype element_datatype = Datatype.byId(_io.readU1());
-
-            param = RCPFactory.createRangeParameter(parameter_id, element_datatype);
-
-            if (param != null) {
-                param.parseTypeOptions(_io);
-            }
+            return RCPFactory.createRangeParameter(parameter_id, element_datatype);
         }
         else if (datatype == Datatype.ARRAY) {
 
             // create ArrayDefinition
             final ArrayDefinition<?, ?> array_def = ArrayDefinition.parse(_io);
-
-            param = ArrayParameter.createFixed(parameter_id, array_def, array_def.getElementType());
-            // !! type definition options already parsed
+            return ArrayParameter.createFixed(parameter_id, array_def, array_def.getElementType());
         }
         else if (datatype == Datatype.LIST) {
 
             // read mandatory sub-type
-            param = null;
 
         }
         else {
             // implicitly create typeDefinition
-            param = (Parameter)RCPFactory.createParameter(parameter_id, datatype);
-
-            // parse type options and
-            if (param != null) {
-                param.parseTypeOptions(_io);
-            }
-        }
-
-        if (param != null) {
-            // !! parse only parameter options
-            param.parseOptions(_io);
-            return param;
+            return (Parameter)RCPFactory.createParameter(parameter_id, datatype);
         }
 
         throw new RCPUnsupportedFeatureException("no such feature: " + datatype);
@@ -379,8 +388,21 @@ public abstract class Parameter implements IParameter, IParameterChild {
         _outputStream.write(RCPParser.TERMINATOR);
     }
 
-    @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
+    public void writeUpdateValue(final OutputStream _outputStream) throws IOException,
+                                                                          RCPException {
+
+        writeId(id, _outputStream);
+
+        // write mandatory typeDefinition
+        _outputStream.write((int)typeDefinition.getDatatype().id());
+
+        // write mandatory
+        typeDefinition.writeMandatory(_outputStream);
+    }
+
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws
+                                                                                   IOException,
+                                                                                   RCPException {
 
         // write options
 
@@ -567,6 +589,23 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
             useridChanged = false;
         }
+    }
+
+    @Override
+    public final void write(final OutputStream _outputStream, final boolean _all) throws
+                                                                            IOException,
+                                                                            RCPException {
+
+        // write mandatory id
+        writeId(id, _outputStream);
+
+        // write mandatory typeDefinition
+        typeDefinition.write(_outputStream, _all);
+
+        writeOptions(_outputStream, _all);
+
+        // finalize parameter with terminator
+        _outputStream.write(RCPParser.TERMINATOR);
 
         if (!_all) {
             initialWrite = false;

@@ -2,12 +2,9 @@ package org.rabbitcontrol.rcp.model.parameter;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.Parameter;
-import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.types.GroupDefinition;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,22 +32,6 @@ public class GroupParameter extends Parameter {
 
         // throw error...
         return false;
-    }
-
-    @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
-
-        // write mandatory id
-        writeId(id, _outputStream);
-
-        // write mandatory typeDefinition
-        typeDefinition.write(_outputStream, _all);
-
-        // write other options
-        super.write(_outputStream, _all);
-
-        // finalize parameter with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     public List<IParameter> getChildren() {

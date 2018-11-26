@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class RCPServerTest implements Update, Init {
 
-    public static boolean doAutoUpdate = true;
+    public static boolean doAutoUpdate = false;
 
     static Color[] colors = { Color.CYAN,
                               Color.BLUE,
@@ -38,7 +38,7 @@ public class RCPServerTest implements Update, Init {
     //
     public static void main(final String[] args) {
 
-        String config_string = "exposeSingleFLoat";
+        String config_string = "exposeParameterInGroups";
         int port = 10000;
 
         for (int i = 0; i < args.length; i++) {
@@ -85,27 +85,27 @@ public class RCPServerTest implements Update, Init {
         try {
             final RCPServerTest test = new RCPServerTest(config_string, port);
 
-//            if (doAutoUpdate) {
-//
-//                final Thread t = new Thread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        // some automatic value update...
-//                        while (!Thread.interrupted()) {
-//
-//                            try {
-//                                Thread.sleep(10000);
-//                                test.updateVar2();
-//                            }
-//                            catch (final InterruptedException _e) {
-//                                break;
-//                            }
-//                        }
-//                    }
-//                });
-//                t.start();
-//            }
+            if (doAutoUpdate) {
+
+                final Thread t = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // some automatic value update...
+                        while (!Thread.interrupted()) {
+
+                            try {
+                                Thread.sleep(1000);
+                                test.updateVar2();
+                            }
+                            catch (final InterruptedException _e) {
+                                break;
+                            }
+                        }
+                    }
+                });
+                t.start();
+            }
         }
         catch (final RCPParameterException _e) {
             _e.printStackTrace();
@@ -141,6 +141,8 @@ public class RCPServerTest implements Update, Init {
     private GroupParameter groupParam3;
 
     private int counter;
+
+    private ArrayList<INumberParameter<Float>> floatParameter = new ArrayList<INumberParameter<Float>>();
 
     //------------------------------------------------------------
     //
@@ -198,6 +200,355 @@ public class RCPServerTest implements Update, Init {
         rabbit.update();
     }
 
+    private void exposeConUIController() throws RCPParameterException {
+
+        StringParameter p = rabbit.createStringParameter("server");
+        p.setUserid("/server");
+        p.setValue("testserver");
+
+    }
+
+
+    private void exposeConUI() throws RCPParameterException {
+
+
+        // admin
+        INumberParameter<Integer> adminnum = rabbit.createInt32Parameter("Speed");
+        adminnum.setUserid("/cpu/speed");
+        adminnum.getTypeDefinition().setUnit("Mhz");
+        adminnum.setValue(13);
+
+        adminnum = rabbit.createInt32Parameter("Temp");
+        adminnum.setUserid("/cpu/temp");
+        adminnum.getTypeDefinition().setUnit("C");
+        adminnum.setValue(14);
+
+        adminnum = rabbit.createInt32Parameter("Usage");
+        adminnum.setUserid("/cpu/usage");
+        adminnum.getTypeDefinition().setUnit("%");
+        adminnum.setValue(14);
+
+        adminnum = rabbit.createInt32Parameter("Power");
+        adminnum.setUserid("/cpu/watt");
+        adminnum.getTypeDefinition().setUnit("W");
+        adminnum.setValue(15);
+
+        adminnum = rabbit.createInt32Parameter("RAM");
+        adminnum.setUserid("/cpu/ram");
+        adminnum.getTypeDefinition().setUnit("%");
+        adminnum.setValue(16);
+
+        final INumberParameter<Float> audiolevel = rabbit.createFloatParameter("Global audo");
+        audiolevel.setUserid("/level");
+        audiolevel.getTypeDefinition().setMinimum(-15F);
+        audiolevel.getTypeDefinition().setMaximum(15F);
+        audiolevel.setValue(1F);
+
+        BangParameter adminBang = rabbit.createBangParameter("RESET ALL");
+        adminBang.setUserid("/restart");
+        adminBang.setFunction(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("RESET ALL");
+            }
+        });
+        Widget widget = new DefaultWidget();
+        widget.setNeedsConfirmation(true);
+        adminBang.setWidget(widget);
+
+
+        adminBang = rabbit.createBangParameter("REBOOT ALL");
+        adminBang.setUserid("/reboot");
+        adminBang.setFunction(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("REBOOT ALL");
+            }
+        });
+        adminBang.setWidget(widget);
+
+
+        final BooleanParameter admindebug = rabbit.createBooleanParameter("Debug view");
+        admindebug.setUserid("/debug");
+        widget = new DefaultWidget();
+        widget.setNeedsConfirmation(true);
+        admindebug.setWidget(widget);
+
+        _exposeMarshmallowGroup("A");
+        _exposeMarshmallowGroup("B");
+    }
+    
+    private void _exposeMarshmallowGroup(final String groupname) throws 
+                                                                       RCPParameterException {
+
+        final GroupParameter group = rabbit.createGroupParameter(groupname);
+
+
+        // timeline value
+        final INumberParameter<Float> timeline = rabbit.createFloatParameter("Timeline", group);
+        timeline.setUserid("/" + groupname + "/time");
+        timeline.getTypeDefinition().setMinimum(0.F);
+        timeline.getTypeDefinition().setMaximum(22.123F);
+        timeline.setValue(5F);
+
+        // time sections
+        StringParameter timestring = rabbit.createStringParameter("Intro", group);
+        timestring.setUserid("/" + groupname + "/time/intro");
+        timestring.setValue("00:00");
+
+        timestring = rabbit.createStringParameter("Experience", group);
+        timestring.setUserid("/" + groupname + "/time/experience");
+        timestring.setValue("00:00");
+
+        timestring = rabbit.createStringParameter("Outro", group);
+        timestring.setUserid("/" + groupname + "/time/outro");
+        timestring.setValue("00:00");
+
+
+        // on/off toggle
+        BooleanParameter button = rabbit.createBooleanParameter("Play", group);
+        button.setUserid("/" + groupname + "/on");
+
+        // next button
+        final BangParameter next = rabbit.createBangParameter("Next", group);
+        next.setUserid("/" + groupname + "/next");
+        next.setFunction(new Runnable() {
+
+            @Override
+            public void run() {
+                System.out.println("NEXT");
+            }
+        });
+        Widget widget = new DefaultWidget();
+        widget.setNeedsConfirmation(true);
+        next.setWidget(widget);
+
+        StringParameter grouplabel = rabbit.createStringParameter("label", group);
+        grouplabel.setUserid("/" + groupname + "/label");
+        grouplabel.setValue(groupname);
+
+
+        for (int i = 1; i < 10; i++) {
+
+            final String pack_prefix = "/" + groupname + "/pack" + i;
+
+            final GroupParameter pack_group = rabbit.createGroupParameter("Pack " + i, group);
+
+            // on
+            BooleanParameter bp = rabbit.createBooleanParameter("on", pack_group);
+            bp.setUserid(pack_prefix + "/on");
+            widget = new DefaultWidget();
+            widget.setNeedsConfirmation(true);
+            bp.setWidget(widget);
+
+            // name
+            final StringParameter packname = rabbit.createStringParameter("name", pack_group);
+            packname.setUserid(pack_prefix + "/label");
+            packname.setValue("Pack " + i);
+
+            // warning
+            bp = rabbit.createBooleanParameter("warning", pack_group);
+            bp.setUserid(pack_prefix + "/warning");
+
+
+            // position
+            // vec3 float32 of position
+            Vector3Float32Parameter posparam = rabbit.createVector3Float32Parameter("Position",
+                                                                                    pack_group);
+            posparam.setDescription("Pack "+i);
+            posparam.setUserid(pack_prefix + "/pos");
+            posparam.setValue(new Vector3<Float>(
+                    (float)Math.random()*2-1,
+                    (float)Math.random()*2-1,
+                    (float)Math.random()*2-1));
+
+
+
+            //
+            INumberParameter<Float> p = rabbit.createFloatParameter("Ping", pack_group);
+            p.setUserid(pack_prefix + "/roundtrip");
+            p.getTypeDefinition().setUnit("ms");
+            p.setValue(2.5F);
+
+            bp = rabbit.createBooleanParameter("Debug View", pack_group);
+            bp.setUserid(pack_prefix + "/debug");
+            widget = new DefaultWidget();
+            widget.setNeedsConfirmation(true);
+            bp.setWidget(widget);
+
+            // system commands
+            BangParameter bang = rabbit.createBangParameter("RESET", pack_group);
+            bang.setUserid(pack_prefix + "/restart");
+            bang.setFunction(new Runnable() {
+
+                @Override
+                public void run() {
+                    System.out.println("RESET BANG");
+                }
+            });
+            widget = new DefaultWidget();
+            widget.setNeedsConfirmation(true);
+            bang.setWidget(widget);
+
+
+            bang = rabbit.createBangParameter("REBOOT", pack_group);
+            bang.setUserid(pack_prefix + "/reboot");
+            bang.setFunction(new Runnable() {
+
+                @Override
+                public void run() {
+                    System.out.println("REBOOT BANG");
+                }
+            });
+            widget = new DefaultWidget();
+            widget.setNeedsConfirmation(true);
+            bang.setWidget(widget);
+
+            bang = rabbit.createBangParameter("VNC", pack_group);
+            bang.setUserid(pack_prefix + "/vnc");
+            bang.setFunction(new Runnable() {
+
+                @Override
+                public void run() {
+                    System.out.println("VNC BANG");
+                }
+            });
+            widget = new DefaultWidget();
+            widget.setNeedsConfirmation(true);
+            bang.setWidget(widget);
+
+
+            // vive
+            button = rabbit.createBooleanParameter("on", pack_group);
+            button.setUserid(pack_prefix + "/vive/on");
+
+            button = rabbit.createBooleanParameter("HMD", pack_group);
+            button.setUserid(pack_prefix + "/head");
+
+            button = rabbit.createBooleanParameter("LH", pack_group);
+            button.setUserid(pack_prefix + "/tracker1");
+
+            button = rabbit.createBooleanParameter("RH", pack_group);
+            button.setUserid(pack_prefix + "/tracker2");
+
+
+            // leap
+            button = rabbit.createBooleanParameter("on", pack_group);
+            button.setUserid(pack_prefix + "/leap/on");
+
+            button = rabbit.createBooleanParameter("LH", pack_group);
+            button.setUserid(pack_prefix + "/leap/left");
+
+            button = rabbit.createBooleanParameter("RH", pack_group);
+            button.setUserid(pack_prefix + "/leap/right");
+
+            // body
+            button = rabbit.createBooleanParameter("on", pack_group);
+            button.setUserid(pack_prefix + "/bio/on");
+
+            p = rabbit.createFloatParameter("Breath", pack_group);
+            p.setUserid(pack_prefix + "/bio/breath");
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(1.F);
+            p.setValue(0.5F);
+
+            INumberParameter<Integer> num = rabbit.createInt32Parameter("Heart", pack_group);
+            num.setUserid(pack_prefix + "/bio/heart");
+            num.getTypeDefinition().setUnit("bpm");
+            num.getTypeDefinition().setMinimum(20);
+            num.getTypeDefinition().setMaximum(200);
+            num.setValue(10);
+
+
+            // CPU
+            num = rabbit.createInt32Parameter("Speed", pack_group);
+            num.setUserid(pack_prefix + "/cpu/speed");
+            num.getTypeDefinition().setUnit("Mhz");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("Temp", pack_group);
+            num.setUserid(pack_prefix + "/cpu/temp");
+            num.getTypeDefinition().setUnit("C");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("Usage", pack_group);
+            num.setUserid(pack_prefix + "/cpu/usage");
+            num.getTypeDefinition().setUnit("%");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("Power", pack_group);
+            num.setUserid(pack_prefix + "/cpu/watt");
+            num.getTypeDefinition().setUnit("W");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("RAM", pack_group);
+            num.setUserid(pack_prefix + "/cpu/ram");
+            num.getTypeDefinition().setUnit("%");
+            num.setValue(10);
+
+
+            // GPU
+            num = rabbit.createInt32Parameter("Speed", pack_group);
+            num.setUserid(pack_prefix + "/gpu/speed");
+            num.getTypeDefinition().setUnit("Mhz");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("Temp", pack_group);
+            num.setUserid(pack_prefix + "/gpu/temp");
+            num.getTypeDefinition().setUnit("C");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("Usage", pack_group);
+            num.setUserid(pack_prefix + "/gpu/usage");
+            num.getTypeDefinition().setUnit("%");
+            num.setValue(10);
+
+            num = rabbit.createInt32Parameter("FPS", pack_group);
+            num.setUserid(pack_prefix + "/gpu/fps");
+            num.getTypeDefinition().setUnit("fps");
+            num.setValue(10);
+
+
+            // floats
+
+
+            p = rabbit.createFloatParameter("Ext 1", pack_group);
+            p.setUserid(pack_prefix + "/Puk1");
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(1.F);
+            p.setValue(0.5F);
+            floatParameter.add(p);
+
+            p = rabbit.createFloatParameter("Ext 2", pack_group);
+            p.setUserid(pack_prefix + "/Puk2");
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(1.F);
+            p.setValue(0.5F);
+            floatParameter.add(p);
+
+            p = rabbit.createFloatParameter("INT", pack_group);
+            p.setUserid(pack_prefix + "/PC");
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(1.F);
+            p.setValue(0.5F);
+            floatParameter.add(p);
+
+            p = rabbit.createFloatParameter("TRK 1", pack_group);
+            p.setUserid(pack_prefix + "/tracker1/battery");
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(1.F);
+            p.setValue(0.5F);
+            floatParameter.add(p);
+
+            p = rabbit.createFloatParameter("TRK 2", pack_group);
+            p.setUserid(pack_prefix + "/tracker2/battery");
+            p.getTypeDefinition().setMinimum(0.F);
+            p.getTypeDefinition().setMaximum(1.F);
+            p.setValue(0.5F);
+            floatParameter.add(p);
+        }
+    }
+    
 
     private void exposeRange() throws RCPParameterException {
 

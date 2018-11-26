@@ -5,4 +5,12 @@ package org.rabbitcontrol.rcp.model.exceptions;
  */
 public class RCPDataErrorException extends Exception {
 
+    public RCPDataErrorException() {
+
+    }
+
+    public RCPDataErrorException(final String message) {
+
+        super(message);
+    }
 }

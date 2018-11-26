@@ -64,7 +64,7 @@ public class RCPClientTest extends JFrame implements Add, Remove, Update {
         final WebsocketClientTransporter transporter = new WebsocketClientTransporter();
 
 
-        // create toi
+        // create rcp client
         rcp = new RCPClient(transporter);
         rcp.setUpdateListener(this);
         rcp.setAddListener(this);
@@ -202,7 +202,6 @@ public class RCPClientTest extends JFrame implements Add, Remove, Update {
     public void parameterUpdated(final IParameter _value) {
 
         System.out.println("client: updated: " + _value.getId());
-        //        toi.dumpCache();
         _value.dump();
     }
 
@@ -210,7 +209,6 @@ public class RCPClientTest extends JFrame implements Add, Remove, Update {
     public void parameterRemoved(final IParameter _value) {
 
         System.out.println("client: removed: " + _value.getId());
-        //        toi.dumpCache();
         _value.dump();
     }
 }

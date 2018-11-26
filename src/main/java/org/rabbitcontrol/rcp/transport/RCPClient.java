@@ -86,7 +86,10 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
             catch (final IOException _e) {
                 _e.printStackTrace();
             }
-        }
+            catch (final RCPException _e) {
+                _e.printStackTrace();
+            }
+         }
     }
 
     /**
@@ -103,6 +106,9 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 transporter.send(Packet.serialize(new Packet(Command.INITIALIZE), false));
             }
             catch (final IOException _e) {
+                _e.printStackTrace();
+            }
+            catch (final RCPException _e) {
                 _e.printStackTrace();
             }
         }
@@ -126,23 +132,27 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 case INVALID:
                     // nop
                     break;
+
                 case VERSION:
                     // try to convert to version object
                     System.out.println("version object yet to be specified");
                     break;
+
                 case INITIALIZE:
                     // ignore
                     break;
+
                 case DISCOVER:
                     // ignore
                     break;
+
+                case UPDATEVALUE:
                 case UPDATE:
                     _update(_packet);
                     break;
+
                 case REMOVE:
                     _remove(_packet);
-                    break;
-                case UPDATEVALUE:
                     break;
             }
 
@@ -188,7 +198,7 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                         updateListener.parameterUpdated(cached_parameter);
                     }
                 }
-                catch (RCPException _e) {
+                catch (final RCPException _e) {
                     _e.printStackTrace();
                 }
 
@@ -200,7 +210,7 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
     }
 
-    private void removeParameter(IParameter _parameter) {
+    private void removeParameter(final IParameter _parameter) {
 
         valueCache.remove(_parameter);
 

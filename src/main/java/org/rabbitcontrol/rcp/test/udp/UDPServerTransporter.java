@@ -81,9 +81,8 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
                 // parse that
                 try {
-                    final Packet toiPacket = Packet.parse(new ByteBufferKaitaiStream(data));
-
-                    received(toiPacket, this);
+                    final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
+                    received(packet, this);
                 }
                 catch (RCPUnsupportedFeatureException _e) {
                     _e.printStackTrace();

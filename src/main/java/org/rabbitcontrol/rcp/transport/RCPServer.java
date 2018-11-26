@@ -604,6 +604,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             catch (final IOException _e) {
                 _e.printStackTrace();
             }
+            catch (RCPException _e) {
+                _e.printStackTrace();
+            }
         }
 
         //------------------------------------------------
@@ -626,6 +629,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             _transporter.sendToOne(data, _id);
         }
         catch (final IOException _e) {
+            _e.printStackTrace();
+        }
+        catch (RCPException _e) {
             _e.printStackTrace();
         }
 
@@ -670,6 +676,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 catch (final IOException _e) {
                     _e.printStackTrace();
                 }
+                catch (RCPException _e) {
+                    _e.printStackTrace();
+                }
             }
         }
         parameterToRemove.clear();
@@ -693,6 +702,9 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 }
             }
             catch (final IOException _e) {
+                _e.printStackTrace();
+            }
+            catch (RCPException _e) {
                 _e.printStackTrace();
             }
         }
@@ -746,48 +758,68 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 return;
             }
 
-            if (_packet.getCmd() == Command.UPDATE) {
+            final Command cmd = _packet.getCmd();
 
-                if (_update(_packet, _transporter, _id)) {
-                    // update all clients, bypass deserialize and serialize...
-                    for (final ServerTransporter transporter : transporterList) {
-                        transporter.sendToAll(_data, _id);
+            switch (cmd) {
+                case UPDATE:
+                case UPDATEVALUE:
+                {
+                    if (_update(_packet, _transporter, _id)) {
+                        // update all clients, bypass deserialize and serialize...
+                        for (final ServerTransporter transporter : transporterList) {
+                            transporter.sendToAll(_data, _id);
+                        }
                     }
+                    break;
                 }
 
-            }
-            else if (_packet.getCmd() == Command.VERSION) {
 
-                // TODO:
-                // try to convert to version object
+                case VERSION:
+                {
+                    // TODO:
+                    // try to convert to version object
 
-                // answer with version
-                final Packet versionPacket = new Packet(Command.VERSION);
-                versionPacket.setData(new VersionData("0.0.0"));
+                    // answer with version
+                    final Packet versionPacket = new Packet(Command.VERSION);
+                    versionPacket.setData(new VersionData("0.0.0"));
 
-                try {
-                    _transporter.sendToOne(versionPacket.serialize(true), _id);
-                }
-                catch (final IOException _e) {
-                    _e.printStackTrace();
-                }
-
-            }
-            else if (_packet.getCmd() == Command.INITIALIZE) {
-
-                if (_packet.getData() != null) {
-                    // TODO: send full description of only one parameter
-                    final IParameter val = (IParameter)_packet.getData();
-
-                    // get value from cache, and send it...
+                    try {
+                        _transporter.sendToOne(versionPacket.serialize(true), _id);
+                    }
+                    catch (final IOException _e) {
+                        _e.printStackTrace();
+                    }
+                    catch (final RCPException _e) {
+                        _e.printStackTrace();
+                    }
+                    break;
                 }
 
-                _init(_transporter, _id);
-            }
-            else {
+                case INITIALIZE:
+                {
+                    if (_packet.getData() != null) {
+                        // TODO: send full description of only one parameter
+                        final IParameter val = (IParameter)_packet.getData();
 
-                System.err.println("not implemented command: " + _packet.getCmd());
+                        // get value from cache, and send it...
+                    }
+
+                    _init(_transporter, _id);
+                    break;
+                }
+
+                case REMOVE:
+                    // invalid on server
+                    System.err.println("cannot remove parameter at server");
+                    break;
+
+                case INVALID:
+                case DISCOVER:
+                default:
+                    System.err.println("not implemented command: " + cmd);
+
             }
+
         }
         catch (final RCPUnsupportedFeatureException _e) {
             _e.printStackTrace();

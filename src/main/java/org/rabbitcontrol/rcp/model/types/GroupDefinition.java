@@ -2,11 +2,10 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.TypeDefinition;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class GroupDefinition extends TypeDefinition {
@@ -50,14 +49,6 @@ public class GroupDefinition extends TypeDefinition {
     }
 
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
-
-        // write mandatory datatype
-        _outputStream.write((int)getDatatype().id());
-
-         initialWrite = false;
-
-        // finalize with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) {
     }
 }

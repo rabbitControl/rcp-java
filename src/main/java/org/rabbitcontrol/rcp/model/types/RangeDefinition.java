@@ -4,6 +4,8 @@ import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.RcpTypes.RangeOptions;
+import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
+import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,6 +50,18 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
     }
 
     @Override
+    public void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {
+
+        if (elementType == null) {
+            throw new RCPDataErrorException("no element type in arraydefinition");
+        }
+
+        elementType.parseOptions(_io);
+
+        super.parseOptions(_io);
+    }
+
+    @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
         final RangeOptions option = RangeOptions.byId(_propertyId);
@@ -86,13 +100,28 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
         }
     }
 
+    // override to write mandatory data after datatype and before options
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
+    public void writeMandatory(final OutputStream _outputStream) throws RCPException, IOException {
 
-        // write mandatory fields and defaultValue
-        _outputStream.write((int)getDatatype().id());
+        if (elementType == null) {
+            throw new RCPException("no elementtype");
+        }
 
-        elementType.write(_outputStream, _all);
+        _outputStream.write((int)elementType.getDatatype().id());
+        elementType.writeMandatory(_outputStream);
+    }
+
+    @Override
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws
+                                                                                   IOException,
+                                                                                   RCPException {
+        // write elementType options
+        if (elementType == null) {
+            throw new RCPException("no elementtype");
+        }
+        elementType.writeOptions(_outputStream, _all);
+        _outputStream.write(RCPParser.TERMINATOR);
 
         //
         // default
@@ -117,13 +146,6 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
 
             defaultValueChanged = false;
         }
-
-        if (!_all) {
-            initialWrite = false;
-        }
-
-        // finalize with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     //------------------------------------------------------------

@@ -5,8 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RcpTypes.NumberboxFormat;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
+import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.Vector3;
 import org.rabbitcontrol.rcp.model.widgets.NumberboxWidget;
@@ -121,6 +120,9 @@ public class ParameterTest {
 
         }
         catch (final IOException _e) {
+            _e.printStackTrace();
+        }
+        catch (RCPException _e) {
             _e.printStackTrace();
         }
         finally {

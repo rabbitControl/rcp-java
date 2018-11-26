@@ -17,8 +17,8 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
 
             case BOOLEAN:
                 return new ArrayParameter<Object, Boolean>(param_id,
-                                                           (ArrayDefinition<Object,
-                                                                                                                              Boolean>)_arrayDefinition);
+                                                           (ArrayDefinition<Object, Boolean>)
+                                                                   _arrayDefinition);
 
             case INT8:
                 return new ArrayParameter<Object, Byte>(param_id,

@@ -60,14 +60,21 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         return false;
     }
 
+
     @Override
-    public void write(final OutputStream _outputStream, final boolean _all) throws IOException {
+    public void writeUpdateValue(final OutputStream _outputStream) throws
+                                                                   IOException,
+                                                                   RCPException {
 
-        // write mandatory id
-        writeId(id, _outputStream);
+        super.writeUpdateValue(_outputStream);
 
-        // write mandatory typeDefinition
-        typeDefinition.write(_outputStream, _all);
+        typeDefinition.writeValue(value, _outputStream);
+    }
+
+    @Override
+    public void writeOptions(final OutputStream _outputStream, final boolean _all) throws
+                                                                            IOException,
+                                                                            RCPException {
 
         // write all optionals
         if (value != null) {
@@ -90,11 +97,8 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
             valueChanged = false;
         }
 
-        // write other options
-        super.write(_outputStream, _all);
-
-        // finalize parameter with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
+        // write all other options
+        super.writeOptions(_outputStream, _all);
     }
 
     @Override
