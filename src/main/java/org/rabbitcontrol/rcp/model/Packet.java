@@ -175,23 +175,35 @@ public class Packet implements RCPWritable {
                                                                             IOException,
                                                                             RCPException {
 
-        // ignore flag "all" for packets... packets are short living objects
+        // ignore flag "all" for packets:
+        // packets are short living objects
 
         // write mandatory command
         _outputStream.write((int)cmd.id());
 
-        if (timestamp != null) {
-            _outputStream.write((int)PacketOptions.TIMESTAMP.id());
-            _outputStream.write(ByteBuffer.allocate(8).putLong(timestamp).array());
+        // check for valueupdate
+        if (cmd == Command.UPDATEVALUE) {
+
+            if (data instanceof Parameter) {
+                ((Parameter)data).writeUpdateValue(_outputStream);
+            }
+
+        } else {
+
+            if (timestamp != null) {
+                _outputStream.write((int)PacketOptions.TIMESTAMP.id());
+                _outputStream.write(ByteBuffer.allocate(8).putLong(timestamp).array());
+            }
+
+            if (data != null) {
+                _outputStream.write((int)PacketOptions.DATA.id());
+                data.write(_outputStream, _all);
+            }
+
+            // finalize packet with terminator
+            _outputStream.write(RCPParser.TERMINATOR);
         }
 
-        if (data != null) {
-            _outputStream.write((int)PacketOptions.DATA.id());
-            data.write(_outputStream, _all);
-        }
-
-        // finalize packet with terminator
-        _outputStream.write(RCPParser.TERMINATOR);
     }
 
     //--------------------------------------------------------
