@@ -70,6 +70,10 @@ public interface IParameter extends RCPWritable {
 
     void setUserdata(final byte[] _userdata);
 
+    boolean getReadonly();
+
+    void setReadonly(final boolean _readonly);
+
     void setDirty();
 
     // update listener

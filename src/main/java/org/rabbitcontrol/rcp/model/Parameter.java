@@ -147,6 +147,10 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     private boolean useridChanged = false;
 
+    private Boolean readonly;
+
+    private boolean readonlyChanged = false;
+
     private IParameterManager parameterManager;
 
     protected boolean initialWrite = true; // one-time-flag
@@ -305,10 +309,16 @@ public abstract class Parameter implements IParameter, IParameterChild {
                 }
                 break;
 
-                case USERDATA:
+                case USERDATA: {
                     final Userdata ud = new Userdata(_io);
                     setUserdata(ud.data());
-                    break;
+                }
+                break;
+
+                case READONLY: {
+                    setReadonly(_io.readS1() > 0);
+                }
+                break;
 
                 // handle in specific implementations
                 case VALUE:
@@ -588,6 +598,29 @@ public abstract class Parameter implements IParameter, IParameterChild {
             RCPParser.writeTinyString("", _outputStream);
 
             useridChanged = false;
+        }
+
+        //
+        // readonly
+        //
+        if (readonly != null) {
+
+            if (_all || readonlyChanged || initialWrite) {
+
+                _outputStream.write((int)ParameterOptions.READONLY.id());
+                _outputStream.write(readonly ? 1 : 0);
+
+                if (!_all) {
+                    readonlyChanged = false;
+                }
+            }
+        }
+        else if (readonlyChanged) {
+
+            _outputStream.write((int)ParameterOptions.READONLY.id());
+            _outputStream.write(0);
+
+            readonlyChanged = false;
         }
     }
 
@@ -1010,6 +1043,25 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         userdata = _userdata;
         userdataChanged = true;
+
+        setDirty();
+    }
+
+    @Override
+    public boolean getReadonly() {
+        return (readonly != null) && readonly.booleanValue();
+    }
+
+    @Override
+    public void setReadonly(final boolean _readonly) {
+
+        if (((readonly != null) && (readonly.booleanValue() == (_readonly)))) {
+            System.out.println("readonly already: " + _readonly);
+            return;
+        }
+
+        readonly = _readonly;
+        readonlyChanged = true;
 
         setDirty();
     }
