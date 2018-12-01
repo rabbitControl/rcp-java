@@ -67,6 +67,9 @@ public class RCPFactory {
             case VECTOR4F32:
             case VECTOR4I32:
                 break;
+
+            case IMAGE:
+                return new ImageParameter(_id);
         }
 
         return null;

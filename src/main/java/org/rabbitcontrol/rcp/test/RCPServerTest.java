@@ -8,13 +8,17 @@ import org.rabbitcontrol.rcp.model.exceptions.RCPParameterException;
 import org.rabbitcontrol.rcp.model.interfaces.INumberParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
-import org.rabbitcontrol.rcp.model.types.Range;
-import org.rabbitcontrol.rcp.model.types.Vector3;
+import org.rabbitcontrol.rcp.model.types.*;
+import org.rabbitcontrol.rcp.model.types.ImageDefinition.ImageType;
 import org.rabbitcontrol.rcp.model.widgets.*;
 import org.rabbitcontrol.rcp.test.websocket.server.WebsocketServerTransporterNetty;
 import org.rabbitcontrol.rcp.transport.RCPServer;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -198,6 +202,27 @@ public class RCPServerTest implements Update, Init {
 //        exposeWithWidget();
 
         rabbit.update();
+    }
+
+
+
+    private void exposeImageParameter() throws RCPParameterException, IOException {
+
+        ImageParameter imageParameter = rabbit.createImageParameter("test");
+        imageParameter.setReadonly(true);
+        imageParameter.setImageType(ImageType.BMP);
+
+        BufferedImage image = ImageIO.read(new File("image.jpg"));
+        imageParameter.setValue(image);
+    }
+
+
+    private void exposeBooleanReadonlyToggle() throws RCPParameterException {
+
+        BooleanParameter bp = rabbit.createBooleanParameter("test");
+        bp.setReadonly(true);
+
+        boolParameter.add(bp);
     }
 
     private void exposeConUIController() throws RCPParameterException {

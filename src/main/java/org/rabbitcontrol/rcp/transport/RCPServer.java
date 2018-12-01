@@ -10,6 +10,7 @@ import org.rabbitcontrol.rcp.model.parameter.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 // TODO
 /*
@@ -415,6 +416,30 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
 
         final RGBAParameter p = new RGBAParameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    //----------------------------------------------------
+    //----------------------------------------------------
+    // image
+    //----------------------------------------------------
+    //----------------------------------------------------
+    public ImageParameter createImageParameter(
+            final String _label) throws RCPParameterException {
+
+        return createImageParameter(_label, rootGroup);
+    }
+
+    public ImageParameter createImageParameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final ImageParameter p = new ImageParameter(id);
         setupParameter(p, _label, _group);
         return p;
     }

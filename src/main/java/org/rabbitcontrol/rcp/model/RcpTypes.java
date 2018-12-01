@@ -405,12 +405,13 @@ public class RcpTypes extends KaitaiStruct {
         URI(42),
         IPV4(43),
         IPV6(44),
-        RANGE(45);
+        RANGE(45),
+        IMAGE(46);
 
         private final long id;
         Datatype(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(30);
+        private static final Map<Long, Datatype> byId = new HashMap<Long, Datatype>(31);
         static {
             for (Datatype e : Datatype.values())
                 byId.put(e.id(), e);
