@@ -208,9 +208,9 @@ public class RCPServerTest implements Update, Init {
 
     private void exposeFaultyParameter() throws RCPParameterException {
 
-        Float32Parameter imageParameter = rabbit.createFloatParameter("test");
-        imageParameter.setMinimum(0.F);
-        imageParameter.setMaximum(0.F);
+        Float32Parameter parameter = rabbit.createFloatParameter("test");
+        parameter.setMinimum(0.F);
+        parameter.setMaximum(0.F);
     }
 
 
@@ -426,17 +426,29 @@ public class RCPServerTest implements Update, Init {
             }
         });
 
-        ImageParameter imageParameter = rabbit.createImageParameter("image");
-        imageParameter.setReadonly(true);
-        imageParameter.setImageType(ImageType.BMP);
 
-        try {
-            BufferedImage image = ImageIO.read(new File("/Users/inx/Pictures/ice.jpg"));
-            imageParameter.setValue(image);
+        // try to get file from resources
+        final ClassLoader classLoader = getClass().getClassLoader();
+        final File image_file = new File(classLoader.getResource("ice.jpg").getFile());
+        if (image_file.exists()) {
+
+            System.out.println("expose image parameter");
+
+            final ImageParameter imageParameter = rabbit.createImageParameter("image");
+            imageParameter.setReadonly(true);
+            imageParameter.setImageType(ImageType.BMP);
+
+            try {
+                BufferedImage image = ImageIO.read(image_file);
+                imageParameter.setValue(image);
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
+            }
+        } else {
+            System.out.println("could not find image: ice.jpg");
         }
-        catch (IOException _e) {
-            _e.printStackTrace();
-        }
+
 
         // double
         theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
