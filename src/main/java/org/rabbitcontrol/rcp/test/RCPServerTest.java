@@ -722,6 +722,26 @@ public class RCPServerTest implements Update, Init {
             rabbit.addParameter(p);
         }
 
+        rabbit.update();
+    }
+
+
+    private void exposeFloatTest() throws RCPParameterException {
+
+        Float32Parameter p = rabbit.createFloatParameter("simple-float");
+        p.setValue(3.1415F);
+
+        p = rabbit.createFloatParameter("float min/max");
+        p.setMinimum(0.F);
+        p.setMaximum(100.F);
+        p.setValue(20.F);
+
+        p = rabbit.createFloatParameter("float min/max/multipleof/unit");
+        p.setMinimum(0.F);
+        p.setMaximum(100.F);
+        p.setValue(20.F);
+        p.setMultipleof(5.F);
+        p.setUnit("MM");
 
     }
 
@@ -747,6 +767,28 @@ public class RCPServerTest implements Update, Init {
         theValueString = rabbit.createStringParameter("a string");
         theValueString.setValue("This is a text encoded in utf-8. let's test it:");
         theValueString.setDescription("description for string");
+
+        final BangParameter bangParameter = rabbit.createBangParameter("Bang!");
+        bangParameter.setFunction(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println("BANG!");
+            }
+        });
+
+        ImageParameter imageParameter = rabbit.createImageParameter("image");
+        imageParameter.setReadonly(true);
+        imageParameter.setImageType(ImageType.BMP);
+
+        try {
+            BufferedImage image = ImageIO.read(new File("/Users/inx/Pictures/ice.jpg"));
+            imageParameter.setValue(image);
+        }
+        catch (IOException _e) {
+            _e.printStackTrace();
+        }
 
         // double
         theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
