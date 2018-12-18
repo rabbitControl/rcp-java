@@ -46,10 +46,14 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
 
     public void addChannel(final Channel _channel) {
 
+        System.out.println("client connected: " + _channel.remoteAddress());
+
         allClients.add(_channel);
     }
 
     public void removeChannel(final Channel _channel) {
+
+        System.out.println("client disconnected: " + _channel.remoteAddress());
 
         allClients.remove(_channel);
     }
