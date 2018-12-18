@@ -86,11 +86,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
             ch = bootstrap.bind(port).sync().channel();
             serverPort = port;
 
-            System.out.println("Open your web browser and navigate to " +
-                               (SSL ? "https" : "http") +
-                               "://127.0.0.1:" +
-                               port +
-                               '/');
+            System.out.println("Websocket server ready at port: " + port);
 
         }
         catch (CertificateException _e) {

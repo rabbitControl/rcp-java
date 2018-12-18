@@ -121,7 +121,7 @@ public abstract class RCPBase implements IParameterManager {
     public void setParameterDirty(final IParameter _parameter) {
 
         if (!valueCache.containsKey(_parameter.getId())) {
-            System.err.println("parameter not added - skip update...");
+//            System.err.println("parameter not added - skip update...");
             return;
         }
 
