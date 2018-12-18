@@ -147,6 +147,7 @@ public class RCPServerTest implements Update, Init {
     private int counter;
 
     private ArrayList<INumberParameter<Float>> floatParameter = new ArrayList<INumberParameter<Float>>();
+    private ArrayList<BooleanParameter> boolParameter = new ArrayList<BooleanParameter>();
 
     //------------------------------------------------------------
     //
@@ -204,6 +205,14 @@ public class RCPServerTest implements Update, Init {
         rabbit.update();
     }
 
+
+
+    private void exposeFaultyParameter() throws RCPParameterException {
+
+        Float32Parameter imageParameter = rabbit.createFloatParameter("test");
+        imageParameter.setMinimum(0.F);
+        imageParameter.setMaximum(0.F);
+    }
 
 
     private void exposeImageParameter() throws RCPParameterException, IOException {
