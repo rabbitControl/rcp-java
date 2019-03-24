@@ -39,10 +39,11 @@ public class Packet implements RCPWritable {
                                                           RCPDataErrorException {
 
         // get mandatory
-        final Command cmd = Command.byId(_io.readU1());
+        int cmd_id = _io.readU1();
+        final Command cmd = Command.byId(cmd_id);
 
         if (cmd == null) {
-            throw new RCPDataErrorException();
+            throw new RCPDataErrorException("invalid command: " + cmd_id);
         }
 
         final Packet packet = new Packet(cmd);
