@@ -268,6 +268,8 @@ public class RCPServerTest implements Update, Init {
         Float32Parameter parameter = rabbit.createFloatParameter("test");
         parameter.setMinimum(0.F);
         parameter.setMaximum(0.F);
+
+        //parameter.setWidget(new NumberboxWidget<Float>());
     }
 
 
@@ -414,7 +416,7 @@ public class RCPServerTest implements Update, Init {
         theValueLong.setValue(10L);
     }
 
-    private void exposeSingleFLoat() throws RCPParameterException {
+    private void exposeSingleFloat() throws RCPParameterException {
 
 
 
@@ -448,6 +450,95 @@ public class RCPServerTest implements Update, Init {
         p.setMultipleof(5.F);
         p.setUnit("MM");
 
+    }
+
+    private void exposeParameterInGroups1() throws RCPParameterException {
+
+        // group 1
+        //groupPram1 = rabbit.createGroupParameter("GROUP 1");
+
+        // enumeration
+        enumParameter = rabbit.createEnumParameter("enum test");
+        enumParameter.getEnumTypeDefinition().addEntry("uno");
+        enumParameter.getEnumTypeDefinition().addEntry("dos");
+        enumParameter.getEnumTypeDefinition().addEntry("tres");
+        enumParameter.getEnumTypeDefinition().addEntry("quattro");
+        enumParameter.getEnumTypeDefinition().setDefault("tres");
+        enumParameter.setValue("dos");
+
+        //RGB color
+        colorparam = rabbit.createRGBParameter("a color");
+        colorparam.setValue(Color.CYAN);
+
+        // string
+        theValueString = rabbit.createStringParameter("a string");
+        theValueString.setValue("This is a text encoded in utf-8. let's test it:");
+        theValueString.setDescription("description for string");
+
+        final BangParameter bangParameter = rabbit.createBangParameter("Bang!");
+        bangParameter.setFunction(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println("BANG!");
+            }
+        });
+
+
+        // try to get file from resources
+        final ClassLoader classLoader = getClass().getClassLoader();
+        final File image_file = new File(classLoader.getResource("ice.jpg").getFile());
+        if (image_file.exists()) {
+
+            System.out.println("expose image parameter");
+
+            final ImageParameter imageParameter = rabbit.createImageParameter("image");
+            imageParameter.setReadonly(true);
+            imageParameter.setImageType(ImageType.BMP);
+
+            try {
+                BufferedImage image = ImageIO.read(image_file);
+                imageParameter.setValue(image);
+            }
+            catch (IOException _e) {
+                _e.printStackTrace();
+            }
+        } else {
+            System.out.println("could not find image: ice.jpg");
+        }
+
+
+        // double
+        theValueDouble = rabbit.createDoubleParameter("a double");
+        theValueDouble.getTypeDefinition().setMaximum(1000.D);
+        theValueDouble.getTypeDefinition().setMinimum(0.D);
+        theValueDouble.setDescription("double description");
+        theValueDouble.setValue(3.14);
+
+        // float
+        theValueFloat1 = rabbit.createFloatParameter("FLOAT");
+        theValueFloat1.setValue(123.F);
+        theValueFloat1.getTypeDefinition().setMinimum(100.F);
+        theValueFloat1.getTypeDefinition().setMaximum(200.F);
+
+        // float
+        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2");
+        theValueFloat2.setValue(33.F);
+        theValueFloat2.getTypeDefinition().setMinimum(20.F);
+        theValueFloat2.getTypeDefinition().setMaximum(40.F);
+
+        // int
+        theValueInt = rabbit.createInt32Parameter("INT32 LABEL");
+        theValueInt.setValue(333);
+
+        // boolean
+        theValueBool = rabbit.createBooleanParameter("toggle button");
+        theValueBool.setValue(true);
+
+        // steal move values to other groups
+        rabbit.addParameter(theValueFloat1);
+        rabbit.addParameter(theValueFloat2);
     }
 
     private void exposeParameterInGroups() throws RCPParameterException {
@@ -509,18 +600,22 @@ public class RCPServerTest implements Update, Init {
 
         // double
         theValueDouble = rabbit.createDoubleParameter("a double", groupParam1);
-        theValueDouble.getTypeDefinition().setMaximum(1000.D);
+        theValueDouble.getTypeDefinition().setMaximum(10.D);
         theValueDouble.getTypeDefinition().setMinimum(0.D);
         theValueDouble.setDescription("double description");
         theValueDouble.setValue(3.14);
 
         // float
-        theValueFloat1 = rabbit.createFloatParameter("FLOAT", groupParam1);
+        theValueFloat1 = rabbit.createFloatParameter("FLOAT");
         theValueFloat1.setValue(123.F);
+        theValueFloat1.getTypeDefinition().setMinimum(100.F);
+        theValueFloat1.getTypeDefinition().setMaximum(200.F);
 
         // float
-        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2", groupParam1);
+        theValueFloat2 = rabbit.createFloatParameter("FLOAT 2");
         theValueFloat2.setValue(33.F);
+        theValueFloat2.getTypeDefinition().setMinimum(20.F);
+        theValueFloat2.getTypeDefinition().setMaximum(40.F);
 
         // int
         theValueInt = rabbit.createInt32Parameter("INT32 LABEL", groupParam1);
