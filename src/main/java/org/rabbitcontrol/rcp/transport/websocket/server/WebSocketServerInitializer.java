@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.rabbitcontrol.rcp.test.websocket.server;
+package org.rabbitcontrol.rcp.transport.websocket.server;
 
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
@@ -26,8 +26,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression
         .WebSocketServerCompressionHandler;
 import io.netty.handler.ssl.SslContext;
-import org.rabbitcontrol.rcp.test.netty.BinaryWebSocketFrameEncoder;
-import org.rabbitcontrol.rcp.test.netty.ChannelManager;
+import org.rabbitcontrol.rcp.transport.netty.BinaryWebSocketFrameEncoder;
+import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 

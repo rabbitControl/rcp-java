@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.rabbitcontrol.rcp.test.tcp;
+package org.rabbitcontrol.rcp.transport.tcp;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -22,8 +22,8 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.rabbitcontrol.rcp.test.netty.ChannelManager;
 import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
+import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 
 public final class TCPServerTransporterNetty implements ChannelManager {
 

@@ -1,10 +1,10 @@
-package org.rabbitcontrol.rcp.test.tcp;
+package org.rabbitcontrol.rcp.transport.tcp;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
-import org.rabbitcontrol.rcp.test.netty.*;
+import org.rabbitcontrol.rcp.transport.netty.*;
 
 public class TCPServerInitializer extends ChannelInitializer<SocketChannel> {
 

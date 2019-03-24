@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.test.websocket.client;
+package org.rabbitcontrol.rcp.transport.websocket.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -8,7 +8,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import org.rabbitcontrol.rcp.model.Packet;
 import org.rabbitcontrol.rcp.transport.*;
 
 import java.net.URI;

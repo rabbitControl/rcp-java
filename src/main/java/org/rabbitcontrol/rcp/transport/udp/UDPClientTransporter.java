@@ -1,7 +1,6 @@
-package org.rabbitcontrol.rcp.test.udp;
+package org.rabbitcontrol.rcp.transport.udp;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
-import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
@@ -10,51 +9,39 @@ import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * Created by inx on 30/11/16.
  */
-public class UDPServerTransporter extends Thread implements RCPTransporter {
-
-    private class UDPClient {
-
-        public InetAddress address;
-
-        public int port;
-
-        private UDPClient(final InetAddress _address, final int _port) {
-
-            address = _address;
-            port = _port;
-        }
-    }
+public class UDPClientTransporter extends Thread implements RCPTransporter {
 
     //------------------------------------------------------------
     //
+    private InetAddress address;
+
     private int port;
 
-    private final DatagramSocket socket;
+    private final DatagramSocket clientSocket;
 
     private volatile boolean doit = true;
 
     private RCPTransporterListener listener;
 
-    private final Collection<InetAddress> clients = new ArrayList<InetAddress>();
-
-    private int targetPort = 8182;
-
     //------------------------------------------------------------
     //
-    public UDPServerTransporter(final int _port) throws SocketException {
+    public UDPClientTransporter(final String _address, final int _port) throws
+                                                                        SocketException,
+                                                                        UnknownHostException {
 
+        clientSocket = new DatagramSocket(10000);
+
+        address = InetAddress.getByName(_address);
         port = _port;
 
         if (port < 0) {
             throw new RuntimeException("no port < 0");
         }
-
-        socket = new DatagramSocket(port);
 
         start();
     }
@@ -65,19 +52,14 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
         final byte[] receiveData = new byte[1024];
 
         while (doit) {
+
             final DatagramPacket receivePacket = new DatagramPacket(receiveData,
                                                                     receiveData.length);
 
             try {
-                socket.receive(receivePacket);
+                clientSocket.receive(receivePacket);
 
-                if (!clients.contains(receivePacket.getAddress())) {
-                    // FIXME: bad idea to store those "clients" - we never know when they go away
-                    // addParameter client anyway - ignore advice and go on
-                    clients.add(receivePacket.getAddress());
-                }
-
-                byte[] data = Arrays.copyOf(receivePacket.getData(), receivePacket.getLength());
+                final byte[] data = Arrays.copyOf(receivePacket.getData(), receivePacket.getLength());
 
                 // parse that
                 try {
@@ -90,13 +72,14 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
                 catch (RCPDataErrorException _e) {
                     _e.printStackTrace();
                 }
+
             }
             catch (final IOException _e) {
                 _e.printStackTrace();
             }
         }
 
-        socket.close();
+        clientSocket.close();
         System.out.println("finishing Client Transporter");
     }
 
@@ -104,24 +87,15 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
     @Override
     public void send(final byte[] _data) {
 
-        //final byte[] data = Packet.serialize(_packet, false);
+        try {
+            //final byte[] data = Packet.serialize(_packet, false);
 
-        for (final InetAddress _inetAddress : clients) {
-//                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
-//                                   "" + new String
-//                                           (data));
+            final DatagramPacket sendPacket = new DatagramPacket(_data, _data.length, address, port);
 
-            final DatagramPacket sendPacket = new DatagramPacket(_data,
-                                                                 _data.length,
-                                                                 _inetAddress,
-                                                                 targetPort);
-
-            try {
-                socket.send(sendPacket);
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
+            clientSocket.send(sendPacket);
+        }
+        catch (final IOException _e) {
+            _e.printStackTrace();
         }
 
     }
@@ -132,16 +106,18 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
         listener = _listener;
     }
 
+//    @Override
+//    public void received(final byte[] _data) {
+//
+//        if (listener != null) {
+//            listener.received(_data);
+//        }
+//    }
+
     @Override
     public void received(final Packet _packet, final RCPTransporter _transporter) {
         if (listener != null) {
             listener.received(_packet, this);
         }
     }
-
-    public void setTargetPort(final int _targetPort) {
-
-        targetPort = _targetPort;
-    }
-
 }

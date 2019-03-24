@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.test.websocket.client;
+package org.rabbitcontrol.rcp.transport.websocket.client;
 
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
-import org.rabbitcontrol.rcp.test.netty.*;
+import org.rabbitcontrol.rcp.transport.netty.*;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
 import java.net.URI;

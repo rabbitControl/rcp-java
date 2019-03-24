@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.test.websocket.server;
+package org.rabbitcontrol.rcp.transport.websocket.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -10,7 +10,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.rabbitcontrol.rcp.test.netty.ChannelManager;
+import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 

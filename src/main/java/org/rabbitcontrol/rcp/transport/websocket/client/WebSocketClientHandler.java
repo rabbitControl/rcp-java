@@ -35,7 +35,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-package org.rabbitcontrol.rcp.test.websocket.client;
+package org.rabbitcontrol.rcp.transport.websocket.client;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

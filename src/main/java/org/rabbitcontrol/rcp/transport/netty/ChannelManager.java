@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.test.netty;
+package org.rabbitcontrol.rcp.transport.netty;
 
 import io.netty.channel.Channel;
 
