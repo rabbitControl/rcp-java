@@ -38,17 +38,18 @@ implements
                 return (NumberDefinition<T>)new Float64Definition();
 
             // vectors
+            case VECTOR2F32:
+                return (NumberDefinition<T>)new Vector2Float32Definition();
+            case VECTOR2I32:
+                return (NumberDefinition<T>)new Vector2Int32Definition();
             case VECTOR3F32:
                 return (NumberDefinition<T>)new Vector3Float32Definition();
-
-
-            case VECTOR2F32:
-            case VECTOR2I32:
             case VECTOR3I32:
+                return (NumberDefinition<T>)new Vector3Int32Definition();
             case VECTOR4F32:
+                return (NumberDefinition<T>)new Vector4Float32Definition();
             case VECTOR4I32:
-                break;
-
+                return (NumberDefinition<T>)new Vector4Int32Definition();
         }
 
         throw new RuntimeException("datatype not handled");

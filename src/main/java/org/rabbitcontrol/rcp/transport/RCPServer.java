@@ -280,6 +280,48 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     // vectors
     //----------------------------------------------------
     //----------------------------------------------------
+    // vector2
+    public Vector2Float32Parameter createVector2Float32Parameter(final String _label) throws
+                                                                                      RCPParameterException {
+
+        return createVector2Float32Parameter(_label, rootGroup);
+    }
+
+    public Vector2Float32Parameter createVector2Float32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Vector2Float32Parameter p = new Vector2Float32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    public Vector2Int32Parameter createVector2Int32Parameter(final String _label) throws
+                                                                                  RCPParameterException {
+
+        return createVector2Int32Parameter(_label, rootGroup);
+    }
+
+    public Vector2Int32Parameter createVector2Int32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Vector2Int32Parameter p = new Vector2Int32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // vector3
     public Vector3Float32Parameter createVector3Float32Parameter(final String _label) throws
                                                                        RCPParameterException {
 
@@ -296,6 +338,67 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
 
         final Vector3Float32Parameter p = new Vector3Float32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    public Vector3Int32Parameter createVector3Int32Parameter(final String _label) throws
+                                                                                      RCPParameterException {
+
+        return createVector3Int32Parameter(_label, rootGroup);
+    }
+
+    public Vector3Int32Parameter createVector3Int32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Vector3Int32Parameter p = new Vector3Int32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    // vector4
+    public Vector4Float32Parameter createVector4Float32Parameter(final String _label) throws
+                                                                                      RCPParameterException {
+
+        return createVector4Float32Parameter(_label, rootGroup);
+    }
+
+    public Vector4Float32Parameter createVector4Float32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Vector4Float32Parameter p = new Vector4Float32Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    public Vector4Int32Parameter createVector4Int32Parameter(final String _label) throws
+                                                                                  RCPParameterException {
+
+        return createVector4Int32Parameter(_label, rootGroup);
+    }
+
+    public Vector4Int32Parameter createVector4Int32Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final Vector4Int32Parameter p = new Vector4Int32Parameter(id);
         setupParameter(p, _label, _group);
         return p;
     }

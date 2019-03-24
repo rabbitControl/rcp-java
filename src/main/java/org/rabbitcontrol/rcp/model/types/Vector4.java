@@ -2,7 +2,7 @@ package org.rabbitcontrol.rcp.model.types;
 
 
 
-public class Vector3<T extends Number> extends VectorBase {
+public class Vector4<T extends Number> extends VectorBase {
 
     private T x;
 
@@ -10,15 +10,18 @@ public class Vector3<T extends Number> extends VectorBase {
 
     private T z;
 
+    private T t;
 
-    public Vector3() {
+
+    public Vector4() {
     }
 
-    public Vector3(T x, T y, T z) {
+    public Vector4(T x, T y, T z, T t) {
 
         this.x = x;
         this.y = y;
         this.z = z;
+        this.t = t;
     }
 
     public T getX() {
@@ -51,10 +54,20 @@ public class Vector3<T extends Number> extends VectorBase {
         z = _z;
     }
 
+    public T getT() {
+
+        return t;
+    }
+
+    public void setT(final T _t) {
+
+        t = _t;
+    }
+
     @Override
     public String toString() {
 
-        return x + ", " + y + ", " + z;
+        return x + ", " + y + ", " + z + ", " + t;
     }
 }
 

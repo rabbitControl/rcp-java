@@ -2,23 +2,19 @@ package org.rabbitcontrol.rcp.model.types;
 
 
 
-public class Vector3<T extends Number> extends VectorBase {
+public class Vector2<T extends Number> extends VectorBase {
 
     private T x;
 
     private T y;
 
-    private T z;
-
-
-    public Vector3() {
+    public Vector2() {
     }
 
-    public Vector3(T x, T y, T z) {
+    public Vector2(T x, T y) {
 
         this.x = x;
         this.y = y;
-        this.z = z;
     }
 
     public T getX() {
@@ -41,20 +37,11 @@ public class Vector3<T extends Number> extends VectorBase {
         y = _y;
     }
 
-    public T getZ() {
-
-        return z;
-    }
-
-    public void setZ(final T _z) {
-
-        z = _z;
-    }
 
     @Override
     public String toString() {
 
-        return x + ", " + y + ", " + z;
+        return x + ", " + y;
     }
 }
 

@@ -57,16 +57,18 @@ public class RCPFactory {
                 break;
 
             // vectors
+            case VECTOR2F32:
+                return new Vector2Float32Parameter(_id);
+            case VECTOR2I32:
+                return new Vector2Int32Parameter(_id);
             case VECTOR3F32:
                 return new Vector3Float32Parameter(_id);
-
-
-            case VECTOR2F32:
-            case VECTOR2I32:
             case VECTOR3I32:
+                return new Vector3Int32Parameter(_id);
             case VECTOR4F32:
+                return new Vector4Float32Parameter(_id);
             case VECTOR4I32:
-                break;
+                return new Vector4Int32Parameter(_id);
 
             case IMAGE:
                 return new ImageParameter(_id);
@@ -184,6 +186,20 @@ public class RCPFactory {
             case FLOAT64:
                 return new Float64Definition();
 
+            // vectors
+            case VECTOR2F32:
+                return new Vector2Float32Definition();
+            case VECTOR2I32:
+                return new Vector2Int32Definition();
+            case VECTOR3F32:
+                return new Vector3Float32Definition();
+            case VECTOR3I32:
+                return new Vector3Int32Definition();
+            case VECTOR4F32:
+                return new Vector4Float32Definition();
+            case VECTOR4I32:
+                return new Vector4Int32Definition();
+
             case STRING:
                 return new StringDefinition();
 
@@ -196,10 +212,10 @@ public class RCPFactory {
             case ENUM:
                 return new EnumDefinition();
 
-            case GROUP:
-                //                return new GroupDefinition();
 
+            case GROUP:
             case ARRAY:
+                break;
 
         }
 
@@ -233,6 +249,22 @@ public class RCPFactory {
             case FLOAT64:
                 return Double.class;
 
+
+            // vectors
+            case VECTOR2F32:
+                return Vector2.class;
+            case VECTOR2I32:
+                return Vector2.class;
+            case VECTOR3F32:
+                return Vector3.class;
+            case VECTOR3I32:
+                return Vector3.class;
+            case VECTOR4F32:
+                return Vector4.class;
+            case VECTOR4I32:
+                return Vector4.class;
+
+
             case STRING:
                 return String.class;
 
@@ -246,9 +278,8 @@ public class RCPFactory {
                 return String.class;
 
             case GROUP:
-                //                return new GroupDefinition();
-
             case ARRAY:
+                break;
 
         }
 
