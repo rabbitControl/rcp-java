@@ -2,7 +2,6 @@ package org.rabbitcontrol.rcp.model.types;
 
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPFactory;
-import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPException;
@@ -20,8 +19,15 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
         // parse mandatory elementType
         final DefaultDefinition<?> subtype_def = DefaultDefinition.parse(_io);
 
+        // get structure from stream
+        final int   dims = _io.readS4be();
+        final int[] dim_sizes  = new int[dims];
+        for (int i = 0; i < dims; i++) {
+            dim_sizes[i] = _io.readS4be();
+        }
+
         // create ArrayDefinition
-        final ArrayDefinition<?, ?> definition = create(subtype_def);
+        final ArrayDefinition<?, ?> definition = create(subtype_def, dim_sizes);
 
         return definition;
     }
@@ -29,80 +35,63 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
     public static ArrayDefinition<?, ?> create(
             final DefaultDefinition<?> _sub_type, final int... _dimSizes) {
 
-        final Object default_value = null;
-
         switch (_sub_type.getDatatype()) {
             case BOOLEAN:
 
                 return new ArrayDefinition<Object, Boolean>((DefaultDefinition<Boolean>)
                                                                          _sub_type,
-                                                            default_value,
                                                             _dimSizes);
 
             case INT8:
                 return new ArrayDefinition<Object, Byte>((DefaultDefinition<Byte>)_sub_type,
-                                                         default_value,
                                                          _dimSizes);
             case UINT8:
                 return new ArrayDefinition<Object, Short>((DefaultDefinition<Short>)_sub_type,
-                                                          default_value,
                                                           _dimSizes);
             case INT16:
                 return new ArrayDefinition<Object, Short>((DefaultDefinition<Short>)_sub_type,
-                                                          default_value,
                                                           _dimSizes);
             case UINT16:
                 return new ArrayDefinition<Object, Integer>((DefaultDefinition<Integer>)
                                                                          _sub_type,
-                                                            default_value,
                                                             _dimSizes);
             case INT32:
                 return new ArrayDefinition<Object, Integer>((DefaultDefinition<Integer>)
                                                                          _sub_type,
-                                                            default_value,
                                                             _dimSizes);
             case UINT32:
                 return new ArrayDefinition<Object, Long>((DefaultDefinition<Long>)_sub_type,
-                                                         default_value,
                                                          _dimSizes);
             case INT64:
                 return new ArrayDefinition<Object, Long>((DefaultDefinition<Long>)_sub_type,
-                                                         default_value,
                                                          _dimSizes);
             case UINT64:
                 return new ArrayDefinition<Object, Long>((DefaultDefinition<Long>)_sub_type,
-                                                         default_value,
                                                          _dimSizes);
             case FLOAT32:
                 return new ArrayDefinition<Object, Float>((DefaultDefinition<Float>)_sub_type,
-                                                          default_value,
                                                           _dimSizes);
             case FLOAT64:
                 return new ArrayDefinition<Object, Double>((DefaultDefinition<Double>)
                                                                         _sub_type,
-                                                           default_value,
                                                            _dimSizes);
 
             case STRING:
                 return new ArrayDefinition<Object, String>((DefaultDefinition<String>)
                                                                         _sub_type,
-                                                           default_value,
                                                            _dimSizes);
 
             case ENUM:
                 return new ArrayDefinition<Object, String>((DefaultDefinition<String>)
                                                                         _sub_type,
-                                                           default_value,
                                                            _dimSizes);
 
             case RGB:
                 return new ArrayDefinition<Object, Color>((DefaultDefinition<Color>)_sub_type,
-                                                          default_value,
                                                           _dimSizes);
 
             case RGBA:
                 return new ArrayDefinition<Object, Color>((DefaultDefinition<Color>)_sub_type,
-                                                          default_value,
                                                           _dimSizes);
 
             case ARRAY:
@@ -110,6 +99,7 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
                 break;
 
             case LIST:
+                break;
 
             default:
                 break;
@@ -127,47 +117,35 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
 
     private int[] dimSizes;
 
-    //
-    private final boolean isFixed           = true;
-
-    private       long    totalElementCount = 1;
-
     //------------------------------------------------------------
     //------------------------------------------------------------
 
     public ArrayDefinition(
             final DefaultDefinition<E> _elementType,
-            final T _value,
             final int... _dimSizes) {
 
-        super(Datatype.ARRAY, _value);
-
-        elementType = _elementType;
-        dimSizes = _dimSizes;
-        dimensions = _dimSizes.length;
-
-        for (final int dim_size : dimSizes) {
-            if (dim_size <= 0) {
-                // dynamic array!
-                throw new RuntimeException("not fixed array in fixed array definition");
-            }
-
-            totalElementCount *= dim_size;
-        }
-
-        System.out.println("total element count: " + totalElementCount);
+        this(_elementType, null, _dimSizes);
     }
 
-    @Override
-    public void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {
+    public ArrayDefinition(
+            final DefaultDefinition<E> _elementType,
+            final T _defaultValue,
+            final int... _dimSizes) {
 
-        if (elementType == null) {
-            throw new RCPDataErrorException("no element type in arraydefinition");
+        super(Datatype.ARRAY, _defaultValue);
+
+        elementType = _elementType;
+        dimensions = _dimSizes.length;
+        dimSizes = _dimSizes;
+
+        // calculate total element count
+        for (final int dim_size : dimSizes) {
+            if (dim_size <= 0) {
+                // invalid dimension size!
+                // dynamic array?
+                throw new RuntimeException("not fixed array in fixed array definition");
+            }
         }
-
-        elementType.parseOptions(_io);
-
-        super.parseOptions(_io);
     }
 
     @Override
@@ -183,19 +161,6 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
             case DEFAULT:
                 setDefault(readValue(_io));
                 return true;
-
-            case STRUCTURE: {
-
-                final int   dims = _io.readS4be();
-                final int[] dim_sizes  = new int[dims];
-                for (int i = 0; i < dims; i++) {
-                    dim_sizes[i] = _io.readS4be();
-                }
-
-                // this defines our structure!
-                dimensions = dims;
-                dimSizes = dim_sizes;
-            }
         }
 
         return false;
@@ -231,26 +196,10 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
     @Override
     public T readValue(final KaitaiStream _io) throws ClassCastException {
 
-        final int   dims      = _io.readS4be();
-        final int[] dim_sizes = new int[dims];
-        for (int i = 0; i < dims; i++) {
-            dim_sizes[i] = _io.readS4be();
-        }
-
-        if ((dimensions == 0) && (dimSizes.length == 0)) {
-            dimensions = dims;
-            dimSizes = dim_sizes;
-        }
-
-        if (dimensions != dims) {
-            // error!
-            System.err.println("dimension mismatch");
-        }
-
         // create array
-        final Object array = Array.newInstance(RCPFactory.getClass(elementType.getDatatype()), dim_sizes);
+        final Object array = Array.newInstance(RCPFactory.getClass(elementType.getDatatype()), dimSizes);
 
-        readToArray(array, 0, dim_sizes, _io);
+        readToArray(array, 0, dimSizes, _io);
 
         // this may fail if dimensions are different...
         return (T)array;
@@ -403,20 +352,9 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
 
             if (value_to_write.getClass().isArray()) {
 
-                // write structure
-                final int[] dim_sizes = new int[dimensions];
-
                 final ByteArrayOutputStream array_data = new ByteArrayOutputStream();
                 try {
-                    writeArrayData(value_to_write, 0, dim_sizes, array_data);
-
-                    // write dimensions
-                    _outputStream.write(ByteBuffer.allocate(4).putInt(dimensions).array());
-
-                    // write dim_sizes
-                    for (int i = 0; i < dim_sizes.length; i++) {
-                        _outputStream.write(ByteBuffer.allocate(4).putInt(dim_sizes[i]).array());
-                    }
+                    writeArrayData(value_to_write, 0, dimSizes, array_data);
 
                     // write data
                     _outputStream.write(array_data.toByteArray());
@@ -449,8 +387,13 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
             throw new RCPException("no elementtype");
         }
 
-        _outputStream.write((int)elementType.getDatatype().id());
-        elementType.writeMandatory(_outputStream);
+        elementType.write(_outputStream, false);
+
+        // write structure
+        _outputStream.write(ByteBuffer.allocate(4).putInt(dimensions).array());
+        for (int i = 0; i < dimensions; i++) {
+            _outputStream.write(ByteBuffer.allocate(4).putInt(dimSizes[i]).array());
+        }
     }
 
     @Override
@@ -458,15 +401,7 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
                                                                                    IOException,
                                                                                    RCPException {
 
-        // write elementType
-        if (elementType == null) {
-            throw new RCPException("no elementtype");
-        }
-        elementType.writeOptions(_outputStream, _all);
-        _outputStream.write(RCPParser.TERMINATOR);
-
-
-        // write options
+        // write default value
         if (getDefault() != null) {
 
             if (_all || defaultValueChanged || initialWrite) {

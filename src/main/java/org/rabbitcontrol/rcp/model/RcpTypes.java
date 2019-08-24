@@ -345,13 +345,12 @@ public class RcpTypes extends KaitaiStruct {
     }
 
     public enum ArrayOptions {
-        DEFAULT(48),
-        STRUCTURE(49);
+        DEFAULT(48);
 
         private final long id;
         ArrayOptions(long id) { this.id = id; }
         public long id() { return id; }
-        private static final Map<Long, ArrayOptions> byId = new HashMap<Long, ArrayOptions>(2);
+        private static final Map<Long, ArrayOptions> byId = new HashMap<Long, ArrayOptions>(1);
         static {
             for (ArrayOptions e : ArrayOptions.values())
                 byId.put(e.id(), e);
