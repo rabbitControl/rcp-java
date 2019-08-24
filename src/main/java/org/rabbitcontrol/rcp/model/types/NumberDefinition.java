@@ -113,6 +113,7 @@ implements
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
         // handle option scale, unit
+        // other options are handled in specific number implementations
 
         final NumberOptions option = NumberOptions.byId(_propertyId);
 
