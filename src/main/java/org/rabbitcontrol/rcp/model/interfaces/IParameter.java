@@ -83,12 +83,14 @@ public interface IParameter extends RCPWritable {
     // update listener
     void addUpdateListener(final PARAMETER_UPDATED _listener);
     void removeUpdateListener(final PARAMETER_UPDATED _listener);
+    void clearUpdateListener();
     void addValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener);
     void removeValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener);
-
-    //
-    void dump();
+    void clearValueUpdateListener();
 
     String getStringValue();
     void setStringValue(final String _value);
+
+    //
+    void dump();
 }

@@ -19,8 +19,6 @@ public class WebsocketClientTransporter implements ClientTransporter {
 
     private Channel ch;
 
-    private URI uri;
-
     private final Bootstrap bootstrap;
 
     private ClientTransporterListener listener;
@@ -38,37 +36,39 @@ public class WebsocketClientTransporter implements ClientTransporter {
     @Override
     public void connect(final String host, final int port) {
 
+        final URI uri;
         try {
             uri = new URI("ws://" + host + ":" + port + "/");
-
-            // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
-            // If you change it to V00, ping is not supported and remember to change
-            // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-            websocketHandler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri,
-                                                                                                         WebSocketVersion.V13,
-                                                                                                         null,
-                                                                                                         true,
-                                                                                                         new DefaultHttpHeaders()));
-
-
-            bootstrap.group(group)
-                     .channel(NioSocketChannel.class)
-                     .handler(new WebsocketClientInitializer(null, uri, websocketHandler, listener));
-
-            try {
-
-                ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
-                websocketHandler.handshakeFuture().sync();
-            }
-            catch (final Exception _e) {
-                System.err.println(_e.getMessage());
-                ch = null;
-            }
-
-            //return ch != null;
         }
-        catch (final URISyntaxException _e) {
-            _e.printStackTrace();
+        catch (URISyntaxException _e) {
+            System.err.println(_e.getMessage());
+            return;
+        }
+
+        disconnect();
+
+        // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
+        // If you change it to V00, ping is not supported and remember to change
+        // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
+        websocketHandler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri,
+                                                                                                     WebSocketVersion.V13,
+                                                                                                     null,
+                                                                                                     true,
+                                                                                                     new DefaultHttpHeaders()));
+
+
+        bootstrap.group(group)
+                 .channel(NioSocketChannel.class)
+                 .handler(new WebsocketClientInitializer(null, uri, websocketHandler, listener));
+
+        try {
+
+            ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
+            websocketHandler.handshakeFuture().sync();
+        }
+        catch (final Exception _e) {
+            System.err.println(_e.getMessage());
+            ch = null;
         }
     }
 
@@ -76,14 +76,8 @@ public class WebsocketClientTransporter implements ClientTransporter {
     public void disconnect() {
 
         if (isConnected()) {
-            try {
-                ch.close().sync();
-            }
-            catch (final InterruptedException _e) {
-                _e.printStackTrace();
-            }
+            ch.close();
         }
-
     }
 
     @Override

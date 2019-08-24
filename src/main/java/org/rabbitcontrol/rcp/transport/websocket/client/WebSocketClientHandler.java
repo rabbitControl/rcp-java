@@ -79,7 +79,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
-            System.out.println("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
         }
@@ -95,7 +94,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            System.out.println("WebSocket Client received message: " + textFrame.text());
+            System.out.println("WebSocket Client received text message: " + textFrame.text());
         } else if (frame instanceof BinaryWebSocketFrame) {
             ctx.fireChannelRead(frame.retain());
         } else if (frame instanceof PongWebSocketFrame) {
@@ -108,7 +107,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }

@@ -8,8 +8,8 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
-import org.rabbitcontrol.rcp.transport.netty.*;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
+import org.rabbitcontrol.rcp.transport.netty.*;
 
 import java.net.URI;
 import java.util.List;

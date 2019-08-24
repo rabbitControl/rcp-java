@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public abstract class Parameter implements IParameter, IParameterChild {
+public abstract class Parameter implements IParameter {
 
     private static final String LANGUAGE_ANY_STR = "any";
 
@@ -62,7 +62,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
         final Datatype datatype = Datatype.byId(_io.readU1());
 
         if (datatype == null) {
-            throw new RCPDataErrorException();
+            throw new RCPDataErrorException("wrong datatype");
         }
 
         // handle certain datatypes...
@@ -88,7 +88,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
             return (Parameter)RCPFactory.createParameter(parameter_id, datatype);
         }
 
-        throw new RCPUnsupportedFeatureException("no such feature: " + datatype);
+        throw new RCPUnsupportedFeatureException("datatype not implemented: " + datatype);
     }
 
     //------------------------------------------------------------
@@ -96,6 +96,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
         void updated(final IParameter _parameter);
     }
+
     public interface PARAMETER_VALUE_UPDATED {
 
         void valueUpdated(final IParameter _parameter);
@@ -113,43 +114,43 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
     protected Map<String, String> languageLabels = new HashMap<String, String>();
 
-    private   boolean             labelChanged   = false;
+    private   boolean             labelChanged;
 
     protected String description;
 
     protected Map<String, String> languageDescriptions = new HashMap<String, String>();
 
-    private   boolean             descriptionChanged   = false;
+    private   boolean             descriptionChanged;
 
     protected String tags;
 
-    private boolean tagsChanged = false;
+    private boolean tagsChanged;
 
     protected Integer order;
 
-    private boolean orderChanged = false;
+    private boolean orderChanged;
 
     private GroupParameter parent;
 
-    private boolean parentChanged = false;
+    private boolean parentChanged;
 
     // widget
     private Widget widget;
 
-    private boolean widgetChanged = false;
+    private boolean widgetChanged;
 
     //
     protected byte[] userdata;
 
-    private boolean userdataChanged = false;
+    private boolean userdataChanged;
 
     private String userid;
 
-    private boolean useridChanged = false;
+    private boolean useridChanged;
 
     private Boolean readonly;
 
-    private boolean readonlyChanged = false;
+    private boolean readonlyChanged;
 
     private IParameterManager parameterManager;
 
@@ -243,7 +244,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
                 }
                 break;
 
-                case DESCRIPTION: {
+                case DESCRIPTION:
 
                     int  current = _io.pos();
                     byte ppeekk  = _io.readS1();
@@ -275,8 +276,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
 
                     //                    final ShortString shortString = new ShortString(_io);
                     //                    setDescription(shortString.data());
-                }
-                break;
+                    break;
 
                 case TAGS: {
                     final TinyString tinyString = new TinyString(_io);
@@ -288,7 +288,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
                     setOrder(_io.readS4be());
                     break;
 
-                case PARENTID: {
+                case PARENTID:
                     // read as id, this is correct
                     final short parent_id = _io.readS2be();
                     if (parameterManager != null) {
@@ -300,25 +300,21 @@ public abstract class Parameter implements IParameter, IParameterChild {
                             System.err.println("parameter not a GroupParameter!");
                         }
                     }
-                }
-                break;
+                    break;
 
-                case USERID: {
+                case USERID:
                     final TinyString tinyString = new TinyString(_io);
                     setUserid(tinyString.data());
-                }
-                break;
+                    break;
 
-                case USERDATA: {
+                case USERDATA:
                     final Userdata ud = new Userdata(_io);
                     setUserdata(ud.data());
-                }
-                break;
+                    break;
 
-                case READONLY: {
+                case READONLY:
                     setReadonly(_io.readS1() > 0);
-                }
-                break;
+                    break;
 
                 // handle in specific implementations
                 case VALUE:
@@ -743,19 +739,16 @@ public abstract class Parameter implements IParameter, IParameterChild {
     @Override
     public void addUpdateListener(final PARAMETER_UPDATED _listener) {
 
-        if (!parameterUpdateListener.contains(_listener)) {
-            parameterUpdateListener.add(_listener);
-        }
+        parameterUpdateListener.add(_listener);
     }
 
     @Override
     public void removeUpdateListener(final PARAMETER_UPDATED _listener) {
 
-        if (parameterUpdateListener.contains(_listener)) {
-            parameterUpdateListener.remove(_listener);
-        }
+        parameterUpdateListener.remove(_listener);
     }
 
+    @Override
     public void clearUpdateListener() {
 
         parameterUpdateListener.clear();
@@ -772,20 +765,17 @@ public abstract class Parameter implements IParameter, IParameterChild {
     @Override
     public void addValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener) {
 
-        if (!valueUpdateListener.contains(_listener)) {
-            valueUpdateListener.add(_listener);
-        }
+        valueUpdateListener.add(_listener);
     }
 
     @Override
     public void removeValueUpdateListener(final PARAMETER_VALUE_UPDATED _listener) {
 
-        if (valueUpdateListener.contains(_listener)) {
-            valueUpdateListener.remove(_listener);
-        }
+        valueUpdateListener.remove(_listener);
     }
 
-    public void clearValueChangeListener() {
+    @Override
+    public void clearValueUpdateListener() {
 
         valueUpdateListener.clear();
     }
@@ -976,11 +966,8 @@ public abstract class Parameter implements IParameter, IParameterChild {
             return;
         }
 
-        final GroupParameter p = parent;
-
         if (parent != null) {
-            parent = null;
-            p.removeChild(this);
+            parent.removeChild(this);
         }
 
         parent = _parent;

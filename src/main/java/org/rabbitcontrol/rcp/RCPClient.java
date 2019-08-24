@@ -10,8 +10,6 @@ import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.transport.ClientTransporter;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
-import java.io.IOException;
-
 public class RCPClient extends RCPBase implements ClientTransporterListener {
 
     private ClientTransporter transporter;
@@ -30,6 +28,8 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
         setTransporter(_trans);
     }
 
+    //------------------------------------------------------------
+    // client transporter
     public void setTransporter(final ClientTransporter _transporter) {
 
         if (transporter != null) {
@@ -40,6 +40,39 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
         if (transporter != null) {
             transporter.addListener(this);
+        }
+    }
+
+    public ClientTransporter getTransporter() {
+        return transporter;
+    }
+
+    //------------------------------------------------------------
+    // api
+    @Override
+    public void dispose() {
+
+        super.dispose();
+
+        addListener = null;
+        removeListener = null;
+        statusChangedListener = null;
+
+        if (transporter != null) {
+            transporter.disconnect();
+            transporter = null;
+        }
+    }
+
+    public void connect(final String _host, final int _port) {
+        if (transporter != null) {
+            transporter.connect(_host, _port);
+        }
+    }
+
+    public void disconnect() {
+        if (transporter != null) {
+            transporter.disconnect();
         }
     }
 
@@ -62,10 +95,24 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
     //------------------------------------------------------------
     //
+
+    /**
+     * update all dirty parameter
+     */
     public void update() {
+
+        if (transporter == null) {
+            System.err.println("no transporter");
+        }
+
         // update all dirty params
         for (final IParameter parameter : dirtyParams) {
-            update(parameter);
+            try {
+                transporter.send(Packet.serialize(new Packet(Command.UPDATE, parameter), false));
+            }
+            catch (final RCPException _e) {
+                System.err.println("could not update parameter: " + parameter.getId());
+            }
         }
 
         dirtyParams.clear();
@@ -77,67 +124,60 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
      * @param _parameter
      *         the value to updated
      */
-    private void update(final IParameter _parameter) {
+    private void update(final IParameter _parameter) throws RCPException {
 
-         if (transporter != null) {
+        if (transporter == null) {
+            System.err.println("no transporter");
+            return;
+        }
 
-            // transport value
-            try {
-                transporter.send(Packet.serialize(new Packet(Command.UPDATE, _parameter), false));
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
-            catch (final RCPException _e) {
-                _e.printStackTrace();
-            }
-         }
+        // transport value
+        transporter.send(Packet.serialize(new Packet(Command.UPDATE, _parameter), false));
     }
 
     /**
      * send init to server
+     *
+     * @throws RCPException
+     *      in case Packet.serialize fails
      */
-    public void init() {
+    public void initialize() throws RCPException {
 
+        rootGroup.removeAllChildren();
         valueCache.clear();
+        dirtyParams.clear();
 
-        if (transporter != null) {
-
-            // send to all clients
-            try {
-                transporter.send(Packet.serialize(new Packet(Command.INITIALIZE), false));
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
-            catch (final RCPException _e) {
-                _e.printStackTrace();
-            }
+        if (transporter == null) {
+            System.err.println("no transporter");
+            return;
         }
+
+        // send to all clients
+        transporter.send(Packet.serialize(new Packet(Command.INITIALIZE), false));
     }
 
     //------------------------------------------------------------
     //
+
+    /**
+     * called from transporter when data arrived
+     *
+     * @param _data
+     *          received data
+     */
     @Override
     public void received(final byte[] _data) {
 
         try {
-            final Packet _packet = Packet.parse(new ByteBufferKaitaiStream(_data));
+            final Packet packet = Packet.parse(new ByteBufferKaitaiStream(_data));
 
-            if (_packet == null) {
-                System.err.println("no packet...");
-                return;
-            }
-
-
-            switch (_packet.getCmd()) {
+            switch (packet.getCmd()) {
                 case INVALID:
                     // nop
                     break;
 
                 case VERSION:
-                    // try to convert to version object
-                    System.out.println("version object yet to be specified");
+                    _version(packet);
                     break;
 
                 case INITIALIZE:
@@ -150,66 +190,72 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
                 case UPDATEVALUE:
                 case UPDATE:
-                    _update(_packet);
+                    _update(packet);
                     break;
 
                 case REMOVE:
-                    _remove(_packet);
+                    _remove(packet);
                     break;
             }
-
-        }
-        catch (final RCPDataErrorException _e) {
-            _e.printStackTrace();
         }
         catch (final RCPUnsupportedFeatureException _e) {
-            _e.printStackTrace();
+            // nop
+        }
+        catch (final RCPDataErrorException _e) {
+            // nop
         }
 
+    }
+
+    private void _version(final Packet _packet) {
+
+        final VersionData version_data = _packet.getDataAsVersionData();
+
+        if (version_data != null) {
+            System.out.println("server version: " + version_data.version);
+        }
     }
 
     private void _update(final Packet _packet) {
 
         // try to convert data to TypeDefinition
-        try {
+        final IParameter parameter = _packet.getDataAsParameter();
 
-            final IParameter parameter = _packet.getDataAsParameter();
-
-            //updated value cache?
-            final IParameter cached_parameter = valueCache.get(parameter.getId());
-            if (cached_parameter == null) {
-
-                // add parameter
-
-                valueCache.put(parameter.getId(), parameter);
-
-                ((Parameter)parameter).setManager(this);
-
-                // inform listener
-                if (addListener != null) {
-                    addListener.parameterAdded(parameter);
-                }
-            }
-            else {
-
-                try {
-                    ((Parameter)cached_parameter).update(parameter);
-
-                    // inform listener
-                    if (updateListener != null) {
-                        updateListener.parameterUpdated(cached_parameter);
-                    }
-                }
-                catch (final RCPException _e) {
-                    _e.printStackTrace();
-                }
-
-            }
-
-        } catch (final ClassCastException _e) {
-            // nop
+        if (parameter == null) {
+            return;
         }
 
+        //updated value cache?
+        final IParameter cached_parameter = valueCache.get(parameter.getId());
+        if (cached_parameter == null) {
+
+            // add parameter
+
+            valueCache.put(parameter.getId(), parameter);
+
+            parameter.setManager(this);
+
+            // inform listener
+            if (addListener != null) {
+                addListener.parameterAdded(parameter);
+            }
+        }
+        else {
+
+            try {
+                ((Parameter)cached_parameter).update(parameter);
+            }
+            catch (RCPException _e) {
+                System.err.println(String.format("could not update parameter(%d): %s",
+                                                 parameter.getId(),
+                                                 _e.getMessage()));
+            }
+
+            // inform listener
+            if (updateListener != null) {
+                updateListener.parameterUpdated(cached_parameter);
+            }
+        }
     }
 
     private void removeParameter(final IParameter _parameter) {
@@ -226,6 +272,16 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 removeParameter(child);
             }
         }
+
+        _parameter.setManager(null);
+        _parameter.clearUpdateListener();
+        _parameter.clearValueUpdateListener();
+
+        // remove from parent
+        _parameter.setParent(null);
+
+        // remove from dirty
+        dirtyParams.remove(_parameter);
     }
 
     private void _remove(final Packet _packet) {
@@ -237,8 +293,7 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 removeParameter(valueCache.get(parameter.getId()));
             }
             else {
-                System.err.println("client: removed: does not know value with id:" + " " + parameter
-                        .getId());
+                System.err.printf("client: remove: no parameter with id: %s", parameter.getId());
             }
         } catch (final ClassCastException _e) {
             // nop

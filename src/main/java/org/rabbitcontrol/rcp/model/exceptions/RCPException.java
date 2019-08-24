@@ -13,4 +13,8 @@ public class RCPException extends Exception {
         super(_s);
     }
 
+    public RCPException(final Throwable _t) {
+        super(_t);
+    }
+
 }

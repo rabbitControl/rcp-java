@@ -48,37 +48,31 @@ public class GroupParameter extends Parameter {
     public void addChild(final IParameter _parameter) {
 
         if (!children.contains(_parameter)) {
-            try {
-                ((IParameterChild)_parameter).setParent(this);
-                children.add(_parameter);
-            } catch (ClassCastException _e) {
-                System.err.println("parameter not a IParameterChild??");
-            }
-        } else {
-            System.err.println("already a child: " + _parameter.getId());
+            _parameter.setParent(this);
+            children.add(_parameter);
         }
-
     }
 
     public void removeChild(final IParameter _parameter) {
 
         if (children.contains(_parameter)) {
-            try {
-                ((IParameterChild)_parameter).setParent(null);
-                children.remove(_parameter);
-            } catch (ClassCastException _e) {
-                System.err.println("parameter not a IParameterChild??");
-            }
-        } else {
-            System.err.println("not a child: " + _parameter.getId());
+            _parameter.setParent(null);
+            children.remove(_parameter);
+        }
+    }
+
+    public void removeAllChildren() {
+
+        for (final IParameter child : children) {
+            child.setParent(null);
         }
 
+        children.clear();
     }
 
     @Override
     public String getStringValue() {
-
-        return "group:"+getId();
+        return String.format("group(%d)", id);
     }
 
     @Override

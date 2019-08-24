@@ -327,12 +327,7 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
             } else {
                 // write 0
                 // write value
-                try {
-                    elementType.writeValue((E)o, _outputStream);
-                }
-                catch (final ClassCastException _e) {
-                    _e.printStackTrace();
-                }
+                elementType.writeValue((E)o, _outputStream);
             }
         }
 

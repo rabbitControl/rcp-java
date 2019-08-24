@@ -62,20 +62,17 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
                 final byte[] data = Arrays.copyOf(receivePacket.getData(), receivePacket.getLength());
 
                 // parse that
-                try {
-                    final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
-                    received(packet, this);
-                }
-                catch (RCPUnsupportedFeatureException _e) {
-                    _e.printStackTrace();
-                }
-                catch (RCPDataErrorException _e) {
-                    _e.printStackTrace();
-                }
-
+                final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
+                received(packet, this);
+            }
+            catch (RCPUnsupportedFeatureException _e) {
+                // nop
+            }
+            catch (RCPDataErrorException _e) {
+                // nop
             }
             catch (final IOException _e) {
-                _e.printStackTrace();
+                // nop
             }
         }
 

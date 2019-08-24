@@ -79,19 +79,17 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
                 byte[] data = Arrays.copyOf(receivePacket.getData(), receivePacket.getLength());
 
                 // parse that
-                try {
-                    final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
-                    received(packet, this);
-                }
-                catch (RCPUnsupportedFeatureException _e) {
-                    _e.printStackTrace();
-                }
-                catch (RCPDataErrorException _e) {
-                    _e.printStackTrace();
-                }
+                final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
+                received(packet, this);
             }
             catch (final IOException _e) {
-                _e.printStackTrace();
+                // nop
+            }
+            catch (RCPDataErrorException _e) {
+                // nop
+            }
+            catch (RCPUnsupportedFeatureException _e) {
+                // nop
             }
         }
 
@@ -101,26 +99,21 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
 
     @Override
-    public void send(final byte[] _data) {
+    public void send(final byte[] _data) throws IOException {
 
         //final byte[] data = Packet.serialize(_packet, false);
 
         for (final InetAddress _inetAddress : clients) {
-//                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
-//                                   "" + new String
-//                                           (data));
+            //                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
+            //                                   "" + new String
+            //                                           (data));
 
             final DatagramPacket sendPacket = new DatagramPacket(_data,
                                                                  _data.length,
                                                                  _inetAddress,
                                                                  targetPort);
 
-            try {
-                socket.send(sendPacket);
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
+            socket.send(sendPacket);
         }
 
     }

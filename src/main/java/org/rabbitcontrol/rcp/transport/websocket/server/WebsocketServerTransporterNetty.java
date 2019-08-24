@@ -10,9 +10,10 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
+import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
+import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
@@ -59,7 +60,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
     }
 
     @Override
-    public void bind(final int port) {
+    public void bind(final int port) throws RCPException {
 
         if (port == serverPort) {
             return;
@@ -85,18 +86,15 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
 
             ch = bootstrap.bind(port).sync().channel();
             serverPort = port;
-
-            System.out.println("Websocket server ready at port: " + port);
-
         }
         catch (CertificateException _e) {
-            _e.printStackTrace();
+            throw new RCPException(_e);
         }
         catch (InterruptedException _e) {
-            _e.printStackTrace();
+            throw new RCPException(_e);
         }
         catch (SSLException _e) {
-            _e.printStackTrace();
+            throw new RCPException(_e);
         }
 
         // TODO: how to get the error out of it?
@@ -110,12 +108,8 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
         }
 
         if (ch != null) {
-            try {
-                ch.close().sync();
-            }
-            catch (InterruptedException _e) {
-                _e.printStackTrace();
-            }
+
+            ch.close();
 
             // TODO: get the error out of this...
             ch = null;

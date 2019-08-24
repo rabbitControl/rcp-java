@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp.model;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.RcpTypes.PacketOptions;
+import org.rabbitcontrol.rcp.model.RcpTypes.TinyString;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 
@@ -17,7 +18,6 @@ public class Packet implements RCPWritable {
     public static final byte[] RABBIT_MAGIC = { 4, 15, 5, 9 };
 
     public static byte[] serialize(final Packet _packet, final boolean _all) throws
-                                                                             IOException,
                                                                              RCPException {
 
         byte[] result;
@@ -27,8 +27,16 @@ public class Packet implements RCPWritable {
             _packet.write(os, _all);
             result = os.toByteArray();
         }
+        catch (IOException _e) {
+            throw new RCPException(_e);
+        }
         finally {
-            os.close();
+            try {
+                os.close();
+            }
+            catch (IOException _e) {
+                throw new RCPException(_e);
+            }
         }
 
         return result;
@@ -86,27 +94,22 @@ public class Packet implements RCPWritable {
                 case DATA:
 
                     if (packet.getData() != null) {
+                        // packet already contains data
                         throw new RCPDataErrorException();
                     }
 
                     switch (cmd) {
 
                         case VERSION:
-                            // version: expect meta
-                            // TODO: implement
-                            System.out.println("VERSION not implement");
+                            packet.setData(new VersionData(new TinyString(_io).data()));
                             break;
 
                         case INITIALIZE:
-                            // init - shout not happen
-                            // init could send ID-Data
-                            // read id
-                            final short init_id = _io.readS2be();
-                            // read terminator?
-                            throw new RCPDataErrorException();
+                            packet.setData(new IdData(_io.readS2be()));
+                            break;
 
                         case DISCOVER:
-                            System.out.println("DISCOVER not implement");
+                            packet.setData(new IdData(_io.readS2be()));
                             break;
 
                         case REMOVE:
@@ -154,7 +157,7 @@ public class Packet implements RCPWritable {
         data = _data;
     }
 
-    public byte[] serialize(final boolean _all) throws IOException, RCPException {
+    public byte[] serialize(final boolean _all) throws RCPException {
         return Packet.serialize(this, _all);
     }
 
@@ -234,7 +237,33 @@ public class Packet implements RCPWritable {
         data = _data;
     }
 
-    public IParameter getDataAsParameter() throws ClassCastException {
-        return (IParameter)data;
+    public IParameter getDataAsParameter() {
+        try {
+            return (IParameter)data;
+        } catch (ClassCastException _e) {
+            // nop
+        }
+
+        return null;
+    }
+
+    public VersionData getDataAsVersionData() {
+        try {
+            return (VersionData)data;
+        } catch (ClassCastException _e) {
+            // nop
+        }
+
+        return null;
+    }
+
+    public IdData getDataAsIdData() {
+        try {
+            return (IdData)data;
+        } catch (ClassCastException _e) {
+            // nop
+        }
+
+        return null;
     }
 }

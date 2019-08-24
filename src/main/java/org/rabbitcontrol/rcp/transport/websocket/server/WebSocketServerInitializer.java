@@ -23,13 +23,12 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.http.websocketx.extensions.compression
-        .WebSocketServerCompressionHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.ssl.SslContext;
-import org.rabbitcontrol.rcp.transport.netty.BinaryWebSocketFrameEncoder;
-import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
+import org.rabbitcontrol.rcp.transport.netty.BinaryWebSocketFrameEncoder;
+import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 
 import java.util.List;
 

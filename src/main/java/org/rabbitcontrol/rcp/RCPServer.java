@@ -4,19 +4,17 @@ import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
+import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 // TODO
 /*
-- create parameter, create parameter with group
 - update() only sends the updates to the clients
 - remove group only sends to remove the group (not all the children...)
  */
@@ -32,17 +30,37 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     private final List<IParameter> parameterToRemove = new ArrayList<IParameter>();
 
-    //------------------------------------------------------------
     // callback objects
     private Init initListener;
 
     //------------------------------------------------------------
-    //
+    // constructor
     public RCPServer(final ServerTransporter... _transporter) {
 
         addTransporter(_transporter);
     }
 
+    //------------------------------------------------------------
+    // dispose
+    public void dispose() {
+
+        super.dispose();
+
+        // close all connections
+        for (final ServerTransporter serverTransporter : transporterList) {
+            serverTransporter.unbind();
+        }
+
+        transporterList.clear();
+        ids.clear();
+        parameterToRemove.clear();
+
+        initListener = null;
+    }
+
+
+    //------------------------------------------------------------
+    // transporter
     public void addTransporter(final ServerTransporter... _transporter) {
 
         for (final ServerTransporter serverTransporter : _transporter) {
@@ -63,6 +81,22 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
     }
 
+    public List<ServerTransporter> getTransporter() {
+        return transporterList;
+    }
+
+    //------------------------------------------------------------
+    // connection count
+    public int getConnectionCount() {
+
+        int count = 0;
+        for (final ServerTransporter serverTransporter : transporterList) {
+            count += serverTransporter.getConnectionCount();
+        }
+
+        return count;
+    }
+
     //------------------------------------------------------------
     //
     public void setInitListener(final Init _listener) {
@@ -80,7 +114,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         _parameter.setManager(this);
 
         // addParameter adds _parameter to dirtyParams
-        addParameter(_parameter, _group);
+        addParameter(_group, _parameter);
     }
 
     //----------------------------------------------------
@@ -572,9 +606,14 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return p;
     }
 
+    //----------------------------------------------------
+    //----------------------------------------------------
+    // array
+    //----------------------------------------------------
+    //----------------------------------------------------
     public <T, E> ArrayParameter<T, E> createArrayParameter(
             final String _label,
-            final RcpTypes.Datatype _datatype,
+            final Datatype _datatype,
             final int... _sizes) throws RCPParameterException {
 
         return createArrayParameter(_label, rootGroup, _datatype, _sizes);
@@ -583,7 +622,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public <T, E> ArrayParameter<T, E> createArrayParameter(
             final String _label,
             final GroupParameter _group,
-            final RcpTypes.Datatype _datatype,
+            final Datatype _datatype,
             final int... _sizes) throws RCPParameterException {
 
         final short id = availableId();
@@ -601,15 +640,16 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             return p;
         }
         catch (final InstantiationException _e) {
-            _e.printStackTrace();
+            throw new RCPParameterException(_e);
         }
         catch (final IllegalAccessException _e) {
-            _e.printStackTrace();
+            throw new RCPParameterException(_e);
         }
-
-        throw new RCPParameterException("could not create array parameter!");
     }
 
+    //----------------------------------------------------
+    // parameter end
+    //----------------------------------------------------
     /**
      * get next available id
      *
@@ -648,16 +688,17 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             final GroupParameter _group, final IParameter... _parameter) {
 
         for (final IParameter parameter : _parameter) {
-            addParameter(parameter, _group);
+            addParameter(_group, parameter);
         }
     }
 
     public void addParameter(final IParameter _parameter) {
 
-        addParameter(_parameter, rootGroup);
+        addParameter(rootGroup, _parameter);
     }
 
-    public void addParameter(final IParameter _parameter, final GroupParameter _group) {
+    public void addParameter(
+            final GroupParameter _group, final IParameter _parameter) {
 
         if (_group != null) {
 
@@ -691,9 +732,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             if (!valueCache.get(_parameter.getId()).equals(_parameter)) {
                 System.err.println("different object with same ID!!!");
             }
-            else {
-                System.out.println("already added value with this id - ignore");
-            }
 
             return;
         }
@@ -723,26 +761,17 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
     }
 
-    private void _sendParameterFullAll(final IParameter _parameter) {
+    private void _sendParameterFullAll(final IParameter _parameter) throws
+                                                                    RCPException {
 
         //------------------------------------------------
         // send add to all
         if (!transporterList.isEmpty()) {
 
-            try {
-                final byte[] data = new Packet(Command.UPDATE, _parameter).serialize(true);
+            final byte[] data = new Packet(Command.UPDATE, _parameter).serialize(true);
 
-                System.out.println("send parameter: " + _parameter.getLabel());
-
-                for (final ServerTransporter transporter : transporterList) {
-                    transporter.sendToAll(data, null);
-                }
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
-            catch (RCPException _e) {
-                _e.printStackTrace();
+            for (final ServerTransporter transporter : transporterList) {
+                transporter.sendToAll(data, null);
             }
         }
 
@@ -757,20 +786,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     private void _sendParameterFull(
-            final IParameter _parameter, final ServerTransporter _transporter, final Object _id) {
+            final IParameter _parameter, final ServerTransporter _transporter, final Object _id) throws
+                                                                                                 RCPException {
 
-        System.out.println("sending ::: " + _parameter.getLabel());
-
-        try {
-            final byte[] data = new Packet(Command.UPDATE, _parameter).serialize(true);
-            _transporter.sendToOne(data, _id);
-        }
-        catch (final IOException _e) {
-            _e.printStackTrace();
-        }
-        catch (RCPException _e) {
-            _e.printStackTrace();
-        }
+        final byte[] data = new Packet(Command.UPDATE, _parameter).serialize(true);
+        _transporter.sendToOne(data, _id);
 
         //------------------------------------------------
         // send all children
@@ -785,8 +805,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     /**
      * public interface: update
      * updates all dirty parameters and removes parameters to remove
+     *
+     * @throws RCPException
+     *      in case Packet.serialize fails
      */
-    public void update() {
+    public void update() throws RCPException {
 
         // update dirty params
         for (final IParameter parameter : dirtyParams) {
@@ -803,46 +826,28 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             ids.remove(parameter.getId());
 
             if (!transporterList.isEmpty()) {
-                try {
-                    final byte[] data = new Packet(Command.REMOVE, parameter).serialize(false);
+                final byte[] data = new Packet(Command.REMOVE, parameter).serialize(false);
 
-                    for (final ServerTransporter transporter : transporterList) {
-                        transporter.sendToAll(data, null);
-                    }
-                }
-                catch (final IOException _e) {
-                    _e.printStackTrace();
-                }
-                catch (RCPException _e) {
-                    _e.printStackTrace();
+                for (final ServerTransporter transporter : transporterList) {
+                    transporter.sendToAll(data, null);
                 }
             }
         }
         parameterToRemove.clear();
     }
 
-    private void update(final IParameter _value, final Object _id) {
+    private void update(final IParameter _value, final Object _id) throws
+                                                                   RCPException {
 
         if (!transporterList.isEmpty()) {
 
             //TODO possibly check for connected clients
 
-            try {
-                final Packet packet = new Packet(Command.UPDATE, _value);
-                final byte[] data   = Packet.serialize(packet, false);
+            final Packet packet = new Packet(Command.UPDATE, _value);
+            final byte[] data   = Packet.serialize(packet, false);
 
-
-
-                for (final ServerTransporter transporter : transporterList) {
-                    System.out.println("update : " + _value.getId());
-                    transporter.sendToAll(data, _id);
-                }
-            }
-            catch (final IOException _e) {
-                _e.printStackTrace();
-            }
-            catch (RCPException _e) {
-                _e.printStackTrace();
+            for (final ServerTransporter transporter : transporterList) {
+                transporter.sendToAll(data, _id);
             }
         }
     }
@@ -883,130 +888,127 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     //------------------------------------------------------------
     @Override
     public void received(
-            final byte[] _data, final ServerTransporter _transporter, final Object _id) {
+            final byte[] _data, final ServerTransporter _transporter, final Object _id) throws
+                                                                                        RCPException,
+                                                                                        RCPDataErrorException {
 
-        System.out.println(_data);
-
+        final Packet packet;
         try {
-            final Packet _packet = Packet.parse(new ByteBufferKaitaiStream(_data));
+            packet = Packet.parse(new ByteBufferKaitaiStream(_data));
+        }
+        catch (RCPUnsupportedFeatureException _e) {
+            System.err.println("could not parse: " + _e.getMessage());
+            return;
+        }
 
-            if (_packet == null) {
-                System.err.println("no packet... ");
-                return;
+        final Command cmd = packet.getCmd();
+
+        switch (cmd) {
+            case UPDATE:
+            case UPDATEVALUE:
+            {
+                    if (_update(packet, _transporter, _id)) {
+                    // update all clients, bypass deserialize and serialize...
+                    for (final ServerTransporter transporter : transporterList) {
+                        transporter.sendToAll(_data, _id);
+                    }
+                }
+                break;
             }
 
-            final Command cmd = _packet.getCmd();
 
-            switch (cmd) {
-                case UPDATE:
-                case UPDATEVALUE:
+            case VERSION:
+            {
+                final VersionData version_data = packet.getDataAsVersionData();
+                if (version_data != null) {
+                    System.out.println("client version: " + version_data.version);
+
+                    // TODO: compare version number
+                } else
                 {
-                    if (_update(_packet, _transporter, _id)) {
-                        // update all clients, bypass deserialize and serialize...
-                        for (final ServerTransporter transporter : transporterList) {
-                            transporter.sendToAll(_data, _id);
-                        }
-                    }
-                    break;
+                    // could not get version data... what to do?
                 }
 
+                // answer with version
+                final Packet versionPacket = new Packet(Command.VERSION);
+                versionPacket.setData(new VersionData("0.0.0"));
 
-                case VERSION:
-                {
-                    // TODO:
-                    // try to convert to version object
+                _transporter.sendToOne(versionPacket.serialize(true), _id);
 
-                    // answer with version
-                    final Packet versionPacket = new Packet(Command.VERSION);
-                    versionPacket.setData(new VersionData("0.0.0"));
-
-                    try {
-                        _transporter.sendToOne(versionPacket.serialize(true), _id);
-                    }
-                    catch (final IOException _e) {
-                        _e.printStackTrace();
-                    }
-                    catch (final RCPException _e) {
-                        _e.printStackTrace();
-                    }
-                    break;
-                }
-
-                case INITIALIZE:
-                {
-                    if (_packet.getData() != null) {
-                        // TODO: send full description of only one parameter
-                        final IParameter val = (IParameter)_packet.getData();
-
-                        // get value from cache, and send it...
-                    }
-
-                    _init(_transporter, _id);
-                    break;
-                }
-
-                case REMOVE:
-                    // invalid on server
-                    System.err.println("cannot remove parameter at server");
-                    break;
-
-                case INVALID:
-                case DISCOVER:
-                default:
-                    System.err.println("not implemented command: " + cmd);
-
+                break;
             }
 
-        }
-        catch (final RCPUnsupportedFeatureException _e) {
-            _e.printStackTrace();
-        }
-        catch (final RCPDataErrorException _e) {
-            _e.printStackTrace();
+            case INITIALIZE:
+            {
+                final IdData id_data = packet.getDataAsIdData();
+                if (id_data != null) {
+                    _init(valueCache.get(id_data.id), _transporter, _id);
+                }
+
+                _init(_transporter, _id);
+                break;
+            }
+
+            case REMOVE:
+                // invalid on server
+                System.err.println("can not remove parameter at server");
+                break;
+
+            case INVALID:
+            case DISCOVER:
+            default:
+                System.err.println("not implemented command: " + cmd);
+
         }
     }
 
     private boolean _update(
-            final Packet _packet, final ServerTransporter _transporter, final Object _id) {
+            final Packet _packet, final ServerTransporter _transporter, final Object _id) throws
+                                                                                          RCPException {
 
-        try {
+        final IParameter parameter = _packet.getDataAsParameter();
 
-            final IParameter parameter = _packet.getDataAsParameter();
+        if (parameter == null) {
+            return false;
+        }
 
-            //updated value cache?
-            final IParameter cached_parameter = valueCache.get(parameter.getId());
-            if (cached_parameter != null) {
+        //updated value cache?
+        final IParameter cached_parameter = valueCache.get(parameter.getId());
+        if (cached_parameter != null) {
 
-                // update cached
-                try {
-                    ((Parameter)cached_parameter).update(parameter);
+            // update cached
+            ((Parameter)cached_parameter).update(parameter);
 
-                    // call listeners with cached...
-                    if (updateListener != null) {
-                        updateListener.parameterUpdated(cached_parameter);
-                    }
-
-                    return true;
-                }
-                catch (RCPException _e) {
-                    _e.printStackTrace();
-                }
-            }
-            else {
-                System.err.println("server: update: parameter not found in valuecache - " +
-                                   "ignoring");
+            // call listeners with cached...
+            if (updateListener != null) {
+                updateListener.parameterUpdated(cached_parameter);
             }
 
-        } catch (final ClassCastException _e) {
-            // nop
+            return true;
+        }
+        else {
+            System.err.println("server: update: parameter not found in valuecache - " +
+                               "ignoring");
         }
 
         return false;
     }
 
-    private void _init(final ServerTransporter _transporter, final Object _id) {
+    private void _init(final IParameter _parameter, final ServerTransporter _transporter,
+                       final Object _id) throws RCPException {
 
-        System.out.println("GOT INIT");
+        if (_parameter == null) {
+            return;
+        }
+
+        _sendParameterFull(_parameter, _transporter, _id);
+
+        if (initListener != null) {
+            initListener.init();
+        }
+    }
+
+    private void _init(final ServerTransporter _transporter, final Object _id) throws RCPException {
 
         for (final IParameter parameter : rootGroup.getChildren()) {
             _sendParameterFull(parameter, _transporter, _id);
@@ -1021,7 +1023,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public void setParameterDirty(final IParameter _parameter) {
 
         if (parameterToRemove.contains(_parameter)) {
-            System.out.println("parameter marked for deletion... " + _parameter);
+            // parameter marked for deletion
             return;
         }
 

@@ -12,4 +12,8 @@ public class RCPParameterException extends Throwable {
     public RCPParameterException(final String _s) {
         super(_s);
     }
+
+    public RCPParameterException(final Throwable _t) {
+        super(_t);
+    }
 }

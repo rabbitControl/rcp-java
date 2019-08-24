@@ -1,8 +1,10 @@
 package org.rabbitcontrol.rcp.transport;
 
+import org.rabbitcontrol.rcp.model.exceptions.RCPException;
+
 public interface ServerTransporter {
 
-    void bind(int port);
+    void bind(int port) throws RCPException;
     void unbind();
 
     void sendToOne(byte[] _data, Object _id);

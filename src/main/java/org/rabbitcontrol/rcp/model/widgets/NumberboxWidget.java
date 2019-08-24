@@ -60,7 +60,6 @@ public class NumberboxWidget<T extends Number> extends WidgetImpl {
                     }
                     catch (final ClassCastException e) {
                         // nop
-                        e.printStackTrace();
                     }
                 }
                 return false;

@@ -55,7 +55,7 @@ public class ImageDefinition extends DefaultDefinition<RenderedImage> {
             return image;
         }
         catch (final IOException _e) {
-            _e.printStackTrace();
+            // nop
         }
 
         return null;
