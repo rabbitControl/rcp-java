@@ -129,4 +129,10 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
             parameter.setDirty();
         }
     }
+
+    @Override
+    public void dump() {
+        super.dump();
+        System.out.println("default: " + getDefault());
+    }
 }
