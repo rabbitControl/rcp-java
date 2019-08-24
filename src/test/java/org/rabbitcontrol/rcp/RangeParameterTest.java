@@ -13,7 +13,7 @@ import static org.rabbitcontrol.rcp.ParameterTest.writeAndParse;
 public class RangeParameterTest {
 
     @Test
-    public void testRangeParameter() {
+    public void testRangeParameter() throws Exception {
 
         final RangeParameter<Byte> param = new RangeParameter<Byte>((short)1, Byte.class);
 

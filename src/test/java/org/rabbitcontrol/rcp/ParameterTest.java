@@ -16,30 +16,8 @@ import java.io.IOException;
 
 public class ParameterTest {
 
-    //    public static void main(final String[] args) {
-    //
-    //
-    //
-    ////            List<List<Boolean>> b;
-    ////
-    ////            final List<Object> ll = new ArrayList<Object>();
-    ////
-    ////            ll.add(Array.newInstance(Boolean.class, 1, 2));
-    ////
-    ////
-    ////            final Object      o  = Array.newInstance(Boolean.class, 1, 2);
-    ////            final Boolean[][] oo = (Boolean[][])o;
-    ////
-    //////            List<Boolean[][]> lll = ll;
-    //
-    //
-    //
-    //
-    //    }
-
-
     @Test
-    public void testWidget() {
+    public void testWidget() throws Exception {
 
         final Int8Parameter ip = new Int8Parameter((short)1);
 
@@ -67,7 +45,7 @@ public class ParameterTest {
     }
 
     @Test
-    public void testString() {
+    public void testString() throws Exception {
 
         final StringParameter parameter         = new StringParameter((short)1);
         final Widget          str_widget = new TextboxWidget();
@@ -78,7 +56,7 @@ public class ParameterTest {
     }
 
     @Test
-    public void testVec3F32() {
+    public void testVec3F32() throws Exception {
 
         Vector3Float32Parameter parameter = new Vector3Float32Parameter((short)1);
         parameter.setValue(new Vector3<Float>(1F, 2F, 3F));
@@ -97,7 +75,7 @@ public class ParameterTest {
 
     }
 
-    public static Parameter writeAndParse(final RCPWritable _writable) {
+    public static Parameter writeAndParse(final RCPWritable _writable) throws Exception {
 
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
@@ -112,29 +90,27 @@ public class ParameterTest {
                 return Parameter.parse(new ByteBufferKaitaiStream(the_bytes));
             }
             catch (final RCPUnsupportedFeatureException _e) {
-                _e.printStackTrace();
+                throw new Exception(_e);
             }
             catch (final RCPDataErrorException _e) {
-                _e.printStackTrace();
+                throw new Exception(_e);
             }
 
         }
         catch (final IOException _e) {
-            _e.printStackTrace();
+            throw new Exception(_e);
         }
         catch (RCPException _e) {
-            _e.printStackTrace();
+            throw new Exception(_e);
         }
         finally {
             try {
                 os.close();
             }
             catch (final IOException _e) {
-                _e.printStackTrace();
+                throw new Exception(_e);
             }
         }
-
-        return null;
     }
 
     public static String bytesToHex(final byte[] in) {

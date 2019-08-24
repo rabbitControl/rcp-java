@@ -53,7 +53,7 @@ public abstract class TypeDefinition implements ITypeDefinition {
 
             // handle option in specific implementation
             if (!handleOption(property_id, _io)) {
-                throw new RCPDataErrorException();
+                throw new RCPDataErrorException("unhandled option: " + property_id);
             }
         }
 
