@@ -76,6 +76,10 @@ public interface IParameter extends RCPWritable {
 
     void setDirty();
 
+    void setParent(final GroupParameter _parent);
+
+    void setManager(final IParameterManager _model);
+
     // update listener
     void addUpdateListener(final PARAMETER_UPDATED _listener);
     void removeUpdateListener(final PARAMETER_UPDATED _listener);
