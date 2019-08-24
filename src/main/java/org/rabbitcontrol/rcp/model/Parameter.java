@@ -1037,7 +1037,7 @@ public abstract class Parameter implements IParameter, IParameterChild {
     @Override
     public void setUserdata(final byte[] _userdata) {
 
-        if ((userdata == _userdata) || ((userdata != null) && userdata.equals(_userdata))) {
+        if ((userdata == _userdata)) {
             return;
         }
 

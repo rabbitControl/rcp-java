@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.transport;
+package org.rabbitcontrol.rcp;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
@@ -7,6 +7,8 @@ import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
+import org.rabbitcontrol.rcp.transport.ClientTransporter;
+import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
 import java.io.IOException;
 

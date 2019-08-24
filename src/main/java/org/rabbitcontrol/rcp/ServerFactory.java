@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.transport;
+package org.rabbitcontrol.rcp;
 
 /**
  * Created by inx on 31/10/17.

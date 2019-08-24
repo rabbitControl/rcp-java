@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.transport;
+package org.rabbitcontrol.rcp;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
@@ -7,6 +7,8 @@ import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.parameter.*;
+import org.rabbitcontrol.rcp.transport.ServerTransporter;
+import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 
 import java.io.IOException;
 import java.util.*;
@@ -57,8 +59,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             if (transporterList.contains(serverTransporter)) {
                 transporterList.remove(serverTransporter);
                 serverTransporter.removeListener(this);
-
-                // TODO: shutdown transporter - unbind?
             }
         }
     }
@@ -78,6 +78,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         _parameter.setLabel(_label);
         _parameter.setManager(this);
+
+        // addParameter adds _parameter to dirtyParams
         addParameter(_parameter, _group);
     }
 
@@ -615,7 +617,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
      */
     private short availableId() {
 
-        for (short i = 1; i < Short.MAX_VALUE; i++) {
+        for (short i = 1; i > 0; i++) {
             if (ids.contains(i)) {
                 continue;
             }
@@ -623,7 +625,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             return i;
         }
 
-        for (short i = -1; i > Short.MIN_VALUE; i--) {
+        for (short i = -1; i < 0; i--) {
             if (ids.contains(i)) {
                 continue;
             }
@@ -658,16 +660,23 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public void addParameter(final IParameter _parameter, final GroupParameter _group) {
 
         if (_group != null) {
+
+            // this add parameter to dirtyParams
             _group.addChild(_parameter);
 
             // make sure we send parameter _after_ group
+
+            // this can happen if parameter was added earlier before
+            // ParameterGroup _group was added and then got added to _group
             if (dirtyParams.contains(_parameter)) {
                 dirtyParams.remove(_parameter);
                 dirtyParams.add(_parameter);
             }
         }
         else {
-            // add to hierarchical list... root-list
+            // add to root group
+
+            // this adds _parameter to dirtyParams
             rootGroup.addChild(_parameter);
         }
 

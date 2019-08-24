@@ -1,4 +1,4 @@
-package org.rabbitcontrol.rcp.transport;
+package org.rabbitcontrol.rcp;
 
 import org.rabbitcontrol.rcp.model.RCPCacheOperator;
 import org.rabbitcontrol.rcp.model.RCPCommands;
