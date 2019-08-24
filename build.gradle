@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'maven'
     id 'signing'
+    id "com.zoltu.git-versioning" version "3.0.3"
 }
 
 
@@ -19,7 +20,6 @@ targetCompatibility = 1.6
 
 group = 'org.rabbitcontrol'
 archivesBaseName = "rcp"
-version = "0.1"
 
 
 
