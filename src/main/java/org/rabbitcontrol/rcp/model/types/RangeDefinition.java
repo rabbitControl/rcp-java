@@ -4,7 +4,6 @@ import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RCPParser;
 import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.RcpTypes.RangeOptions;
-import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
 import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 
 import java.io.IOException;
@@ -47,18 +46,6 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
         super(Datatype.RANGE);
 
         this.elementType = elementType;
-    }
-
-    @Override
-    public void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {
-
-        if (elementType == null) {
-            throw new RCPDataErrorException("no element type in arraydefinition");
-        }
-
-        elementType.parseOptions(_io);
-
-        super.parseOptions(_io);
     }
 
     @Override
@@ -164,7 +151,5 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
         System.out.println("--- element type ---");
         elementType.dump();
         System.out.println("------");
-
-        System.out.println("default value: " + getDefault());
     }
 }

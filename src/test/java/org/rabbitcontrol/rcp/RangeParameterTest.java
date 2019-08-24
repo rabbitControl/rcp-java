@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.rabbitcontrol.rcp.model.Parameter;
 import org.rabbitcontrol.rcp.model.RcpTypes;
+import org.rabbitcontrol.rcp.model.RcpTypes.NumberScale;
 import org.rabbitcontrol.rcp.model.parameter.RangeParameter;
 import org.rabbitcontrol.rcp.model.types.Range;
 
@@ -20,34 +21,55 @@ public class RangeParameterTest {
         param.getTypeDefinition().setDefault(new Range<Byte>((byte)0, (byte)0));
         param.getRangeDefinition().getElementType().setMinimum((byte)-5);
         param.getRangeDefinition().getElementType().setMaximum((byte)5);
+        param.getRangeDefinition().getElementType().setMultipleof((byte)2);
+        param.getRangeDefinition().getElementType().setScale(NumberScale.LINEAR);
+        param.getRangeDefinition().getElementType().setUnit("test");
 
         // write and parse
         final Parameter parsed_parameter = writeAndParse(param);
         parsed_parameter.dump();
 
         Assert.assertEquals("wrong datatype",
-                            parsed_parameter.getTypeDefinition().getDatatype(),
-                            RcpTypes.Datatype.RANGE);
+                            RcpTypes.Datatype.RANGE,
+                            parsed_parameter.getTypeDefinition().getDatatype());
 
         Assert.assertEquals("wrong value",
-                            ((RangeParameter)parsed_parameter).getValue(),
-                            param.getValue());
+                            param.getValue(),
+                            ((RangeParameter)parsed_parameter).getValue());
 
         Assert.assertEquals("wrong default",
+                            param.getTypeDefinition().getDefault(),
                             ((RangeParameter)parsed_parameter).getRangeDefinition()
-                                                              .getDefault(),
-                            param.getRangeDefinition().getDefault());
+                                                              .getDefault());
 
         Assert.assertEquals("wrong minimum",
+                            param.getRangeDefinition().getElementType().getMinimum(),
                             ((RangeParameter)parsed_parameter).getRangeDefinition()
                                                               .getElementType()
-                                                              .getMinimum(),
-                            param.getRangeDefinition().getElementType().getMinimum());
+                                                              .getMinimum());
 
         Assert.assertEquals("wrong maximum",
+                            param.getRangeDefinition().getElementType().getMaximum(),
                             ((RangeParameter)parsed_parameter).getRangeDefinition()
                                                               .getElementType()
-                                                              .getMaximum(),
-                            param.getRangeDefinition().getElementType().getMaximum());
+                                                              .getMaximum());
+
+        Assert.assertEquals("wrong multiple",
+                            param.getRangeDefinition().getElementType().getMultipleof(),
+                            ((RangeParameter)parsed_parameter).getRangeDefinition()
+                                                              .getElementType()
+                                                              .getMultipleof());
+
+        Assert.assertEquals("wrong scale",
+                            param.getRangeDefinition().getElementType().getScale(),
+                            ((RangeParameter)parsed_parameter).getRangeDefinition()
+                                                              .getElementType()
+                                                              .getScale());
+
+        Assert.assertEquals("wrong unit",
+                            param.getRangeDefinition().getElementType().getUnit(),
+                            ((RangeParameter)parsed_parameter).getRangeDefinition()
+                                                              .getElementType()
+                                                              .getUnit());
     }
 }
