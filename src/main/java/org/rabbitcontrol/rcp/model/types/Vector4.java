@@ -69,5 +69,16 @@ public class Vector4<T extends Number> extends VectorBase {
 
         return x + ", " + y + ", " + z + ", " + t;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+
+        if ((obj instanceof Vector4)) {
+            final Vector4<T> o = (Vector4<T>)obj;
+            return (x.equals(o.getX())) && (y.equals(o.getY())) && (z.equals(o.getZ())) && (t.equals(o.getT()));
+        }
+
+        return false;
+    }
 }
 

@@ -43,5 +43,16 @@ public class Vector2<T extends Number> extends VectorBase {
 
         return x + ", " + y;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+
+        if ((obj instanceof Vector2)) {
+            final Vector2<T> o = (Vector2<T>)obj;
+            return (x.equals(o.getX())) && (y.equals(o.getY()));
+        }
+
+        return false;
+    }
 }
 
