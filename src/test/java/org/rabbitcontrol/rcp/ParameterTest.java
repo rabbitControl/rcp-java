@@ -7,6 +7,7 @@ import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RcpTypes.NumberScale;
 import org.rabbitcontrol.rcp.model.RcpTypes.NumberboxFormat;
 import org.rabbitcontrol.rcp.model.exceptions.*;
+import org.rabbitcontrol.rcp.model.interfaces.IParameterManager;
 import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.*;
 import org.rabbitcontrol.rcp.model.widgets.NumberboxWidget;
@@ -224,6 +225,12 @@ public class ParameterTest {
     //--------------------------------
     public static Parameter writeAndParse(final RCPWritable _writable) throws Exception {
 
+        return writeAndParse(_writable, null);
+    }
+
+    public static Parameter writeAndParse(final RCPWritable _writable,
+                                          final IParameterManager _manager) throws Exception {
+
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
 
@@ -234,7 +241,7 @@ public class ParameterTest {
 
             // parse
             try {
-                return Parameter.parse(new ByteBufferKaitaiStream(the_bytes));
+                return Parameter.parse(new ByteBufferKaitaiStream(the_bytes), _manager);
             }
             catch (final RCPUnsupportedFeatureException _e) {
                 throw new Exception(_e);

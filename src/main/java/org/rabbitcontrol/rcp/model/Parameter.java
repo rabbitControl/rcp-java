@@ -22,9 +22,9 @@ public abstract class Parameter implements IParameter {
 
     //------------------------------------------------------------
     //------------------------------------------------------------
-    public static Parameter parse(final KaitaiStream _io) throws
-                                                          RCPUnsupportedFeatureException,
-                                                          RCPDataErrorException {
+    public static Parameter parse(final KaitaiStream _io, final IParameterManager _manager) throws
+                                                                                            RCPUnsupportedFeatureException,
+                                                                                            RCPDataErrorException {
 
         // TODO: precheck if we have enough data
         // minimum packet: 4,18,0,9,39,0,0,0
@@ -32,6 +32,7 @@ public abstract class Parameter implements IParameter {
 
         // create parameter from stream
         final Parameter param = createParameterFromStream(_io);
+        param.setManager(_manager);
 
         // read options from stream
         param.parseTypeOptions(_io);

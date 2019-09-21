@@ -169,7 +169,7 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
     public void received(final byte[] _data) {
 
         try {
-            final Packet packet = Packet.parse(new ByteBufferKaitaiStream(_data));
+            final Packet packet = Packet.parse(new ByteBufferKaitaiStream(_data), this);
 
             switch (packet.getCmd()) {
                 case INVALID:

@@ -6,6 +6,7 @@ import org.rabbitcontrol.rcp.model.RcpTypes.PacketOptions;
 import org.rabbitcontrol.rcp.model.RcpTypes.TinyString;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
+import org.rabbitcontrol.rcp.model.interfaces.IParameterManager;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -43,6 +44,13 @@ public class Packet implements RCPWritable {
     }
 
     public static Packet parse(final KaitaiStream _io) throws
+                                                       RCPUnsupportedFeatureException,
+                                                       RCPDataErrorException {
+
+        return parse(_io, null);
+    }
+
+    public static Packet parse(final KaitaiStream _io, IParameterManager _manager) throws
                                                           RCPUnsupportedFeatureException,
                                                           RCPDataErrorException {
 
@@ -115,7 +123,7 @@ public class Packet implements RCPWritable {
                         case REMOVE:
                         case UPDATE:
                             // expect parameter
-                            packet.setData(Parameter.parse(_io));
+                            packet.setData(Parameter.parse(_io, _manager));
                             break;
 
                         case INVALID:
