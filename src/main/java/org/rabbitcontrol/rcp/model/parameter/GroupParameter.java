@@ -48,8 +48,8 @@ public class GroupParameter extends Parameter {
     public void addChild(final IParameter _parameter) {
 
         if (!children.contains(_parameter)) {
-            _parameter.setParent(this);
             children.add(_parameter);
+            _parameter.setParent(this);
         }
     }
 

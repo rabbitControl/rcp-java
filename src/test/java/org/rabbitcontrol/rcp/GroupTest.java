@@ -80,4 +80,36 @@ public class GroupTest {
 
         Assert.assertEquals("unset parent id missmatch", null, parameter.getParent());
     }
+
+    @Test
+    public void testResolvePendingGroup() throws Exception {
+
+        group = new GroupParameter((short)1);
+        parameter = new StringParameter((short)2);
+
+        group.setManager(mngr);
+        parameter.setManager(mngr);
+
+        group.addChild(parameter);
+
+
+        //--------------------------------
+        Parameter parsed_parameter = ParameterTest.writeAndParse(parameter);
+        // parameter without manager
+
+        Assert.assertTrue(parsed_parameter.hasPendingParents());
+
+        parsed_parameter.setManager(mngr);
+
+        // this adds the parsed parameter to same group.
+        // !! group ends up with 2 parameters with same id !!
+        parsed_parameter.resolvePendingParents();
+
+        // we should have a parent now!
+        Assert.assertFalse(parsed_parameter.hasPendingParents());
+
+
+        Assert.assertEquals("set parent id missmatch", group.getId(),
+                            parameter.getParent().getId());
+    }
 }

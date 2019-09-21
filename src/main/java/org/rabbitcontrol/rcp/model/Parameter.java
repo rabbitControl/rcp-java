@@ -133,6 +133,8 @@ public abstract class Parameter implements IParameter {
 
     private GroupParameter parent;
 
+    private ArrayList<Short> pendingParentIds = new ArrayList<Short>();
+
     private boolean parentChanged;
 
     // widget
@@ -281,13 +283,23 @@ public abstract class Parameter implements IParameter {
                 case PARENTID:
                     // read as id, this is correct
                     final short parent_id = _io.readS2be();
-                    if (parameterManager != null) {
-                        final IParameter parent = parameterManager.getParameter(parent_id);
-                        try {
-                            setParent((GroupParameter)parent);
-                        }
-                        catch (final ClassCastException _e) {
-                            System.err.println("parameter not a GroupParameter!");
+                    if ((parent_id != 0)) {
+                        if ((parameterManager != null)) {
+                            final IParameter parent = parameterManager.getParameter(parent_id);
+
+                            if (parent instanceof GroupParameter) {
+                                setParent((GroupParameter)parent);
+                            }
+
+                            try {
+                            }
+                            catch (final ClassCastException _e) {
+                                System.err.println("parameter not a GroupParameter!");
+                            }
+                        } else {
+                            // no parameter manager, but parent_id != 0
+                            // store this id
+                            pendingParentIds.add(parent_id);
                         }
                     }
                     break;
@@ -963,7 +975,37 @@ public abstract class Parameter implements IParameter {
         parent = _parent;
         parentChanged = true;
 
+        if (parent != null) {
+            parent.addChild(this);
+        }
+
         setDirty();
+    }
+
+    /**
+     * try to resolve all unresolved parents
+     */
+    public void resolvePendingParents() {
+
+        if (parameterManager == null) {
+            return;
+        }
+
+        ArrayList<Short> resolved_ids = new ArrayList<Short>();
+
+        for (final Short unresolvedParentId : pendingParentIds) {
+            final IParameter group = parameterManager.getParameter(unresolvedParentId);
+            if (group instanceof GroupParameter) {
+                setParent((GroupParameter)group);
+                resolved_ids.add(unresolvedParentId);
+            }
+        }
+
+        pendingParentIds.removeAll(resolved_ids);
+    }
+
+    public boolean hasPendingParents() {
+        return !pendingParentIds.isEmpty();
     }
 
     @Override
