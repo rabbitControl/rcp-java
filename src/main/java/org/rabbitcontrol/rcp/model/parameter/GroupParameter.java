@@ -56,18 +56,19 @@ public class GroupParameter extends Parameter {
     public void removeChild(final IParameter _parameter) {
 
         if (children.contains(_parameter)) {
-            _parameter.setParent(null);
             children.remove(_parameter);
+            _parameter.setParent(null);
         }
     }
 
     public void removeAllChildren() {
 
-        for (final IParameter child : children) {
+        final List<IParameter> ch = children;
+        children.clear();
+
+        for (final IParameter child : ch) {
             child.setParent(null);
         }
-
-        children.clear();
     }
 
     @Override

@@ -1,0 +1,83 @@
+package org.rabbitcontrol.rcp;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.rabbitcontrol.rcp.model.Parameter;
+import org.rabbitcontrol.rcp.model.interfaces.IParameter;
+import org.rabbitcontrol.rcp.model.interfaces.IParameterManager;
+import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
+import org.rabbitcontrol.rcp.model.parameter.StringParameter;
+
+public class GroupTest {
+
+    GroupParameter group;
+    StringParameter parameter;
+
+    private final IParameterManager mngr = new IParameterManager() {
+
+        @Override
+        public IParameter getParameter(final short _id) {
+
+            if (_id == group.getId()) return group;
+            if (_id == parameter.getId()) return parameter;
+
+            return null;
+        }
+
+        @Override
+        public void setParameterDirty(final IParameter _parameter) {
+
+            System.out.println("dirty param: " + _parameter.getId());
+        }
+    };
+
+    @Test
+    public void testGroup() throws Exception {
+
+        group = new GroupParameter((short)1);
+        parameter = new StringParameter((short)2);
+
+        group.setManager(mngr);
+        parameter.setManager(mngr);
+
+
+        group.addChild(parameter);
+
+        //--------------------------------
+        Parameter parsed_group = ParameterTest.writeAndParse(group);
+
+        Assert.assertNotEquals("could not parse parameter", parsed_group, null);
+
+        Assert.assertTrue("wrong parameter type", parsed_group instanceof GroupParameter);
+
+
+        //--------------------------------
+        Parameter parsed_parameter = ParameterTest.writeAndParse(parameter, mngr);
+
+        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+
+        Assert.assertTrue("wrong parameter type", parsed_parameter instanceof StringParameter);
+
+        Assert.assertNotEquals("no parent", parsed_parameter.getParent(), null);
+        Assert.assertEquals("wrong parent", group.getId(), parsed_parameter.getParent().getId());
+    }
+
+    @Test
+    public void testRemoveGroup() throws Exception {
+
+        group = new GroupParameter((short)1);
+        parameter = new StringParameter((short)2);
+
+        group.setManager(mngr);
+        parameter.setManager(mngr);
+
+        group.addChild(parameter);
+
+        Assert.assertEquals("set parent id missmatch", group.getId(),
+                            parameter.getParent().getId());
+
+        group.removeChild(parameter);
+
+        Assert.assertEquals("unset parent id missmatch", null, parameter.getParent());
+    }
+}
