@@ -224,14 +224,9 @@ public abstract class Parameter implements IParameter {
                         final String label     = new TinyString(_io).data();
 
                         if (LANGUAGE_ANY_STR.equals(lang_code)) {
-                            System.out.println("any language label: " + label);
                             setLabel(label);
                         }
                         else {
-                            System.out.println("setting language label " +
-                                               lang_code +
-                                               " : " +
-                                               label);
                             setLanguageLabel(lang_code, label);
                         }
 
@@ -258,15 +253,9 @@ public abstract class Parameter implements IParameter {
                         final String label     = new ShortString(_io).data();
 
                         if (LANGUAGE_ANY_STR.equals(lang_code)) {
-                            System.out.println("any language description: " + label);
                             setDescription(label);
                         }
                         else {
-                            System.out.println("setting language description " +
-                                               lang_code +
-                                               " :" +
-                                               " " +
-                                               label);
                             setLanguageDescription(lang_code, label);
                         }
 
