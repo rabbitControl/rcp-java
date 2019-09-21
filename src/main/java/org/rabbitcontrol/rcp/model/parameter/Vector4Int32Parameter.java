@@ -7,7 +7,7 @@ public class Vector4Int32Parameter extends NumberParameter<Vector4<Integer>>{
 
     public Vector4Int32Parameter(final short _id) {
 
-        super(_id, Datatype.VECTOR3I32);
+        super(_id, Datatype.VECTOR4I32);
     }
 
     @Override
