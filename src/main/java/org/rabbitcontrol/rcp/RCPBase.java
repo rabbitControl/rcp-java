@@ -122,7 +122,6 @@ public abstract class RCPBase implements IParameterManager {
     public void setParameterDirty(final IParameter _parameter) {
 
         if (!valueCache.containsKey(_parameter.getId())) {
-            System.err.println("can not set parameter dirty: parameter not in cache:" + _parameter.getId());
             return;
         }
 
