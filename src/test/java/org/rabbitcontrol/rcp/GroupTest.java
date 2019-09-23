@@ -44,7 +44,7 @@ public class GroupTest {
         group.addChild(parameter);
 
         //--------------------------------
-        Parameter parsed_group = ParameterTest.writeAndParse(group);
+        final Parameter parsed_group = ParameterTest.writeAndParse(group);
 
         Assert.assertNotEquals("could not parse parameter", parsed_group, null);
 
@@ -52,9 +52,8 @@ public class GroupTest {
 
 
         //--------------------------------
-        Parameter parsed_parameter = ParameterTest.writeAndParse(parameter, mngr);
-
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        final Parameter parsed_parameter = ParameterTest.writeAndParse(parameter, mngr);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof StringParameter);
 
@@ -78,7 +77,7 @@ public class GroupTest {
 
         group.removeChild(parameter);
 
-        Assert.assertEquals("unset parent id missmatch", null, parameter.getParent());
+        Assert.assertNull("unset parent id missmatch", parameter.getParent());
     }
 
     @Test
@@ -94,7 +93,9 @@ public class GroupTest {
 
 
         //--------------------------------
-        Parameter parsed_parameter = ParameterTest.writeAndParse(parameter);
+        final Parameter parsed_parameter = ParameterTest.writeAndParse(parameter);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
+
         // parameter without manager
 
         Assert.assertTrue(parsed_parameter.hasPendingParents());

@@ -33,8 +33,7 @@ public class ParameterTest {
 
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
-
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertEquals("label mismatch", parameter.getLabel(), parsed_parameter.getLabel());
         Assert.assertEquals("description mismatch", parameter.getDescription(),
@@ -59,7 +58,7 @@ public class ParameterTest {
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
 
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof BooleanParameter);
 
@@ -85,8 +84,7 @@ public class ParameterTest {
 
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
-
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof Int32Parameter);
 
@@ -117,7 +115,7 @@ public class ParameterTest {
 
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof Vector2Float32Parameter);
 
@@ -137,7 +135,7 @@ public class ParameterTest {
 
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof Vector3Float32Parameter);
 
@@ -157,7 +155,7 @@ public class ParameterTest {
 
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof Vector4Float32Parameter);
 
@@ -180,8 +178,7 @@ public class ParameterTest {
 
         //--------------------------------
         final Parameter parsed_parameter = writeAndParse(parameter);
-
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertTrue("wrong parameter type", parsed_parameter instanceof StringParameter);
 
@@ -207,8 +204,7 @@ public class ParameterTest {
         //--------------------------------
         // write and parse
         final Parameter parsed_parameter = writeAndParse(ip);
-
-        Assert.assertNotEquals("could not parse parameter", parsed_parameter, null);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         final NumberboxWidget<Byte>
                 parsed_widget

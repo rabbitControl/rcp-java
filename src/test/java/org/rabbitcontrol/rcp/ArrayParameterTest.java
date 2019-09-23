@@ -42,6 +42,7 @@ public class ArrayParameterTest {
 
         // write and parse
         final Parameter parsed_parameter = ParameterTest.writeAndParse(array_parameter);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertEquals("wrong datatype",
                             Datatype.ARRAY,

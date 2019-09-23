@@ -25,7 +25,7 @@ public class PacketTest {
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
 
-        Assert.assertNotEquals("could not parse packet", parsed_packet, null);
+        Assert.assertNotNull("could not parse packet", parsed_packet);
 
         Assert.assertEquals("command missmatch", packet.getCmd(), parsed_packet.getCmd());
         Assert.assertEquals("timestamp missmatch",
@@ -43,7 +43,7 @@ public class PacketTest {
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
 
-        Assert.assertNotEquals("could not parse packet", parsed_packet, null);
+        Assert.assertNotNull("could not parse packet", parsed_packet);
 
         Assert.assertEquals("command missmatch", packet.getCmd(), parsed_packet.getCmd());
         Assert.assertEquals("timestamp missmatch",
@@ -64,7 +64,7 @@ public class PacketTest {
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
 
-        Assert.assertNotEquals("could not parse packet", parsed_packet, null);
+        Assert.assertNotNull("could not parse packet", parsed_packet);
 
         Assert.assertEquals("command missmatch", packet.getCmd(), parsed_packet.getCmd());
         Assert.assertEquals("timestamp missmatch",
@@ -85,7 +85,7 @@ public class PacketTest {
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
 
-        Assert.assertNotEquals("could not parse packet", parsed_packet, null);
+        Assert.assertNotNull("could not parse packet", parsed_packet);
 
         Assert.assertEquals("command missmatch", packet.getCmd(), parsed_packet.getCmd());
         Assert.assertEquals("timestamp missmatch",
@@ -110,7 +110,7 @@ public class PacketTest {
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
 
-        Assert.assertNotEquals("could not parse packet", parsed_packet, null);
+        Assert.assertNotNull("could not parse packet", parsed_packet);
 
         Assert.assertEquals("command missmatch", packet.getCmd(), parsed_packet.getCmd());
         Assert.assertEquals("timestamp missmatch",
@@ -139,7 +139,7 @@ public class PacketTest {
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
 
-        Assert.assertNotEquals("could not parse packet", parsed_packet, null);
+        Assert.assertNotNull("could not parse packet", parsed_packet);
 
         Assert.assertEquals("command missmatch", packet.getCmd(), parsed_packet.getCmd());
         Assert.assertEquals("timestamp missmatch",
