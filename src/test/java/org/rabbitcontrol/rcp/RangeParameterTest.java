@@ -17,7 +17,32 @@ public class RangeParameterTest {
 
         final RangeParameter<Byte> param = new RangeParameter<Byte>((short)1, Byte.class);
 
+        //--------------------------------
+        final Parameter parsed_parameter = writeAndParse(param);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
+    }
+
+    @Test
+    public void testRangeParameterValue() throws Exception {
+
+        final RangeParameter<Byte> param = new RangeParameter<Byte>((short)1, Byte.class);
+        param.setValue(new Range<Byte>((byte)3, (byte)4));
+
+        //--------------------------------
+        final Parameter parsed_parameter = writeAndParse(param);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
+
+        Assert.assertEquals("value missmatch", param.getValue(),
+                            ((RangeParameter<Byte>)parsed_parameter).getValue());
+    }
+
+    @Test
+    public void testRangeParameterType() throws Exception {
+
+        final RangeParameter<Byte> param = new RangeParameter<Byte>((short)1, Byte.class);
+
         param.setValue(new Range<Byte>((byte)1, (byte)2));
+
         param.getTypeDefinition().setDefault(new Range<Byte>((byte)0, (byte)0));
         param.getRangeDefinition().getElementType().setMinimum((byte)-5);
         param.getRangeDefinition().getElementType().setMaximum((byte)5);
@@ -25,9 +50,10 @@ public class RangeParameterTest {
         param.getRangeDefinition().getElementType().setScale(NumberScale.LINEAR);
         param.getRangeDefinition().getElementType().setUnit("test");
 
+        //--------------------------------
         // write and parse
         final Parameter parsed_parameter = writeAndParse(param);
-        parsed_parameter.dump();
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
 
         Assert.assertEquals("wrong datatype",
                             RcpTypes.Datatype.RANGE,
