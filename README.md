@@ -18,8 +18,10 @@ gradle:
 implementation 'io.github.rabbitcontrol:rcp:0.2.0'
 ```
 
+## rcp-example-repository
+see: https://github.com/rabbitControl/rcp-java-example
 
-example:
+## example:
 ``` java
 RCPServer rabbitServer = new RCPServer();
 
