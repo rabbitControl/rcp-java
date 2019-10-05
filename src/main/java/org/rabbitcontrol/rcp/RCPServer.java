@@ -269,10 +269,16 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     //----------------------------------------------------
     public Float32Parameter createFloatParameter(final String _label) throws RCPParameterException {
 
-        return createFloatParameter(_label, rootGroup);
+        return createFloat32Parameter(_label, rootGroup);
     }
+    public Float32Parameter createFloatParameter(final String _label, final GroupParameter _group) throws RCPParameterException {
+        return createFloat32Parameter(_label, _group);
+    }
+    public Float32Parameter createFloat32Parameter(final String _label) throws RCPParameterException {
 
-    public Float32Parameter createFloatParameter(
+        return createFloat32Parameter(_label, rootGroup);
+    }
+    public Float32Parameter createFloat32Parameter(
             final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
@@ -293,11 +299,18 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     //----------------------------------------------------
     public Float64Parameter createDoubleParameter(final String _label) throws
                                                                        RCPParameterException {
-
-        return createDoubleParameter(_label, rootGroup);
+        return createFloat64Parameter(_label, rootGroup);
     }
-
     public Float64Parameter createDoubleParameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        return createFloat64Parameter(_label, _group);
+    }
+    public Float64Parameter createFloat64Parameter(final String _label) throws
+                                                                       RCPParameterException {
+        return createFloat64Parameter(_label, rootGroup);
+    }
+    public Float64Parameter createFloat64Parameter(
             final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
