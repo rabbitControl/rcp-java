@@ -9,13 +9,13 @@ maven:
 <dependency>
   <groupId>io.github.rabbitcontrol</groupId>
   <artifactId>rcp</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
 gradle:
 ```
-implementation 'io.github.rabbitcontrol:rcp:0.1.0'
+implementation 'io.github.rabbitcontrol:rcp:0.2.0'
 ```
 
 
