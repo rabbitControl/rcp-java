@@ -344,6 +344,20 @@ public class RcpTypes extends KaitaiStruct {
         public static StringOptions byId(long id) { return byId.get(id); }
     }
 
+    public enum InfodataOptions {
+        APPLICATIONID(26);
+
+        private final long id;
+        InfodataOptions(long id) { this.id = id; }
+        public long id() { return id; }
+        private static final Map<Long, InfodataOptions> byId = new HashMap<Long, InfodataOptions>(1);
+        static {
+            for (InfodataOptions e : InfodataOptions.values())
+                byId.put(e.id(), e);
+        }
+        public static InfodataOptions byId(long id) { return byId.get(id); }
+    }
+
     public enum ArrayOptions {
         DEFAULT(48);
 
@@ -449,22 +463,6 @@ public class RcpTypes extends KaitaiStruct {
                 byId.put(e.id(), e);
         }
         public static Ipv6Options byId(long id) { return byId.get(id); }
-    }
-
-    public enum MetadataOptions {
-        VERSION(26),
-        CAPABILITIES(27),
-        COMMANDS(28);
-
-        private final long id;
-        MetadataOptions(long id) { this.id = id; }
-        public long id() { return id; }
-        private static final Map<Long, MetadataOptions> byId = new HashMap<Long, MetadataOptions>(3);
-        static {
-            for (MetadataOptions e : MetadataOptions.values())
-                byId.put(e.id(), e);
-        }
-        public static MetadataOptions byId(long id) { return byId.get(id); }
     }
 
     public enum PacketOptions {
