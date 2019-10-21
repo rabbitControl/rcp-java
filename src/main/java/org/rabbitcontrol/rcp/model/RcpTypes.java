@@ -202,7 +202,7 @@ public class RcpTypes extends KaitaiStruct {
 
     public enum Command {
         INVALID(0),
-        VERSION(1),
+        INFO(1),
         INITIALIZE(2),
         DISCOVER(3),
         UPDATE(4),

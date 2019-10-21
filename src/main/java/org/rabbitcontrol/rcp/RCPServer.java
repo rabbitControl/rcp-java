@@ -24,6 +24,8 @@ import java.util.*;
  */
 public class RCPServer extends RCPBase implements ServerTransporterListener {
 
+    //------------------------------------------------------------
+    //
     private final List<ServerTransporter> transporterList = new ArrayList<ServerTransporter>();
 
     private Set<Short> ids = new HashSet<Short>();
@@ -32,6 +34,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     // callback objects
     private Init initListener;
+
+    private String applicationId = "";
 
     //------------------------------------------------------------
     // constructor
@@ -930,11 +934,14 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             }
 
 
-            case VERSION:
+            case INFO:
             {
-                final VersionData version_data = packet.getDataAsVersionData();
+                final InfoData version_data = packet.getDataAsInfoData();
                 if (version_data != null) {
-                    System.out.println("client version: " + version_data.version);
+                    System.out.println("client version: " + version_data.getVersion());
+                    if (!version_data.getApplicationId().isEmpty()) {
+                        System.out.println("client application: " + version_data.getApplicationId());
+                    }
 
                     // TODO: compare version number
                 } else
@@ -943,8 +950,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 }
 
                 // answer with version
-                final Packet versionPacket = new Packet(Command.VERSION);
-                versionPacket.setData(new VersionData("0.0.0"));
+                final Packet versionPacket = new Packet(Command.INFO);
+                versionPacket.setData(new InfoData(RCP.getVersion(), applicationId));
 
                 _transporter.sendToOne(versionPacket.serialize(true), _id);
 
@@ -1042,4 +1049,15 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         super.setParameterDirty(_parameter);
     }
+
+    public String getApplicationId() {
+
+        return applicationId;
+    }
+
+    public void setApplicationId(final String _applicationId) {
+
+        applicationId = _applicationId;
+    }
+
 }

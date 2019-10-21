@@ -3,7 +3,6 @@ package org.rabbitcontrol.rcp.model;
 import io.kaitai.struct.KaitaiStream;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.RcpTypes.PacketOptions;
-import org.rabbitcontrol.rcp.model.RcpTypes.TinyString;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.IParameter;
 import org.rabbitcontrol.rcp.model.interfaces.IParameterManager;
@@ -108,8 +107,8 @@ public class Packet implements RCPWritable {
 
                     switch (cmd) {
 
-                        case VERSION:
-                            packet.setData(new VersionData(new TinyString(_io).data()));
+                        case INFO:
+                            packet.setData(InfoData.parse(_io));
                             break;
 
                         case INITIALIZE:
@@ -255,9 +254,9 @@ public class Packet implements RCPWritable {
         return null;
     }
 
-    public VersionData getDataAsVersionData() {
+    public InfoData getDataAsInfoData() {
         try {
-            return (VersionData)data;
+            return (InfoData)data;
         } catch (ClassCastException _e) {
             // nop
         }

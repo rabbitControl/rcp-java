@@ -176,8 +176,8 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                     // nop
                     break;
 
-                case VERSION:
-                    _version(packet);
+                case INFO:
+                    _info(packet);
                     break;
 
                 case INITIALIZE:
@@ -207,12 +207,15 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
     }
 
-    private void _version(final Packet _packet) {
+    private void _info(final Packet _packet) {
 
-        final VersionData version_data = _packet.getDataAsVersionData();
+        final InfoData version_data = _packet.getDataAsInfoData();
 
         if (version_data != null) {
-            System.out.println("server version: " + version_data.version);
+            System.out.println("server version: " + version_data.getVersion());
+            if (!version_data.getApplicationId().isEmpty()) {
+                System.out.println("server: " + version_data.getApplicationId());
+            }
         }
     }
 

@@ -34,11 +34,11 @@ public class PacketTest {
     }
 
     @Test
-    public void testVersionPacket() throws Exception {
+    public void testInfoPacket() throws Exception {
 
-        final Packet packet = new Packet(Command.VERSION);
+        final Packet packet = new Packet(Command.INFO);
         packet.setTimestamp(1234);
-        packet.setData(new VersionData("1.2.3"));
+        packet.setData(new InfoData("1.2.3", "test"));
 
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
@@ -50,8 +50,11 @@ public class PacketTest {
                             packet.getTimestamp(),
                             parsed_packet.getTimestamp());
         Assert.assertEquals("version missmatch",
-                            packet.getDataAsVersionData().version,
-                            parsed_packet.getDataAsVersionData().version);
+                            packet.getDataAsInfoData().getVersion(),
+                            parsed_packet.getDataAsInfoData().getVersion());
+        Assert.assertEquals("applicationI missmatch",
+                            packet.getDataAsInfoData().getApplicationId(),
+                            parsed_packet.getDataAsInfoData().getApplicationId());
     }
 
     @Test
@@ -91,7 +94,7 @@ public class PacketTest {
         Assert.assertEquals("timestamp missmatch",
                             packet.getTimestamp(),
                             parsed_packet.getTimestamp());
-        Assert.assertEquals("version missmatch",
+        Assert.assertEquals("id missmatch",
                             packet.getDataAsIdData().id,
                             parsed_packet.getDataAsIdData().id);
     }
