@@ -937,24 +937,28 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             case INFO:
             {
                 final InfoData version_data = packet.getDataAsInfoData();
+
                 if (version_data != null) {
                     System.out.println("client version: " + version_data.getVersion());
                     if (!version_data.getApplicationId().isEmpty()) {
                         System.out.println("client application: " + version_data.getApplicationId());
                     }
-
-                    // TODO: compare version number
-                } else
-                {
-                    // could not get version data... what to do?
                 }
+                else
+                {
+                    // no data, answer with own version
+                    final Packet version_packet = new Packet(Command.INFO);
+                    version_packet.setData(new InfoData(RCP.RCP_PROTOCOL_VERSION,
+                                                       applicationId +
+                                                       " (" +
+                                                       RCP.getLibraryVersion() +
+                                                       ")"));
 
-                // answer with version
-                final Packet versionPacket = new Packet(Command.INFO);
-                versionPacket.setData(new InfoData(RCP.RCP_PROTOCOL_VERSION,
-                                                   applicationId + " (" + RCP.getLibraryVersion() + ")"));
+                    _transporter.sendToOne(version_packet.serialize(true), _id);
 
-                _transporter.sendToOne(versionPacket.serialize(true), _id);
+                    // request infodata from client
+                    _transporter.sendToOne(new Packet(Command.INFO).serialize(true), _id);
+                }
 
                 break;
             }
