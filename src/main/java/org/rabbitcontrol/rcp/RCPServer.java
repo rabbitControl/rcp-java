@@ -951,7 +951,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
                 // answer with version
                 final Packet versionPacket = new Packet(Command.INFO);
-                versionPacket.setData(new InfoData(RCP.getVersion(), applicationId));
+                versionPacket.setData(new InfoData(RCP.RCP_PROTOCOL_VERSION,
+                                                   applicationId + " (" + RCP.getLibraryVersion() + ")"));
 
                 _transporter.sendToOne(versionPacket.serialize(true), _id);
 

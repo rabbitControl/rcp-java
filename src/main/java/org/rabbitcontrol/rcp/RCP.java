@@ -7,7 +7,9 @@ import java.util.jar.Manifest;
 
 public class RCP {
 
-    private static String RCP_JAVA_VERSION = "0.0.0";
+    private static String RCP_JAVA_LIB_VERSION = "0.0.0";
+
+    public static String RCP_PROTOCOL_VERSION = "0.0.0";
 
     static {
         Enumeration<URL> resources = null;
@@ -24,7 +26,7 @@ public class RCP {
                     final String   version  = manifest.getMainAttributes().getValue(
                             "Implementation-Version");
                     if ((version != null) && !version.isEmpty()) {
-                        RCP_JAVA_VERSION = version;
+                        RCP_JAVA_LIB_VERSION = version;
                     }
                 }
                 catch (IOException _e) {
@@ -37,8 +39,8 @@ public class RCP {
         }
     }
 
-    public static String getVersion() {
+    public static String getLibraryVersion() {
 
-        return RCP_JAVA_VERSION;
+        return RCP_JAVA_LIB_VERSION;
     }
 }
