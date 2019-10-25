@@ -197,6 +197,11 @@ public abstract class Parameter implements IParameter {
         // get options from the stream
         while (true) {
 
+            if (_io.isEof()) {
+                // buffer underflow
+                throw new RCPDataErrorException("Buffer underrun");
+            }
+
             // get data-id
             final int property_id = _io.readU1();
 
