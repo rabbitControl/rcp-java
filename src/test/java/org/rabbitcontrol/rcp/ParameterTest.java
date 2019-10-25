@@ -13,6 +13,7 @@ import org.rabbitcontrol.rcp.model.types.*;
 import org.rabbitcontrol.rcp.model.widgets.NumberboxWidget;
 import org.rabbitcontrol.rcp.model.widgets.TextboxWidget;
 
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -187,6 +188,39 @@ public class ParameterTest {
 
         Assert.assertEquals("default missmatch", parameter.getTypeDefinition().getDefault(),
                             ((StringParameter)parsed_parameter).getTypeDefinition().getDefault());
+    }
+
+
+    @Test
+    public void testRGBParameter() throws Exception {
+
+        final RGBParameter parameter = new RGBParameter((short)1);
+        parameter.setValue(Color.BLUE);
+
+        //--------------------------------
+        final Parameter parsed_parameter = writeAndParse(parameter);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
+
+        Assert.assertTrue("wrong parameter type", parsed_parameter instanceof RGBParameter);
+
+        Assert.assertEquals("value missmatch", parameter.getValue(),
+                            ((RGBParameter)parsed_parameter).getValue());
+    }
+
+    @Test
+    public void testRGBAParameter() throws Exception {
+
+        final RGBAParameter parameter = new RGBAParameter((short)1);
+        parameter.setValue(Color.BLUE);
+
+        //--------------------------------
+        final Parameter parsed_parameter = writeAndParse(parameter);
+        Assert.assertNotNull("could not parse parameter", parsed_parameter);
+
+        Assert.assertTrue("wrong parameter type", parsed_parameter instanceof RGBAParameter);
+
+        Assert.assertEquals("value missmatch", parameter.getValue(),
+                            ((RGBAParameter)parsed_parameter).getValue());
     }
 
     @Test
