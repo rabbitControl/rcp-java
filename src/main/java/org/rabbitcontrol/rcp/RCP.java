@@ -9,10 +9,10 @@ public class RCP {
 
     private static String RCP_JAVA_LIB_VERSION = "0.0.0";
 
-    public static String RCP_PROTOCOL_VERSION = "0.0.0";
+    private static final String RCP_PROTOCOL_VERSION = "0.0.1";
 
     static {
-        Enumeration<URL> resources = null;
+        Enumeration<URL> resources;
         try {
             resources = RCP.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
             while (resources.hasMoreElements()) {
@@ -42,5 +42,10 @@ public class RCP {
     public static String getLibraryVersion() {
 
         return RCP_JAVA_LIB_VERSION;
+    }
+
+    public static String getRcpVersion() {
+
+        return RCP_PROTOCOL_VERSION;
     }
 }

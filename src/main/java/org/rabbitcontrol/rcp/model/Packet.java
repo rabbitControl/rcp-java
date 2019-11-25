@@ -108,18 +108,25 @@ public class Packet implements RCPWritable {
                     switch (cmd) {
 
                         case INFO:
+                            // expect info-data
                             packet.setData(InfoData.parse(_io));
                             break;
 
                         case INITIALIZE:
-                            packet.setData(new IdData(_io.readS2be()));
+                            // expect id-data
+                            packet.setData(IdData.parse(_io));
                             break;
 
                         case DISCOVER:
-                            packet.setData(new IdData(_io.readS2be()));
+                            // expect id-data
+                            packet.setData(IdData.parse(_io));
                             break;
 
                         case REMOVE:
+                            // expect id-data
+                            packet.setData(IdData.parse(_io));
+                            break;
+
                         case UPDATE:
                             // expect parameter
                             packet.setData(Parameter.parse(_io, _manager));

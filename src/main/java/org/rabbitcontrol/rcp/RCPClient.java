@@ -290,13 +290,13 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
     private void _remove(final Packet _packet) {
 
         try {
-            final IParameter parameter = _packet.getDataAsParameter();
+            final IdData id_data = _packet.getDataAsIdData();
 
-            if (valueCache.containsKey(parameter.getId())) {
-                removeParameter(valueCache.get(parameter.getId()));
+            if (valueCache.containsKey(id_data.getId())) {
+                removeParameter(valueCache.get(id_data.getId()));
             }
             else {
-                System.err.printf("client: remove: no parameter with id: %s", parameter.getId());
+                System.err.printf("client: remove: no parameter with id: %s", id_data.getId());
             }
         } catch (final ClassCastException _e) {
             // nop

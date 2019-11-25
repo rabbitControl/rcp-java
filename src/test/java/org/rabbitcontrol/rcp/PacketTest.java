@@ -74,8 +74,8 @@ public class PacketTest {
                             packet.getTimestamp(),
                             parsed_packet.getTimestamp());
         Assert.assertEquals("version missmatch",
-                            packet.getDataAsIdData().id,
-                            parsed_packet.getDataAsIdData().id);
+                            packet.getDataAsIdData().getId(),
+                            parsed_packet.getDataAsIdData().getId());
     }
 
     @Test
@@ -95,8 +95,8 @@ public class PacketTest {
                             packet.getTimestamp(),
                             parsed_packet.getTimestamp());
         Assert.assertEquals("id missmatch",
-                            packet.getDataAsIdData().id,
-                            parsed_packet.getDataAsIdData().id);
+                            packet.getDataAsIdData().getId(),
+                            parsed_packet.getDataAsIdData().getId());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class PacketTest {
         final StringParameter parameter = new StringParameter((short)123);
         parameter.setValue("string value");
 
-        packet.setData(parameter);
+        packet.setData(new IdData(parameter.getId()));
 
         //--------------------------------
         final Packet parsed_packet = writeAndParse(packet);
@@ -149,12 +149,9 @@ public class PacketTest {
                             packet.getTimestamp(),
                             parsed_packet.getTimestamp());
 
-        IParameter parsed_parameter = parsed_packet.getDataAsParameter();
+        final IdData parsed_id_data = parsed_packet.getDataAsIdData();
 
-        Assert.assertEquals("parameter id missmatch", parameter.getId(), parsed_parameter.getId());
-        Assert.assertEquals("parameter value missmatch",
-                            parameter.getValue(),
-                            parsed_parameter.getStringValue());
+        Assert.assertEquals("parameter id missmatch", parameter.getId(), parsed_id_data.getId());
     }
 
     //--------------------------------

@@ -843,7 +843,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             ids.remove(parameter.getId());
 
             if (!transporterList.isEmpty()) {
-                final byte[] data = new Packet(Command.REMOVE, parameter).serialize(false);
+                final byte[] data =
+                        new Packet(Command.REMOVE, new IdData(parameter.getId())).serialize(false);
 
                 for (final ServerTransporter transporter : transporterList) {
                     transporter.sendToAll(data, null);
@@ -853,14 +854,18 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         parameterToRemove.clear();
     }
 
-    private void update(final IParameter _value, final Object _id) throws
+    private void update(final IParameter _parameter, final Object _id) throws
                                                                    RCPException {
+
+        if (_parameter == null) {
+            return;
+        }
 
         if (!transporterList.isEmpty()) {
 
             //TODO possibly check for connected clients
 
-            final Packet packet = new Packet(Command.UPDATE, _value);
+            final Packet packet = new Packet(Command.UPDATE, _parameter);
             final byte[] data   = Packet.serialize(packet, false);
 
             for (final ServerTransporter transporter : transporterList) {
@@ -870,6 +875,10 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public void remove(final IParameter _parameter) {
+
+        if (_parameter == null) {
+            return;
+        }
 
         if (valueCache.containsKey(_parameter.getId())) {
             // removed
@@ -948,7 +957,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 {
                     // no data, answer with own version
                     final Packet version_packet = new Packet(Command.INFO);
-                    version_packet.setData(new InfoData(RCP.RCP_PROTOCOL_VERSION,
+                    version_packet.setData(new InfoData(RCP.getRcpVersion(),
                                                        applicationId +
                                                        " (" +
                                                        RCP.getLibraryVersion() +
@@ -967,7 +976,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             {
                 final IdData id_data = packet.getDataAsIdData();
                 if (id_data != null) {
-                    _init(valueCache.get(id_data.id), _transporter, _id);
+                    _init(valueCache.get(id_data.getId()), _transporter, _id);
                 }
 
                 _init(_transporter, _id);
@@ -979,10 +988,14 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 System.err.println("can not remove parameter at server");
                 break;
 
-            case INVALID:
             case DISCOVER:
-            default:
-                System.err.println("not implemented command: " + cmd);
+                System.out.println("DISCOVER not implemented");
+                break;
+
+            case INVALID:
+                System.err.println("invalid command");
+
+
 
         }
     }
