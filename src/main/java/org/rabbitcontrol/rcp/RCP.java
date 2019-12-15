@@ -9,7 +9,7 @@ public class RCP {
 
     private static String RCP_JAVA_LIB_VERSION = "0.0.0";
 
-    private static final String RCP_PROTOCOL_VERSION = "0.0.1";
+    private static final String RCP_PROTOCOL_VERSION = "0.1.0";
 
     static {
         Enumeration<URL> resources;
