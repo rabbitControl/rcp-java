@@ -159,7 +159,7 @@ public abstract class Parameter implements IParameter {
 
     protected boolean initialWrite = true; // one-time-flag
 
-    private boolean anyOptionChanged = false;
+    Map<ParameterOptions, Boolean> dirtyOptionsMap = new HashMap<ParameterOptions, Boolean>();
 
     //------------------------
     // change listener
@@ -184,7 +184,7 @@ public abstract class Parameter implements IParameter {
     @Override
     public boolean onlyValueChanged()
     {
-        return !anyOptionChanged && !typeDefinition.didChange();
+        return dirtyOptionsMap.isEmpty() && !typeDefinition.didChange();
     }
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
@@ -634,7 +634,7 @@ public abstract class Parameter implements IParameter {
             readonlyChanged = false;
         }
 
-        anyOptionChanged = false;
+        dirtyOptionsMap.clear();
     }
 
     @Override
@@ -660,6 +660,9 @@ public abstract class Parameter implements IParameter {
 
     public void update(final IParameter _parameter) throws RCPException {
 
+        System.out.println("update with: ");
+        _parameter.dump();
+
         boolean changed = false;
 
         // check id
@@ -670,15 +673,19 @@ public abstract class Parameter implements IParameter {
         // set fields directly, no change-flag ist set!
 
         if (_parameter.getLabel() != null) {
+            System.out.println("update label: " + _parameter.getLabel());
             label = _parameter.getLabel();
             changed = true;
         }
 
         final Set<String> label_keys = _parameter.getLabelLanguages();
-        if (label_keys != null) {
-            clearLanguageLabel();
+        if ((label_keys != null) &&
+            ((languageLabels.size() != label_keys.size()) ||
+             !languageLabels.isEmpty()))
+        {
+            languageLabels.clear();
             for (final String key : label_keys) {
-                setLanguageLabel(key, _parameter.getLanguageLabel(key));
+                languageLabels.put(key, _parameter.getLanguageLabel(key));
             }
             changed = true;
         }
@@ -689,10 +696,13 @@ public abstract class Parameter implements IParameter {
         }
 
         final Set<String> desc_keys = _parameter.getDescriptionLanguages();
-        if (desc_keys != null) {
-            clearLangaugeDescription();
-            for (final String desc_key : desc_keys) {
-                setLanguageDescription(desc_key, _parameter.getLanguageDescription(desc_key));
+        if ((desc_keys != null) &&
+            ((languageDescriptions.size() != desc_keys.size()) ||
+             !languageDescriptions.isEmpty()))
+        {
+            languageDescriptions.clear();
+            for (final String key : desc_keys) {
+                languageDescriptions.put(key, _parameter.getLanguageDescription(key));
             }
             changed = true;
         }
@@ -835,7 +845,7 @@ public abstract class Parameter implements IParameter {
 
         label = _label;
         labelChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.LABEL, true);
 
         setDirty();
     }
@@ -855,7 +865,7 @@ public abstract class Parameter implements IParameter {
 
         languageLabels.clear();
         labelChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.LABEL, true);
 
         setDirty();
     }
@@ -865,7 +875,7 @@ public abstract class Parameter implements IParameter {
 
         languageLabels.put(_code, _label);
         labelChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.LABEL, true);
 
         setDirty();
     }
@@ -875,7 +885,7 @@ public abstract class Parameter implements IParameter {
 
         languageLabels.remove(_code);
         labelChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.LABEL, true);
 
         setDirty();
     }
@@ -896,7 +906,7 @@ public abstract class Parameter implements IParameter {
 
         description = _description;
         descriptionChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.DESCRIPTION, true);
 
         setDirty();
     }
@@ -915,7 +925,7 @@ public abstract class Parameter implements IParameter {
     public void clearLangaugeDescription() {
         languageDescriptions.clear();
         descriptionChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.DESCRIPTION, true);
 
         setDirty();
     }
@@ -925,7 +935,7 @@ public abstract class Parameter implements IParameter {
 
         languageDescriptions.put(_code, _label);
         descriptionChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.DESCRIPTION, true);
 
         setDirty();
     }
@@ -935,7 +945,7 @@ public abstract class Parameter implements IParameter {
 
         languageDescriptions.remove(_code);
         descriptionChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.DESCRIPTION, true);
 
         setDirty();
     }
@@ -955,7 +965,7 @@ public abstract class Parameter implements IParameter {
 
         tags = _tags;
         tagsChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.TAGS, true);
 
         setDirty();
     }
@@ -975,7 +985,7 @@ public abstract class Parameter implements IParameter {
 
         order = _order;
         orderChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.ORDER, true);
 
         setDirty();
     }
@@ -999,7 +1009,7 @@ public abstract class Parameter implements IParameter {
 
         parent = _parent;
         parentChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.PARENTID, true);
 
         if (parent != null) {
             parent.addChild(this);
@@ -1048,7 +1058,7 @@ public abstract class Parameter implements IParameter {
 
         widget = _widget;
         widgetChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.WIDGET, true);
 
         widget.setParameter(this);
 
@@ -1070,7 +1080,7 @@ public abstract class Parameter implements IParameter {
 
         userid = _userid;
         useridChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.USERID, true);
 
         setDirty();
     }
@@ -1090,7 +1100,7 @@ public abstract class Parameter implements IParameter {
 
         userdata = _userdata;
         userdataChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.USERDATA, true);
 
         setDirty();
     }
@@ -1110,7 +1120,7 @@ public abstract class Parameter implements IParameter {
 
         readonly = _readonly;
         readonlyChanged = true;
-        anyOptionChanged = true;
+        dirtyOptionsMap.put(ParameterOptions.READONLY, true);
 
         setDirty();
     }
