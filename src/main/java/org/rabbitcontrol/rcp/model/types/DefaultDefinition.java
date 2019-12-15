@@ -110,6 +110,12 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
     //------------------------------------------------------------
     //------------------------------------------------------------
     @Override
+    public boolean didChange()
+    {
+        return defaultValueChanged;
+    }
+
+    @Override
     public T getDefault() {
 
         return defaultValue;

@@ -110,6 +110,17 @@ implements
     }
 
     @Override
+    public boolean didChange()
+    {
+        return super.didChange() ||
+               minimumChanged ||
+               maximumChanged ||
+               multipleofChanged ||
+               scaleChanged ||
+               unitChanged;
+    }
+
+    @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
         // handle option scale, unit

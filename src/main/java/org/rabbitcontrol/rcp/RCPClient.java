@@ -108,7 +108,18 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
         // update all dirty params
         for (final IParameter parameter : dirtyParams) {
             try {
-                transporter.send(Packet.serialize(new Packet(Command.UPDATE, parameter), false));
+
+                final Command cmd;
+                if (parameter.onlyValueChanged())
+                {
+                    cmd = Command.UPDATEVALUE;
+                }
+                else
+                {
+                    cmd = Command.UPDATE;
+                }
+
+                transporter.send(Packet.serialize(new Packet(cmd, parameter), false));
             }
             catch (final RCPException _e) {
                 System.err.println("could not update parameter: " + parameter.getId());

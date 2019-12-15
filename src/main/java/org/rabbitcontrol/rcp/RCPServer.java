@@ -865,7 +865,17 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
             //TODO possibly check for connected clients
 
-            final Packet packet = new Packet(Command.UPDATE, _parameter);
+            final Command cmd;
+            if (_parameter.onlyValueChanged())
+            {
+                cmd = Command.UPDATEVALUE;
+            }
+            else
+            {
+                cmd = Command.UPDATE;
+            }
+
+            final Packet packet = new Packet(cmd, _parameter);
             final byte[] data   = Packet.serialize(packet, false);
 
             for (final ServerTransporter transporter : transporterList) {

@@ -49,6 +49,13 @@ public class RangeDefinition<T extends Number> extends DefaultDefinition<Range<T
     }
 
     @Override
+    public boolean didChange()
+    {
+        return super.didChange() ||
+               elementType.didChange();
+    }
+
+    @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
         final RangeOptions option = RangeOptions.byId(_propertyId);

@@ -36,6 +36,12 @@ public abstract class TypeDefinition implements ITypeDefinition {
         // read mandatory data after typeid!
     }
 
+    @Override
+    public boolean didChange()
+    {
+        return false;
+    }
+
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io);
 
     public void parseOptions(final KaitaiStream _io) throws RCPDataErrorException {

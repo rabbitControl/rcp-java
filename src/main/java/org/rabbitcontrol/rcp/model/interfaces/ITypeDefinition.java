@@ -8,4 +8,6 @@ public interface ITypeDefinition extends RCPWritable {
     //--------------------------------
     // mandatory
     Datatype getDatatype();
+
+    boolean didChange();
 }

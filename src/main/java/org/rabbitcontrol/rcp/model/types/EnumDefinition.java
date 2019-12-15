@@ -32,6 +32,13 @@ public class EnumDefinition extends DefaultDefinition<String> {
     }
 
     @Override
+    public boolean didChange()
+    {
+        return super.didChange() || entriesChanged || multiselectChanged;
+    }
+
+
+    @Override
     public void writeValue(final String _value, final OutputStream _outputStream) throws
                                                                                   IOException {
 

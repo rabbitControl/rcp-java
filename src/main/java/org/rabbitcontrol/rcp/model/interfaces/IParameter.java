@@ -91,6 +91,8 @@ public interface IParameter extends RCPWritable {
     String getStringValue();
     void setStringValue(final String _value);
 
+    boolean onlyValueChanged();
+
     //
     void dump();
 }

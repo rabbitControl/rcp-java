@@ -159,6 +159,8 @@ public abstract class Parameter implements IParameter {
 
     protected boolean initialWrite = true; // one-time-flag
 
+    private boolean anyOptionChanged = false;
+
     //------------------------
     // change listener
     private final Set<PARAMETER_UPDATED> parameterUpdateListener = new HashSet<PARAMETER_UPDATED>();
@@ -177,6 +179,12 @@ public abstract class Parameter implements IParameter {
     public IParameter cloneEmpty() {
 
         return RCPFactory.createParameter(id, typeDefinition.getDatatype());
+    }
+
+    @Override
+    public boolean onlyValueChanged()
+    {
+        return !anyOptionChanged && !typeDefinition.didChange();
     }
 
     protected abstract boolean handleOption(final int _propertyId, final KaitaiStream _io) throws
@@ -625,6 +633,8 @@ public abstract class Parameter implements IParameter {
 
             readonlyChanged = false;
         }
+
+        anyOptionChanged = false;
     }
 
     @Override
@@ -825,6 +835,7 @@ public abstract class Parameter implements IParameter {
 
         label = _label;
         labelChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -844,6 +855,7 @@ public abstract class Parameter implements IParameter {
 
         languageLabels.clear();
         labelChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -853,6 +865,7 @@ public abstract class Parameter implements IParameter {
 
         languageLabels.put(_code, _label);
         labelChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -862,6 +875,7 @@ public abstract class Parameter implements IParameter {
 
         languageLabels.remove(_code);
         labelChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -882,6 +896,7 @@ public abstract class Parameter implements IParameter {
 
         description = _description;
         descriptionChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -900,6 +915,7 @@ public abstract class Parameter implements IParameter {
     public void clearLangaugeDescription() {
         languageDescriptions.clear();
         descriptionChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -909,6 +925,7 @@ public abstract class Parameter implements IParameter {
 
         languageDescriptions.put(_code, _label);
         descriptionChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -918,6 +935,7 @@ public abstract class Parameter implements IParameter {
 
         languageDescriptions.remove(_code);
         descriptionChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -937,6 +955,7 @@ public abstract class Parameter implements IParameter {
 
         tags = _tags;
         tagsChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -956,6 +975,7 @@ public abstract class Parameter implements IParameter {
 
         order = _order;
         orderChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -979,6 +999,7 @@ public abstract class Parameter implements IParameter {
 
         parent = _parent;
         parentChanged = true;
+        anyOptionChanged = true;
 
         if (parent != null) {
             parent.addChild(this);
@@ -1027,6 +1048,7 @@ public abstract class Parameter implements IParameter {
 
         widget = _widget;
         widgetChanged = true;
+        anyOptionChanged = true;
 
         widget.setParameter(this);
 
@@ -1048,6 +1070,7 @@ public abstract class Parameter implements IParameter {
 
         userid = _userid;
         useridChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -1067,6 +1090,7 @@ public abstract class Parameter implements IParameter {
 
         userdata = _userdata;
         userdataChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }
@@ -1086,6 +1110,7 @@ public abstract class Parameter implements IParameter {
 
         readonly = _readonly;
         readonlyChanged = true;
+        anyOptionChanged = true;
 
         setDirty();
     }

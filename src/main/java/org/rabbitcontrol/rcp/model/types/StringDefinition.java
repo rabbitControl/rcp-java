@@ -24,6 +24,12 @@ public class StringDefinition extends DefaultDefinition<String> {
     }
 
     @Override
+    public boolean didChange()
+    {
+        return super.didChange() || regexChanged;
+    }
+
+    @Override
     protected boolean handleOption(final int _propertyId, final KaitaiStream _io) {
 
         final StringOptions option = StringOptions.byId(_propertyId);
