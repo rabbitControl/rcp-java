@@ -660,9 +660,6 @@ public abstract class Parameter implements IParameter {
 
     public void update(final IParameter _parameter) throws RCPException {
 
-        System.out.println("update with: ");
-        _parameter.dump();
-
         boolean changed = false;
 
         // check id
@@ -673,7 +670,6 @@ public abstract class Parameter implements IParameter {
         // set fields directly, no change-flag ist set!
 
         if (_parameter.getLabel() != null) {
-            System.out.println("update label: " + _parameter.getLabel());
             label = _parameter.getLabel();
             changed = true;
         }
@@ -1114,7 +1110,6 @@ public abstract class Parameter implements IParameter {
     public void setReadonly(final boolean _readonly) {
 
         if (((readonly != null) && (readonly.booleanValue() == (_readonly)))) {
-            System.out.println("readonly already: " + _readonly);
             return;
         }
 
