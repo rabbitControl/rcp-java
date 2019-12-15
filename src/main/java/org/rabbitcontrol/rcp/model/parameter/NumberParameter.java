@@ -13,8 +13,7 @@ import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
 import static org.rabbitcontrol.rcp.model.RcpTypes.ParameterOptions.WIDGET;
 
 public abstract class NumberParameter<T extends Number> extends ValueParameter<T> implements
-                                                                         INumberParameter<T>,
-                                                                         INumberDefinition<T>{
+                                                                         INumberParameter<T>{
 
     //------------------------------------------------------------
     //------------------------------------------------------------
