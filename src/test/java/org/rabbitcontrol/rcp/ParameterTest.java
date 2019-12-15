@@ -50,6 +50,45 @@ public class ParameterTest {
     }
 
     @Test
+    public void testparameterUpdate() throws RCPException, IOException {
+
+        final BooleanParameter parameter1 = new BooleanParameter((short)1);
+        final BooleanParameter parameter2 = new BooleanParameter((short)1);
+
+        parameter1.setLanguageLabel("deu", "Test");
+        parameter1.setLanguageDescription("deu", "Beschreibung");
+
+        // flush changed labels
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            parameter1.write(os, false);
+        } finally {
+            os.close();
+        }
+
+        // test that all basic change flags were flushed
+        Assert.assertTrue("change flags not flushed", parameter1.onlyValueChanged());
+
+
+        parameter2.setLanguageLabel("deu", "Ping");
+        parameter2.setLanguageDescription("deu", "Pong");
+
+        // update parameter1 with parameter2
+        parameter1.update(parameter2);
+
+        // test that no change flag was set
+        Assert.assertTrue("no change flag should be set", parameter1.onlyValueChanged());
+
+        // test label and description
+        Assert.assertEquals("german label was not set", parameter2.getLanguageLabel("deu"),
+                            parameter1.getLanguageLabel("deu"));
+
+        Assert.assertEquals("german description was not set", parameter2.getLanguageDescription("deu"),
+                            parameter1.getLanguageDescription("deu"));
+
+    }
+
+    @Test
     public void testBooleanParameter() throws Exception {
 
         final BooleanParameter parameter = new BooleanParameter((short)1);
