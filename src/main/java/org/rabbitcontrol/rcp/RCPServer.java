@@ -199,12 +199,12 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     // int16
     //----------------------------------------------------
     //----------------------------------------------------
-    public Int32Parameter createInt16Parameter(final String _label) throws RCPParameterException {
+    public Int16Parameter createInt16Parameter(final String _label) throws RCPParameterException {
 
         return createInt16Parameter(_label, rootGroup);
     }
 
-    public Int32Parameter createInt16Parameter(
+    public Int16Parameter createInt16Parameter(
             final String _label, final GroupParameter _group) throws RCPParameterException {
 
         final short id = availableId();
@@ -213,7 +213,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             throw new RCPParameterException("could not get valid parameter id");
         }
 
-        final Int32Parameter p = new Int32Parameter(id);
+        final Int16Parameter p = new Int16Parameter(id);
         setupParameter(p, _label, _group);
         return p;
     }
