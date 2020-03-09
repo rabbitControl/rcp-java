@@ -32,7 +32,7 @@ rabbitServer.addTransporter(transporter);
 transporter.bind(10000);
 
 // expose parameter
-Int32Parameter floatParameter = rabbitServer.createInt32Parameter("Int 32");
+Int32Parameter parameter = rabbitServer.createInt32Parameter("Int 32");
 
 // update server (push to clients)
 rabbitServer.update();
