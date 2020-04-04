@@ -8,7 +8,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
@@ -16,7 +15,7 @@ import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 
 import javax.net.ssl.SSLException;
-import java.security.cert.CertificateException;
+import java.io.InputStream;
 
 public final class WebsocketServerTransporterNetty implements ServerTransporter, ChannelManager {
 
@@ -45,6 +44,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
         workerGroup.shutdownGracefully();
     }
 
+    @Override
     public void addChannel(final Channel _channel) {
 
         System.out.println("client connected: " + _channel.remoteAddress());
@@ -52,6 +52,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
         allClients.add(_channel);
     }
 
+    @Override
     public void removeChannel(final Channel _channel) {
 
         System.out.println("client disconnected: " + _channel.remoteAddress());
@@ -60,7 +61,15 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
     }
 
     @Override
-    public void bind(final int port) throws RCPException {
+    public void bind(final int port) throws RCPException
+    {
+        bind(port, null, null);
+    }
+
+
+    public void bind(final int port,
+                     final InputStream keyCertChainInputStream,
+                     final InputStream keyInputStream) throws RCPException {
 
         if (port == serverPort) {
             return;
@@ -71,9 +80,9 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
 
         try {
             // try setup server
-            if (SSL) {
-                final SelfSignedCertificate ssc = new SelfSignedCertificate();
-                sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            if ((keyCertChainInputStream != null) && (keyInputStream != null))
+            {
+                sslCtx = SslContextBuilder.forServer(keyCertChainInputStream, keyInputStream).build();
             }
             else {
                 sslCtx = null;
@@ -87,13 +96,10 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
             ch = bootstrap.bind(port).sync().channel();
             serverPort = port;
         }
-        catch (CertificateException _e) {
+        catch (final InterruptedException _e) {
             throw new RCPException(_e);
         }
-        catch (InterruptedException _e) {
-            throw new RCPException(_e);
-        }
-        catch (SSLException _e) {
+        catch (final SSLException _e) {
             throw new RCPException(_e);
         }
 

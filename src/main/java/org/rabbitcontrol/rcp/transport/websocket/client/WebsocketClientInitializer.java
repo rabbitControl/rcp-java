@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 import org.rabbitcontrol.rcp.transport.netty.*;
 
@@ -19,19 +20,16 @@ import java.util.List;
  */
 public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final SslContext sslCtx;
-
     private final URI uri;
 
     private final WebSocketClientHandler handler;
 
     private final ClientTransporterListener listener;
 
-    public WebsocketClientInitializer(final SslContext _sslCtx, final URI _uri, final
+    public WebsocketClientInitializer(final URI _uri, final
                                       WebSocketClientHandler _handler,
                                       ClientTransporterListener _listener) {
 
-        sslCtx = _sslCtx;
         uri = _uri;
         handler = _handler;
         listener = _listener;
@@ -42,7 +40,8 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
 
         final ChannelPipeline pipeline = ch.pipeline();
 
-        if (sslCtx != null) {
+        if (WebsocketClientTransporter.SSL) {
+            final SslContext sslCtx = SslContextBuilder.forClient().build();
             pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), uri.getPort()));
         }
 
@@ -58,7 +57,7 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
             protected void decode(
                     final ChannelHandlerContext ctx,
                     final WebSocketFrame msg,
-                    final List<Object> out) throws Exception {
+                    final List<Object> out) {
 
                 //out.add(msg.content().retain());
 

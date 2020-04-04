@@ -15,6 +15,9 @@ import java.net.URISyntaxException;
 
 public class WebsocketClientTransporter implements ClientTransporter {
 
+    static boolean SSL;
+
+    //----
     EventLoopGroup group = new NioEventLoopGroup();
 
     private Channel ch;
@@ -38,7 +41,12 @@ public class WebsocketClientTransporter implements ClientTransporter {
 
         final URI uri;
         try {
-            uri = new URI("ws://" + host + ":" + port + "/");
+
+            if (SSL) {
+                uri = new URI("wss://" + host + ":" + port + "/");
+            } else  {
+                uri = new URI("ws://" + host + ":" + port + "/");
+            }
         }
         catch (URISyntaxException _e) {
             System.err.println(_e.getMessage());
@@ -59,7 +67,7 @@ public class WebsocketClientTransporter implements ClientTransporter {
 
         bootstrap.group(group)
                  .channel(NioSocketChannel.class)
-                 .handler(new WebsocketClientInitializer(null, uri, websocketHandler, listener));
+                 .handler(new WebsocketClientInitializer(uri, websocketHandler, listener));
 
         try {
 
