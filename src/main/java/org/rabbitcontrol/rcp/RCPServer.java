@@ -35,8 +35,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     // callback objects
     private Init initListener;
 
-    private String applicationId = "";
-
     //------------------------------------------------------------
     // constructor
     public RCPServer(final ServerTransporter... _transporter) {
@@ -1076,16 +1074,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
 
         super.setParameterDirty(_parameter);
-    }
-
-    public String getApplicationId() {
-
-        return applicationId;
-    }
-
-    public void setApplicationId(final String _applicationId) {
-
-        applicationId = _applicationId;
     }
 
 }

@@ -33,6 +33,8 @@ public abstract class RCPBase implements IParameterManager {
 
     protected final GroupParameter rootGroup = new GroupParameter((short)0);
 
+    protected String applicationId = "";
+
     //------------------------------------------------------------
     //
     public Map<Short, IParameter> getValueCache() {
@@ -128,6 +130,16 @@ public abstract class RCPBase implements IParameterManager {
         if (!dirtyParams.contains(_parameter)) {
             dirtyParams.add(_parameter);
         }
+    }
+
+    public String getApplicationId() {
+
+        return applicationId;
+    }
+
+    public void setApplicationId(final String _applicationId) {
+
+        applicationId = _applicationId;
     }
 
 }
