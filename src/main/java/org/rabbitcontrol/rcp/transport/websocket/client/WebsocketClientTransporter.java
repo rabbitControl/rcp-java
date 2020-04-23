@@ -28,8 +28,6 @@ public class WebsocketClientTransporter implements ClientTransporter {
 
     private WebSocketClientHandler websocketHandler;
 
-    //    TOUISerializerFactory serializerFactory = new TOUISerializerFactory();
-
     public WebsocketClientTransporter() {
 
         bootstrap = new Bootstrap();
@@ -62,7 +60,8 @@ public class WebsocketClientTransporter implements ClientTransporter {
                                                                                                      WebSocketVersion.V13,
                                                                                                      null,
                                                                                                      true,
-                                                                                                     new DefaultHttpHeaders()));
+                                                                                                     new DefaultHttpHeaders()),
+                                                      listener);
 
 
         bootstrap.group(group)
@@ -73,6 +72,11 @@ public class WebsocketClientTransporter implements ClientTransporter {
 
             ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
             websocketHandler.handshakeFuture().sync();
+
+            if (listener != null)
+            {
+                listener.connected();
+            }
         }
         catch (final Exception _e) {
             System.err.println(_e.getMessage());

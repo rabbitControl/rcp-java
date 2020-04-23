@@ -45,14 +45,19 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
+import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
+    final ClientTransporterListener listener;
+
+    public WebSocketClientHandler(final WebSocketClientHandshaker handshaker,
+                                  final ClientTransporterListener _listener) {
         this.handshaker = handshaker;
+        listener = _listener;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -70,9 +75,24 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        System.out.println("WebSocket Client disconnected!");
+    public void channelWritabilityChanged(final ChannelHandlerContext ctx) throws Exception {
+
+        System.out.println("channel writable changed: " + ctx.channel().isWritable());
+
+        super.channelWritabilityChanged(ctx);
     }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+
+        super.channelInactive(ctx);
+
+        if (listener != null)
+        {
+            listener.disconnected();
+        }
+    }
+
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {

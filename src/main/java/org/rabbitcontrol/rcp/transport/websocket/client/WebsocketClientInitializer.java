@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp.transport.websocket.client;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -10,7 +11,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
-import org.rabbitcontrol.rcp.transport.netty.*;
+import org.rabbitcontrol.rcp.transport.netty.BinaryWebSocketFrameEncoder;
 
 import java.net.URI;
 import java.util.List;
@@ -40,6 +41,7 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
 
         final ChannelPipeline pipeline = ch.pipeline();
 
+        // in
         if (WebsocketClientTransporter.SSL) {
             final SslContext sslCtx = SslContextBuilder.forClient().build();
             pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), uri.getPort()));
@@ -71,15 +73,8 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
             }
         });
 
-//        pipeline.addLast(new RCPPacketDecoder());
-//        pipeline.addLast(new RCPPacketHandler(listener));
-
-
-
+        // out
         pipeline.addLast(new BinaryWebSocketFrameEncoder());
-        pipeline.addLast(new StringTextWebSocketFrameEncoder());
-        pipeline.addLast(new ByteArrayTextWebSocketFrameEncoder());
-        pipeline.addLast(new RCPPacketEncoder());
-
+        pipeline.addLast(new ByteArrayEncoder());
     }
 }
