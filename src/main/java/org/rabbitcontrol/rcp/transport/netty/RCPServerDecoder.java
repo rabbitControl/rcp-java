@@ -27,9 +27,6 @@ public class RCPServerDecoder extends MessageToMessageDecoder<ByteBuf> {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
 
-
-        System.out.println("tcp server channelActive...");
-
         if (channelManager != null) {
             channelManager.addChannel(ctx.channel());
         }
@@ -39,8 +36,6 @@ public class RCPServerDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-
-        System.out.println("tcp server channelInactive...");
 
         if (channelManager != null) {
             channelManager.removeChannel(ctx.channel());
