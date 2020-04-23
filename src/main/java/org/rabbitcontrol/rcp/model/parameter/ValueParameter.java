@@ -146,16 +146,16 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
         try {
             setValue((T)_value);
+            return valueChanged;
         }
         catch (final ClassCastException _e) {
 
             if ((getTypeDefinition() instanceof NumberDefinition) &&
                 (_value instanceof Number)) {
 
-                value = (T)((NumberDefinition)getTypeDefinition()).convertNumberValue
-                        ((Number)_value);
-
-                return true;
+                setValue((T)((NumberDefinition)getTypeDefinition()).convertNumberValue
+                        ((Number)_value));
+                return valueChanged;
             }
             else if (value instanceof Map) {
 
