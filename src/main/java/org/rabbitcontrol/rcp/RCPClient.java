@@ -2,6 +2,8 @@ package org.rabbitcontrol.rcp;
 
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
+import org.rabbitcontrol.rcp.model.Parameter.PARAMETER_UPDATED;
+import org.rabbitcontrol.rcp.model.Parameter.PARAMETER_VALUE_UPDATED;
 import org.rabbitcontrol.rcp.model.RCPCommands.*;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.exceptions.*;
@@ -180,6 +182,7 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
     public void received(final byte[] _data) {
 
         try {
+
             final Packet packet = Packet.parse(new ByteBufferKaitaiStream(_data), this);
 
             switch (packet.getCmd()) {
@@ -215,18 +218,62 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
         catch (final RCPDataErrorException _e) {
             // nop
         }
+        catch (final RCPException _e) {
+            _e.printStackTrace();
+        }
 
     }
 
-    private void _info(final Packet _packet) {
+    private boolean checkVersion(final String version) {
+
+        if ((version == null) || version.isEmpty()) return false;
+
+        final String[] parts = version.split("\\.");
+
+        if (parts.length == 3) {
+
+            final int major = Integer.parseInt(parts[0]);
+            final int minor = Integer.parseInt(parts[1]);
+            final int patch = Integer.parseInt(parts[2]);
+
+            // TODO: do a real check here
+            if ((major >= 0) && (minor >= 0) && (patch >= 0)) {
+                return true;
+            }
+        }
+
+        System.out.println("version missmatch!");
+
+        return false;
+    }
+
+
+    private void _info(final Packet _packet) throws RCPException {
 
         final InfoData version_data = _packet.getDataAsInfoData();
 
         if (version_data != null) {
             System.out.println("server version: " + version_data.getVersion());
-            if (!version_data.getApplicationId().isEmpty()) {
-                System.out.println("server: " + version_data.getApplicationId());
+            System.out.println("server: " + version_data.getApplicationId());
+
+            // check version
+            if (checkVersion(version_data.getVersion()))
+            {
+                // ok
+                initialize();
             }
+
+        } else {
+            // send back information
+
+            final Packet version_packet = new Packet(Command.INFO);
+            version_packet.setData(new InfoData(RCP.getRcpVersion(),
+                                                 applicationId +
+                                                " (" +
+                                                RCP.getLibraryVersion() +
+                                                ")"));
+
+            transporter.send(Packet.serialize(version_packet, false));
         }
     }
 
@@ -253,28 +300,51 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
             if (addListener != null) {
                 addListener.parameterAdded(parameter);
             }
+
+            parameter.addValueUpdateListener(new PARAMETER_VALUE_UPDATED() {
+
+                @Override
+                public void valueUpdated(final IParameter _parameter) {
+                    if (valueUpdateListener != null)
+                    {
+                        valueUpdateListener.parameterValueUpdated(parameter);
+                    }
+                }
+            });
+
+            parameter.addUpdateListener(new PARAMETER_UPDATED() {
+
+                @Override
+                public void updated(final IParameter _parameter) {
+                    // inform listener
+                    if (updateListener != null) {
+                        updateListener.parameterUpdated(parameter);
+                    }
+                }
+            });
         }
         else {
+
+            // update chached parameter
 
             try {
                 ((Parameter)cached_parameter).update(parameter);
             }
-            catch (RCPException _e) {
+            catch (final RCPException _e) {
                 System.err.println(String.format("could not update parameter(%d): %s",
                                                  parameter.getId(),
                                                  _e.getMessage()));
-            }
-
-            // inform listener
-            if (updateListener != null) {
-                updateListener.parameterUpdated(cached_parameter);
             }
         }
     }
 
     private void removeParameter(final IParameter _parameter) {
 
-        valueCache.remove(_parameter);
+        _parameter.setManager(null);
+        _parameter.clearUpdateListener();
+        _parameter.clearValueUpdateListener();
+
+        valueCache.remove(_parameter.getId());
 
         // inform listener
         if (removeListener != null) {
@@ -286,10 +356,6 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 removeParameter(child);
             }
         }
-
-        _parameter.setManager(null);
-        _parameter.clearUpdateListener();
-        _parameter.clearValueUpdateListener();
 
         // remove from parent
         _parameter.setParent(null);
@@ -318,10 +384,19 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
     @Override
     public void connected() {
 
+        // request version from server
+        try {
+            transporter.send(Packet.serialize(new Packet(Command.INFO), false));
+        }
+        catch (final RCPException _e) {
+            _e.printStackTrace();
+        }
     }
 
     @Override
     public void disconnected() {
+
+        // TODO: remove all parameter
 
     }
 }
