@@ -64,19 +64,17 @@ public class ImageDefinition extends DefaultDefinition<RenderedImage> {
     private void writeImageData(final RenderedImage _value, final OutputStream _outputStream) throws
                                                                                                IOException {
 
-        final byte[] imageInByte;
-
         // convert BufferedImage to byte array
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(_value, imageType.toString(), baos);
 
         baos.flush();
-        imageInByte = baos.toByteArray();
+        final byte[] image_bytes = baos.toByteArray();
         baos.close();
 
 
-        _outputStream.write(ByteBuffer.allocate(4).putInt(imageInByte.length).array());
-        _outputStream.write(imageInByte);
+        _outputStream.write(ByteBuffer.allocate(4).putInt(image_bytes.length).array());
+        _outputStream.write(image_bytes);
     }
 
     @Override
