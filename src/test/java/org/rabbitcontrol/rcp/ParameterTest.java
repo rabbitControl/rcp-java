@@ -17,6 +17,8 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static org.rabbitcontrol.rcp.RCP.bytesToHex;
+
 public class ParameterTest {
 
     @Test
@@ -336,12 +338,4 @@ public class ParameterTest {
         }
     }
 
-    public static String bytesToHex(final byte[] in) {
-
-        final StringBuilder builder = new StringBuilder();
-        for (final byte b : in) {
-            builder.append(String.format("0x%02x ", b));
-        }
-        return builder.toString();
-    }
 }

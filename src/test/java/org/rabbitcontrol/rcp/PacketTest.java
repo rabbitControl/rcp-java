@@ -12,7 +12,7 @@ import org.rabbitcontrol.rcp.model.parameter.StringParameter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static org.rabbitcontrol.rcp.ParameterTest.bytesToHex;
+import static org.rabbitcontrol.rcp.RCP.bytesToHex;
 
 public class PacketTest {
 

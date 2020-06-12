@@ -7,6 +7,8 @@ import java.util.jar.Manifest;
 
 public class RCP {
 
+    public static boolean doDebgLogging = false;
+
     private static String RCP_JAVA_LIB_VERSION = "0.0.0";
 
     private static final String RCP_PROTOCOL_VERSION = "0.1.0";
@@ -47,5 +49,14 @@ public class RCP {
     public static String getRcpVersion() {
 
         return RCP_PROTOCOL_VERSION;
+    }
+
+    public static String bytesToHex(final byte[] in) {
+
+        final StringBuilder builder = new StringBuilder();
+        for (final byte b : in) {
+            builder.append(String.format("0x%02x ", b));
+        }
+        return builder.toString();
     }
 }
