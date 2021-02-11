@@ -37,16 +37,14 @@
 
 package org.rabbitcontrol.rcp.transport.websocket.client;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
+@Sharable
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
     private final WebSocketClientHandshaker handshaker;
@@ -65,26 +63,19 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) {
+    public void handlerAdded(final ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
+    public void channelActive(final ChannelHandlerContext ctx)
+    {
         handshaker.handshake(ctx.channel());
     }
 
     @Override
-    public void channelWritabilityChanged(final ChannelHandlerContext ctx) throws Exception {
-
-        System.out.println("channel writable changed: " + ctx.channel().isWritable());
-
-        super.channelWritabilityChanged(ctx);
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-
+    public void channelInactive(final ChannelHandlerContext ctx) throws Exception
+    {
         super.channelInactive(ctx);
 
         if (listener != null)
@@ -93,40 +84,68 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         }
     }
 
+    @Override
+    public void channelWritabilityChanged(final ChannelHandlerContext ctx) throws Exception
+    {
+//        System.out.println("channel writable changed: " + ctx.channel().isWritable());
+
+        super.channelWritabilityChanged(ctx);
+    }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Channel ch = ctx.channel();
-        if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(ch, (FullHttpResponse) msg);
-            handshakeFuture.setSuccess();
+    public void channelRead0(final ChannelHandlerContext ctx, final Object msg) throws Exception
+    {
+        if (!handshaker.isHandshakeComplete() && (msg instanceof FullHttpResponse))
+        {
+            try
+            {
+                handshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
+                handshakeFuture.setSuccess();
+            }
+            catch (final WebSocketHandshakeException e)
+            {
+                handshakeFuture.setFailure(e);
+            }
             return;
         }
 
         if (msg instanceof FullHttpResponse) {
-            FullHttpResponse response = (FullHttpResponse) msg;
+            final FullHttpResponse response = (FullHttpResponse) msg;
             throw new IllegalStateException(
                     "Unexpected FullHttpResponse (getStatus=" + response.status() +
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
-
-        WebSocketFrame frame = (WebSocketFrame) msg;
-        if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            System.out.println("WebSocket Client received text message: " + textFrame.text());
-        } else if (frame instanceof BinaryWebSocketFrame) {
-            ctx.fireChannelRead(frame.retain());
-        } else if (frame instanceof PongWebSocketFrame) {
-        } else if (frame instanceof CloseWebSocketFrame) {
-            ch.close();
+        if (msg instanceof WebSocketFrame)
+        {
+            final WebSocketFrame frame = (WebSocketFrame) msg;
+            if (frame instanceof TextWebSocketFrame)
+            {
+                final TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+                System.out.println("WebSocket Client received text message: " + textFrame.text());
+            }
+            else if (frame instanceof BinaryWebSocketFrame)
+            {
+                ctx.fireChannelRead(frame.retain());
+            }
+            else if (frame instanceof PongWebSocketFrame)
+            {
+                // nop
+            }
+            else if (frame instanceof PingWebSocketFrame)
+            {
+                // answer with pong
+                ctx.channel().writeAndFlush(new PongWebSocketFrame());
+            }
+            else if (frame instanceof CloseWebSocketFrame) {
+                ctx.close();
+            }
         }
+        //
     }
 
-
-
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }

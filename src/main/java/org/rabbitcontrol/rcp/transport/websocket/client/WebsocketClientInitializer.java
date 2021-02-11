@@ -23,12 +23,12 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
 
     private final URI uri;
 
-    private final WebSocketClientHandler handler;
+    private ChannelHandler handler;
 
     private final ClientTransporterListener listener;
 
     public WebsocketClientInitializer(final URI _uri, final
-                                      WebSocketClientHandler _handler,
+                                      ChannelHandler _handler,
                                       ClientTransporterListener _listener) {
 
         uri = _uri;
@@ -36,13 +36,19 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
         listener = _listener;
     }
 
-    @Override
-    protected void initChannel(final SocketChannel ch) throws Exception {
+    public void setHandler(ChannelHandler _handler)
+    {
+        handler = _handler;
+    }
 
+    @Override
+    protected void initChannel(final SocketChannel ch) throws Exception
+    {
         final ChannelPipeline pipeline = ch.pipeline();
 
         // in
-        if (WebsocketClientTransporter.SSL) {
+        if (uri.getScheme().startsWith("wss"))
+        {
             final SslContext sslCtx = SslContextBuilder.forClient().build();
             pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), uri.getPort()));
         }
@@ -59,12 +65,10 @@ public class WebsocketClientInitializer extends ChannelInitializer<SocketChannel
             protected void decode(
                     final ChannelHandlerContext ctx,
                     final WebSocketFrame msg,
-                    final List<Object> out) {
-
-                //out.add(msg.content().retain());
-
-                if (listener != null) {
-
+                    final List<Object> out)
+            {
+                if (listener != null)
+                {
                     byte[] array = new byte[msg.content().readableBytes()];
                     msg.content().getBytes(0, array);
 
