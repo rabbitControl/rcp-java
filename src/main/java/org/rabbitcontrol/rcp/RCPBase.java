@@ -142,4 +142,10 @@ public abstract class RCPBase implements IParameterManager {
         applicationId = _applicationId;
     }
 
+    @Override
+    public GroupParameter getRootGroup()
+    {
+        return rootGroup;
+    }
+
 }

@@ -29,6 +29,12 @@ public class GroupTest {
 
             System.out.println("dirty param: " + _parameter.getId());
         }
+
+        @Override
+        public GroupParameter getRootGroup() {
+
+            return null;
+        }
     };
 
     @Test
