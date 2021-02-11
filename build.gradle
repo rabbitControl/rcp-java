@@ -24,8 +24,8 @@ archivesBaseName = "rcp"
 
 dependencies {
 
-    compile ('io.kaitai:kaitai-struct-runtime:0.8')
-    compile ('io.netty:netty-all:4.1.41.Final')
+    compile ('io.kaitai:kaitai-struct-runtime:0.9')
+    compile ('io.netty:netty-all:4.1.59.Final')
 
     testCompile "junit:junit:4.12"
 }
