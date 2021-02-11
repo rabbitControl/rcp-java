@@ -3,10 +3,13 @@ package org.rabbitcontrol.rcp.transport.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import org.rabbitcontrol.rcp.RCP;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 
 import java.util.List;
+
+import static org.rabbitcontrol.rcp.RCP.bytesToHex;
 
 public class RCPServerDecoder extends MessageToMessageDecoder<ByteBuf> {
 
@@ -54,7 +57,20 @@ public class RCPServerDecoder extends MessageToMessageDecoder<ByteBuf> {
             byte[] array = new byte[msg.readableBytes()];
             msg.getBytes(0, array);
 
+            if (RCP.doDebugLogging)
+            {
+                System.out.println("RCPServerDecoder: data: " + bytesToHex(array));
+            }
+
             listener.received(array, transporter, ctx.channel());
         }
+        else
+        {
+            if (RCP.doDebugLogging)
+            {
+                System.out.println("RCPServerDecoder: no listener");
+            }
+        }
     }
+
 }
