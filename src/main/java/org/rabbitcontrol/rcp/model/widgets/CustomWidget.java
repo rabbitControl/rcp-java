@@ -21,8 +21,12 @@ public class CustomWidget extends WidgetImpl{
     //
 
     public CustomWidget() {
-
         super(Widgettype.CUSTOM);
+    }
+
+    public CustomWidget(UUID _uuid) {
+        super(Widgettype.CUSTOM);
+        uuid = _uuid;
     }
 
     @Override
@@ -144,7 +148,7 @@ public class CustomWidget extends WidgetImpl{
 
         super.dump();
 
-        System.out.println("uuid: " + uuid);
-        System.out.println("config: " + new String(config));
+        System.out.println("uuid: " + (uuid != null ? uuid : ""));
+        System.out.println("config: " + (config != null ? new String(config) : ""));
     }
 }
