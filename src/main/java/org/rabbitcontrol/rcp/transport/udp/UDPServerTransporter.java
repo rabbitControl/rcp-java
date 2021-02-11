@@ -1,11 +1,9 @@
 package org.rabbitcontrol.rcp.transport.udp;
 
-import io.kaitai.struct.ByteBufferKaitaiStream;
-import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.exceptions.RCPDataErrorException;
-import org.rabbitcontrol.rcp.model.exceptions.RCPUnsupportedFeatureException;
-import org.rabbitcontrol.rcp.transport.RCPTransporter;
-import org.rabbitcontrol.rcp.transport.RCPTransporterListener;
+import org.rabbitcontrol.rcp.model.exceptions.RCPException;
+import org.rabbitcontrol.rcp.transport.ServerTransporter;
+import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
 
 import java.io.IOException;
 import java.net.*;
@@ -14,7 +12,7 @@ import java.util.*;
 /**
  * Created by inx on 30/11/16.
  */
-public class UDPServerTransporter extends Thread implements RCPTransporter {
+public class UDPServerTransporter extends Thread implements ServerTransporter {
 
     private class UDPClient {
 
@@ -33,11 +31,11 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
     //
     private int port;
 
-    private final DatagramSocket socket;
+    private DatagramSocket socket;
 
     private volatile boolean doit = true;
 
-    private RCPTransporterListener listener;
+    private ServerTransporterListener listener;
 
     private final Collection<InetAddress> clients = new ArrayList<InetAddress>();
 
@@ -45,25 +43,14 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
     //------------------------------------------------------------
     //
-    public UDPServerTransporter(final int _port) throws SocketException {
-
-        port = _port;
-
-        if (port < 0) {
-            throw new RuntimeException("no port < 0");
-        }
-
-        socket = new DatagramSocket(port);
-
-        start();
-    }
 
     @Override
     public void run() {
 
         final byte[] receiveData = new byte[1024];
 
-        while (doit) {
+        while (doit && !interrupted())
+        {
             final DatagramPacket receivePacket = new DatagramPacket(receiveData,
                                                                     receiveData.length);
 
@@ -79,8 +66,10 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
                 byte[] data = Arrays.copyOf(receivePacket.getData(), receivePacket.getLength());
 
                 // parse that
-                final Packet packet = Packet.parse(new ByteBufferKaitaiStream(data));
-                received(packet, this);
+                if ((data != null) && (listener != null))
+                {
+                    listener.received(data, this, receivePacket.getAddress());
+                }
             }
             catch (final IOException _e) {
                 // nop
@@ -88,7 +77,7 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
             catch (RCPDataErrorException _e) {
                 // nop
             }
-            catch (RCPUnsupportedFeatureException _e) {
+            catch (RCPException _e) {
                 // nop
             }
         }
@@ -98,7 +87,6 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
     }
 
 
-    @Override
     public void send(final byte[] _data) throws IOException {
 
         //final byte[] data = Packet.serialize(_packet, false);
@@ -115,25 +103,74 @@ public class UDPServerTransporter extends Thread implements RCPTransporter {
 
             socket.send(sendPacket);
         }
-
-    }
-
-    @Override
-    public void setListener(final RCPTransporterListener _listener) {
-
-        listener = _listener;
-    }
-
-    @Override
-    public void received(final Packet _packet, final RCPTransporter _transporter) {
-        if (listener != null) {
-            listener.received(_packet, this);
-        }
     }
 
     public void setTargetPort(final int _targetPort) {
 
         targetPort = _targetPort;
+    }
+
+
+    @Override
+    public void bind(final int port) throws RCPException
+    {
+        this.port = port;
+
+        if (this.port < 0) {
+            throw new RuntimeException("no port < 0");
+        }
+
+        try {
+            socket = new DatagramSocket(null);
+            socket.setReuseAddress(true);
+            socket.bind(new InetSocketAddress(port));
+            start();
+        }
+        catch (SocketException _e) {
+            throw new RCPException(_e);
+        }
+
+    }
+
+    @Override
+    public void unbind() {
+
+        if (socket != null)
+        {
+            doit = false;
+            interrupt();
+
+            // should we wait?
+        }
+
+    }
+
+    @Override
+    public void sendToOne(final byte[] _data, final Object _id) {
+
+    }
+
+    @Override
+    public void sendToAll(final byte[] _data, final Object _excludeId) {
+
+    }
+
+    @Override
+    public int getConnectionCount() {
+
+        return 0;
+    }
+
+    @Override
+    public void addListener(final ServerTransporterListener _listener) {
+        listener = _listener;
+    }
+
+    @Override
+    public void removeListener(final ServerTransporterListener _listener) {
+        if ((listener != null) && listener.equals(_listener)) {
+            listener = null;
+        }
     }
 
 }
