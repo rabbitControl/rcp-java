@@ -35,6 +35,8 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
 
     private final int port;
 
+    private int connectInterval = 2;
+
     public RabbitHoleWsServerTransporterNetty(final URI uri)
     {
         this.uri = uri;
@@ -70,15 +72,27 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
         connectDelayed();
     }
 
+    public void setConnectInterval(final int _interval)
+    {
+        connectInterval = _interval;
+        if (connectInterval <= 0)
+        {
+            connectInterval = 1;
+        }
+    }
+
     private void connectDelayed()
     {
-        executor.schedule(new Runnable()
+        if (executor.getActiveCount() == 0)
         {
-            @Override
-            public void run() {
-                connect();
-            }
-        }, 2, TimeUnit.SECONDS);
+            executor.schedule(new Runnable()
+            {
+                @Override
+                public void run() {
+                    connect();
+                }
+            }, connectInterval, TimeUnit.SECONDS);
+        }
     }
 
     private void connect()
@@ -102,6 +116,8 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
                 {
                     if (!future.channel().isOpen())
                     {
+                        // not connected - no connection to host
+                        // just try again
                         unbind();
                         connectDelayed();
                     }
@@ -117,7 +133,6 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
         catch (final WebSocketHandshakeException _e)
         {
             unbind();
-            connectDelayed();
         }
     }
 
