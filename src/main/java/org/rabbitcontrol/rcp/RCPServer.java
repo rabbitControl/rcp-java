@@ -30,7 +30,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     private Set<Short> ids = new HashSet<Short>();
 
-    private final List<IParameter> parameterToRemove = new ArrayList<IParameter>();
+    private final List<IParameter> parameterToRemove = Collections.synchronizedList(new ArrayList<IParameter>());
 
     // callback objects
     private Init initListener;
@@ -713,10 +713,10 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     public void addParameter(
-            final GroupParameter _group, final IParameter _parameter) {
-
-        if (_group != null) {
-
+            final GroupParameter _group, final IParameter _parameter)
+    {
+        if (_group != null)
+        {
             // this add parameter to dirtyParams
             _group.addChild(_parameter);
 
@@ -724,20 +724,24 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
             // this can happen if parameter was added earlier before
             // ParameterGroup _group was added and then got added to _group
-            if (dirtyParams.contains(_parameter)) {
-                dirtyParams.remove(_parameter);
-                dirtyParams.add(_parameter);
+            synchronized (dirtyParams)
+            {
+                if (dirtyParams.contains(_parameter)) {
+                    dirtyParams.remove(_parameter);
+                    dirtyParams.add(_parameter);
+                }
             }
         }
-        else {
+        else
+        {
             // add to root group
-
             // this adds _parameter to dirtyParams
             rootGroup.addChild(_parameter);
         }
 
         // add everything to flat-map
         _addParameterFlat(_parameter);
+
     }
 
     private void _addParameterFlat(final IParameter _parameter) {
@@ -827,29 +831,35 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public void update() throws RCPException {
 
         // update dirty params
-        for (final IParameter parameter : dirtyParams) {
-            // send to all
-            // INFO: don't call update(_parameter!!) -> co-modification of list
-            update(parameter, null);
+        synchronized (dirtyParams)
+        {
+            for (final IParameter parameter : dirtyParams) {
+                // send to all
+                // INFO: don't call update(_parameter!!) -> co-modification of list
+                update(parameter, null);
+            }
+            dirtyParams.clear();
         }
-        dirtyParams.clear();
 
         // remove
-        for (final IParameter parameter : parameterToRemove) {
+        synchronized (parameterToRemove)
+        {
+            for (final IParameter parameter : parameterToRemove) {
 
-            // free id
-            ids.remove(parameter.getId());
+                // free id
+                ids.remove(parameter.getId());
 
-            if (!transporterList.isEmpty()) {
-                final byte[] data =
-                        new Packet(Command.REMOVE, new IdData(parameter.getId())).serialize(false);
+                if (!transporterList.isEmpty()) {
+                    final byte[] data =
+                            new Packet(Command.REMOVE, new IdData(parameter.getId())).serialize(false);
 
-                for (final ServerTransporter transporter : transporterList) {
-                    transporter.sendToAll(data, null);
+                    for (final ServerTransporter transporter : transporterList) {
+                        transporter.sendToAll(data, null);
+                    }
                 }
             }
+            parameterToRemove.clear();
         }
-        parameterToRemove.clear();
     }
 
     private void update(final IParameter _parameter, final Object _id) throws
@@ -892,14 +902,17 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             // removed
             valueCache.remove(_parameter.getId());
         }
-        else {
+        else if (RCP.doDebugLogging) {
             System.out.println("value not in cache - ignore");
         }
 
         ((Parameter)_parameter).setParent(null);
 
-        if (dirtyParams.contains(_parameter)) {
-            dirtyParams.remove(_parameter);
+        synchronized (dirtyParams)
+        {
+            if (dirtyParams.contains(_parameter)) {
+                dirtyParams.remove(_parameter);
+            }
         }
 
         parameterToRemove.add(_parameter);
@@ -941,7 +954,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             case UPDATE:
             case UPDATEVALUE:
             {
-                    if (_update(packet, _transporter, _id)) {
+                if (_update(packet, _transporter, _id))
+                {
                     // update all clients, bypass deserialize and serialize...
                     for (final ServerTransporter transporter : transporterList) {
                         transporter.sendToAll(_data, _id);
@@ -1001,9 +1015,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
                 break;
 
             case INVALID:
-                System.err.println("invalid command");
-
-
+                if (RCP.doDebugLogging) System.err.println("invalid command");
 
         }
     }
@@ -1054,13 +1066,18 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         }
     }
 
-    private void _init(final ServerTransporter _transporter, final Object _id) throws RCPException {
-
-        for (final IParameter parameter : rootGroup.getChildren()) {
-            _sendParameterFull(parameter, _transporter, _id);
+    private void _init(final ServerTransporter _transporter, final Object _id) throws RCPException
+    {
+        synchronized (rootGroup)
+        {
+            for (final IParameter parameter : rootGroup.getChildren())
+            {
+                _sendParameterFull(parameter, _transporter, _id);
+            }
         }
 
-        if (initListener != null) {
+        if (initListener != null)
+        {
             initListener.init();
         }
     }

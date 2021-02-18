@@ -38,36 +38,49 @@ public class GroupParameter extends Parameter {
         return children;
     }
 
-    public void addChildren(final IParameter ... _parameters) {
 
-        for (final IParameter _parameter : _parameters) {
-            addChild(_parameter);
+    public void addChildren(final IParameter ... _parameters)
+    {
+        synchronized (this)
+        {
+            for (final IParameter _parameter : _parameters) {
+                addChild(_parameter);
+            }
         }
     }
 
-    public void addChild(final IParameter _parameter) {
-
-        if (!children.contains(_parameter)) {
-            children.add(_parameter);
-            _parameter.setParent(this);
+    public void addChild(final IParameter _parameter)
+    {
+        synchronized (this)
+        {
+            if (!children.contains(_parameter)) {
+                children.add(_parameter);
+                _parameter.setParent(this);
+            }
         }
     }
 
-    public void removeChild(final IParameter _parameter) {
-
-        if (children.contains(_parameter)) {
-            children.remove(_parameter);
-            _parameter.setParent(null);
+    public void removeChild(final IParameter _parameter)
+    {
+        synchronized (this)
+        {
+            if (children.contains(_parameter)) {
+                children.remove(_parameter);
+                _parameter.setParent(null);
+            }
         }
     }
 
-    public void removeAllChildren() {
+    public void removeAllChildren()
+    {
+        synchronized (this)
+        {
+            final List<IParameter> ch = children;
+            children.clear();
 
-        final List<IParameter> ch = children;
-        children.clear();
-
-        for (final IParameter child : ch) {
-            child.setParent(null);
+            for (final IParameter child : ch) {
+                child.setParent(null);
+            }
         }
     }
 

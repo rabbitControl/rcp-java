@@ -104,31 +104,35 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
     public void update() {
 
         if (transporter == null) {
-            System.err.println("no transporter");
+            if (RCP.doDebugLogging) System.err.println("no transporter");
+            return;
         }
 
         // update all dirty params
-        for (final IParameter parameter : dirtyParams) {
-            try {
+        synchronized (dirtyParams)
+        {
+            for (final IParameter parameter : dirtyParams) {
+                try {
 
-                final Command cmd;
-                if (parameter.onlyValueChanged())
-                {
-                    cmd = Command.UPDATEVALUE;
-                }
-                else
-                {
-                    cmd = Command.UPDATE;
-                }
+                    final Command cmd;
+                    if (parameter.onlyValueChanged())
+                    {
+                        cmd = Command.UPDATEVALUE;
+                    }
+                    else
+                    {
+                        cmd = Command.UPDATE;
+                    }
 
-                transporter.send(Packet.serialize(new Packet(cmd, parameter), false));
+                    transporter.send(Packet.serialize(new Packet(cmd, parameter), false));
+                }
+                catch (final RCPException _e) {
+                    System.err.println("could not update parameter: " + parameter.getId());
+                }
             }
-            catch (final RCPException _e) {
-                System.err.println("could not update parameter: " + parameter.getId());
-            }
+            dirtyParams.clear();
         }
 
-        dirtyParams.clear();
     }
 
     /**
@@ -242,7 +246,7 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
             }
         }
 
-        System.out.println("version missmatch!");
+        if (RCP.doDebugLogging) System.out.println("version missmatch");
 
         return false;
     }

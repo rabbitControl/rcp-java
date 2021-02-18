@@ -159,7 +159,8 @@ public abstract class Parameter implements IParameter {
 
     protected boolean initialWrite = true; // one-time-flag
 
-    Map<ParameterOptions, Boolean> dirtyOptionsMap = new HashMap<ParameterOptions, Boolean>();
+    private Map<ParameterOptions, Boolean> dirtyOptionsMap = new HashMap<ParameterOptions,
+            Boolean>();
 
     //------------------------
     // change listener
@@ -433,6 +434,7 @@ public abstract class Parameter implements IParameter {
         if ((label != null) || !languageLabels.isEmpty()) {
 
             if (_all || labelChanged || initialWrite) {
+
 
                 writeLabel(_outputStream);
 
@@ -987,31 +989,41 @@ public abstract class Parameter implements IParameter {
     }
 
     @Override
-    public GroupParameter getParent() {
-
+    public GroupParameter getParent()
+    {
         return parent;
     }
 
     @Override
-    public void setParent(final GroupParameter _parent) {
-
-        if ((parent == _parent) || ((parent != null) && parent.equals(_parent))) {
+    public void setParent(final GroupParameter _parent)
+    {
+        if ((parent == _parent) || ((parent != null) && parent.equals(_parent)))
+        {
             return;
         }
 
-        if (parent != null) {
-            parent.removeChild(this);
+        synchronized (this)
+        {
+            if (parent != null)
+            {
+                parent.removeChild(this);
+            }
+
+            parent = _parent;
+            parentChanged = true;
+            dirtyOptionsMap.put(ParameterOptions.PARENTID, true);
+
+            if (parent != null)
+            {
+                parent.addChild(this);
+            }
+            else
+            {
+                parameterManager.getRootGroup().addChild(this);
+            }
+
+            setDirty();
         }
-
-        parent = _parent;
-        parentChanged = true;
-        dirtyOptionsMap.put(ParameterOptions.PARENTID, true);
-
-        if (parent != null) {
-            parent.addChild(this);
-        }
-
-        setDirty();
     }
 
     /**
