@@ -22,7 +22,8 @@ public abstract class RCPBase implements IParameterManager {
             valueCache
             = new ConcurrentHashMap<Short, IParameter>();
 
-    protected final List<IParameter> dirtyParams = new ArrayList<IParameter>();
+    protected final List<IParameter> dirtyParams =
+            Collections.synchronizedList(new ArrayList<IParameter>());
 
     // callback objects
     protected Update updateListener;
@@ -127,8 +128,11 @@ public abstract class RCPBase implements IParameterManager {
             return;
         }
 
-        if (!dirtyParams.contains(_parameter)) {
-            dirtyParams.add(_parameter);
+        synchronized (dirtyParams)
+        {
+            if (!dirtyParams.contains(_parameter)) {
+                dirtyParams.add(_parameter);
+            }
         }
     }
 
