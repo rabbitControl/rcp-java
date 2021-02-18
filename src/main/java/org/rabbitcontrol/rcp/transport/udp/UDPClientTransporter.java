@@ -77,7 +77,6 @@ public class UDPClientTransporter extends Thread implements RCPTransporter {
         }
 
         clientSocket.close();
-        System.out.println("finishing Client Transporter");
     }
 
 

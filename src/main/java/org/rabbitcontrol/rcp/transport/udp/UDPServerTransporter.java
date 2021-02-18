@@ -83,19 +83,13 @@ public class UDPServerTransporter extends Thread implements ServerTransporter {
         }
 
         socket.close();
-        System.out.println("finishing Client Transporter");
     }
 
 
     public void send(final byte[] _data) throws IOException {
 
-        //final byte[] data = Packet.serialize(_packet, false);
-
-        for (final InetAddress _inetAddress : clients) {
-            //                System.out.println("ip: " + _inetAddress.getHostAddress() + ":" + targetPort + " :: " +
-            //                                   "" + new String
-            //                                           (data));
-
+        for (final InetAddress _inetAddress : clients)
+        {
             final DatagramPacket sendPacket = new DatagramPacket(_data,
                                                                  _data.length,
                                                                  _inetAddress,

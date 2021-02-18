@@ -55,10 +55,6 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
             port = uri.getPort();
         }
 
-        System.out.println("----- RabbitHoleWsServerTransporterNetty");
-        System.out.println("uri: " + uri);
-        System.out.println("port: " + port);
-
         bootstrap = new Bootstrap();
         initializer = new WebsocketClientInitializer(uri,null, this);
         bootstrap.group(group)

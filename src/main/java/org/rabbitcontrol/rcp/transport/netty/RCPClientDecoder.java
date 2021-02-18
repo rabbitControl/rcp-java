@@ -18,8 +18,6 @@ public class RCPClientDecoder extends MessageToMessageDecoder<ByteBuf> {
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
 
-        System.out.println("RCPClientDecoder client channel channelInactive");
-
         super.channelInactive(ctx);
     }
 

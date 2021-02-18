@@ -110,8 +110,6 @@ public final class TcpServerTransporterNetty implements ServerTransporter, Chann
     @Override
     public void sendToOne(final byte[] _data, final Object _id) {
 
-        System.out.println("want to send to one: " + _id);
-
         if (_id instanceof Channel) {
             ((Channel)_id).writeAndFlush(_data);
         }
@@ -122,8 +120,6 @@ public final class TcpServerTransporterNetty implements ServerTransporter, Chann
 
     @Override
     public void sendToAll(final byte[] _data, final Object _excludeId) {
-
-        System.out.println(serverPort + ": send to all except: " + _excludeId);
 
         if (_excludeId instanceof Channel) {
 

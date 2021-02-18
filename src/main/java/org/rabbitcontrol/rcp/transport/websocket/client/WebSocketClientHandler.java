@@ -42,15 +42,15 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
+import org.rabbitcontrol.rcp.RCP;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
 @Sharable
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
-    private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
-
-    final ClientTransporterListener listener;
+    private final WebSocketClientHandshaker handshaker;
+    private final ClientTransporterListener listener;
 
     public WebSocketClientHandler(final WebSocketClientHandshaker handshaker,
                                   final ClientTransporterListener _listener) {
@@ -85,14 +85,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void channelWritabilityChanged(final ChannelHandlerContext ctx) throws Exception
-    {
-//        System.out.println("channel writable changed: " + ctx.channel().isWritable());
-
-        super.channelWritabilityChanged(ctx);
-    }
-
-    @Override
     public void channelRead0(final ChannelHandlerContext ctx, final Object msg) throws Exception
     {
         if (!handshaker.isHandshakeComplete() && (msg instanceof FullHttpResponse))
@@ -122,7 +114,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             if (frame instanceof TextWebSocketFrame)
             {
                 final TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-                System.out.println("WebSocket Client received text message: " + textFrame.text());
+                if ( RCP.doDebugLogging) System.out.println("WebSocket Client received text " +
+                                                           "message: " + textFrame.text());
             }
             else if (frame instanceof BinaryWebSocketFrame)
             {

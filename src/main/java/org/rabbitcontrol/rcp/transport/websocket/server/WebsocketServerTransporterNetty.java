@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.rabbitcontrol.rcp.RCP;
 import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 import org.rabbitcontrol.rcp.transport.ServerTransporter;
 import org.rabbitcontrol.rcp.transport.ServerTransporterListener;
@@ -17,10 +18,8 @@ import org.rabbitcontrol.rcp.transport.netty.ChannelManager;
 import javax.net.ssl.SSLException;
 import java.io.InputStream;
 
-public final class WebsocketServerTransporterNetty implements ServerTransporter, ChannelManager {
-
-    static final boolean SSL = false;
-
+public final class WebsocketServerTransporterNetty implements ServerTransporter, ChannelManager
+{
     private final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
 
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -47,7 +46,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
     @Override
     public void addChannel(final Channel _channel) {
 
-        System.out.println("client connected: " + _channel.remoteAddress());
+        if (RCP.doDebugLogging) System.out.println("client connected: " + _channel.remoteAddress());
 
         allClients.add(_channel);
     }
@@ -55,7 +54,7 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
     @Override
     public void removeChannel(final Channel _channel) {
 
-        System.out.println("client disconnected: " + _channel.remoteAddress());
+        if (RCP.doDebugLogging) System.out.println("client disconnected: " + _channel.remoteAddress());
 
         allClients.remove(_channel);
     }
@@ -127,21 +126,13 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
     @Override
     public void sendToOne(final byte[] _data, final Object _id) {
 
-        System.out.println("want to send to one: " + _id);
-
         if (_id instanceof Channel) {
             ((Channel)_id).writeAndFlush(_data);
         }
-        else {
-            System.err.println("not a Channel object??");
-        }
-
     }
 
     @Override
     public void sendToAll(final byte[] _data, final Object _excludeId) {
-
-        System.out.println(serverPort + ": send to all except: " + _excludeId);
 
         if (_excludeId instanceof Channel) {
 

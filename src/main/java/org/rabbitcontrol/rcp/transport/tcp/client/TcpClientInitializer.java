@@ -20,12 +20,10 @@ public class TcpClientInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
 
-        System.out.println("TCP channelActive");
-
-//        if (listener != null)
-//        {
-//            listener.connected();
-//        }
+        if (listener != null)
+        {
+            listener.connected();
+        }
 
         super.channelActive(ctx);
     }
@@ -33,7 +31,6 @@ public class TcpClientInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
 
-        System.out.println("TCP client channel channelInactive");
         if (listener != null)
         {
             listener.disconnected();
