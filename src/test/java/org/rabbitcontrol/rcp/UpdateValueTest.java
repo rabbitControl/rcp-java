@@ -18,6 +18,11 @@ public class UpdateValueTest {
         server.addTransporter(new ServerTransporter() {
 
             @Override
+            public void dispose() {
+
+            }
+
+            @Override
             public void bind(final int port) throws RCPException {
 
             }

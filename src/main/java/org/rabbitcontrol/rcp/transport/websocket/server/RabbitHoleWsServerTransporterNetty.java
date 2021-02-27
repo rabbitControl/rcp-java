@@ -31,7 +31,7 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
 
     private final WebsocketClientInitializer initializer;
 
-    private ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    private ScheduledThreadPoolExecutor executor;
 
     private final int port;
 
@@ -63,6 +63,13 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
     }
 
     @Override
+    public void dispose()
+    {
+        unbind();
+        group.shutdownGracefully();
+    }
+
+    @Override
     public void bind(final int port) throws RCPException
     {
         connectDelayed();
@@ -79,6 +86,11 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
 
     private void connectDelayed()
     {
+        if (executor == null)
+        {
+            executor = new ScheduledThreadPoolExecutor(1);
+        }
+
         if (executor.getActiveCount() == 0)
         {
             executor.schedule(new Runnable()
@@ -144,8 +156,11 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
 
         initializer.setHandler(null);
 
-        executor.shutdownNow();
-        executor = new ScheduledThreadPoolExecutor(1);
+        if (executor != null)
+        {
+            executor.shutdownNow();
+            executor = null;
+        }
     }
 
     @Override

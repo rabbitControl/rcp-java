@@ -36,8 +36,9 @@ public final class WebsocketServerTransporterNetty implements ServerTransporter,
 
     public WebsocketServerTransporterNetty() {}
 
-    public void dispose() {
-
+    @Override
+    public void dispose()
+    {
         unbind();
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();

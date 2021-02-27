@@ -104,6 +104,11 @@ public class UDPServerTransporter extends Thread implements ServerTransporter {
         targetPort = _targetPort;
     }
 
+    @Override
+    public void dispose()
+    {
+        unbind();
+    }
 
     @Override
     public void bind(final int port) throws RCPException
@@ -131,9 +136,10 @@ public class UDPServerTransporter extends Thread implements ServerTransporter {
 
         if (socket != null)
         {
+            socket.close();
+
             doit = false;
             interrupt();
-
             // should we wait?
         }
 

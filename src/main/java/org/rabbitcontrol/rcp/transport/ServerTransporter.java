@@ -15,4 +15,5 @@ public interface ServerTransporter {
     void addListener(ServerTransporterListener _listener);
     void removeListener(ServerTransporterListener _listener);
 
+    void dispose();
 }
