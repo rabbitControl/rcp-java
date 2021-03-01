@@ -37,6 +37,8 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
 
     private int connectInterval = 2;
 
+    private boolean shutdown = false;
+
     public RabbitHoleWsServerTransporterNetty(final URI uri)
     {
         this.uri = uri;
@@ -65,6 +67,7 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
     @Override
     public void dispose()
     {
+        shutdown = true;
         unbind();
         group.shutdownGracefully();
     }
@@ -72,6 +75,7 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
     @Override
     public void bind(final int port) throws RCPException
     {
+        shutdown = false;
         connectDelayed();
     }
 
@@ -86,6 +90,8 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
 
     private void connectDelayed()
     {
+        if (shutdown) return;
+
         if (executor == null)
         {
             executor = new ScheduledThreadPoolExecutor(1);
@@ -148,6 +154,12 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
     @Override
     public void unbind()
     {
+        if (executor != null)
+        {
+            executor.shutdownNow();
+            executor = null;
+        }
+
         if (ch != null)
         {
             ch.close();
@@ -155,12 +167,6 @@ public final class RabbitHoleWsServerTransporterNetty implements ServerTransport
         }
 
         initializer.setHandler(null);
-
-        if (executor != null)
-        {
-            executor.shutdownNow();
-            executor = null;
-        }
     }
 
     @Override
