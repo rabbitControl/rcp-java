@@ -9,13 +9,13 @@ maven:
 <dependency>
   <groupId>cc.rabbitcontrol</groupId>
   <artifactId>rcp</artifactId>
-  <version>0.3.23</version>
+  <version>0.3.26</version>
 </dependency>
 ```
 
 gradle:
 ```
-implementation 'cc.rabbitcontrol:rcp:0.3.23'
+implementation 'cc.rabbitcontrol:rcp:0.3.26'
 ```
 
 ## rcp-example-repository
