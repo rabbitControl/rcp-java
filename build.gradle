@@ -85,8 +85,8 @@ uploadArchives {
                 name group + ":" + archivesBaseName
                 packaging 'jar'
                 description 'RabbitControl is a binary data-format definition to describe data ' +
-                        'values and user interface elements.'
-                url 'https://rabbitcontrol.github.io/'
+                        'values and ui-elements.'
+                url 'https://rabbitcontrol.cc/'
 
                 scm {
                     connection 'scm:git:git://github.com/rabbitControl/rcp-java.git'
