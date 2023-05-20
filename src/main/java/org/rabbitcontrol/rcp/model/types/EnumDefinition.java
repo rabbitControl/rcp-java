@@ -6,7 +6,6 @@ import org.rabbitcontrol.rcp.model.RcpTypes.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +130,7 @@ public class EnumDefinition extends DefaultDefinition<String> {
         //
         // entries
         //
-        if (entries != null) {
+        if ((entries != null) && !entries.isEmpty()) {
 
             if (_all || entriesChanged || initialWrite) {
 
@@ -154,7 +153,7 @@ public class EnumDefinition extends DefaultDefinition<String> {
             _outputStream.write((int)EnumOptions.ENTRIES.id());
 
             // write 0
-            _outputStream.write(ByteBuffer.allocate(2).putShort((short)0).array());
+            _outputStream.write(RCPParser.TERMINATOR);
 
             entriesChanged = false;
         }
@@ -221,20 +220,20 @@ public class EnumDefinition extends DefaultDefinition<String> {
             entries = new ArrayList<String>();
         }
 
-        // TODO: should we limit here? or when we write it?
-        if (entries.size() < MAX_ENTRY_SIZE) {
-            entries.add(_entry);
-            entriesChanged = true;
-
-            if (parameter != null) {
-                parameter.setDirty();
-            }
-
-            return true;
+        if (entries.contains(_entry))
+        {
+            // not added
+            return false;
         }
 
-        // not added...
-        return false;
+        entries.add(_entry);
+        entriesChanged = true;
+
+        if (parameter != null) {
+            parameter.setDirty();
+        }
+
+        return true;
     }
 
     public boolean removeEntry(final String _entry) {
@@ -267,7 +266,7 @@ public class EnumDefinition extends DefaultDefinition<String> {
     public boolean containsValue(final String _value) {
 
         if (entries == null) {
-            return true;
+            return false;
         }
 
         return entries.contains(_value);
