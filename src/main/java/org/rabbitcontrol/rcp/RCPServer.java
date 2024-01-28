@@ -717,10 +717,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     {
         if (_group != null)
         {
-            // this add parameter to dirtyParams
+            // this adds the parameter to dirtyParams
             _group.addChild(_parameter);
 
             // make sure we send parameter _after_ group
+            // add parameter to the end of dirtyParams list
 
             // this can happen if parameter was added earlier before
             // ParameterGroup _group was added and then got added to _group
