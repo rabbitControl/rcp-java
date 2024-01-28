@@ -15,6 +15,8 @@ public class GroupTest {
 
     private final IParameterManager mngr = new IParameterManager() {
 
+        private final GroupParameter rootGroup = new GroupParameter((short)0);
+
         @Override
         public IParameter getParameter(final short _id) {
 
@@ -33,7 +35,7 @@ public class GroupTest {
         @Override
         public GroupParameter getRootGroup() {
 
-            return null;
+            return rootGroup;
         }
     };
 
@@ -78,12 +80,13 @@ public class GroupTest {
 
         group.addChild(parameter);
 
+        Assert.assertNotNull("no parent set", parameter.getParent());
         Assert.assertEquals("set parent id missmatch", group.getId(),
                             parameter.getParent().getId());
 
         group.removeChild(parameter);
 
-        Assert.assertNull("unset parent id missmatch", parameter.getParent());
+        Assert.assertNotNull("null parent", parameter.getParent());
     }
 
     @Test
