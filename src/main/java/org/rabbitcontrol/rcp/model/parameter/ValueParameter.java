@@ -139,23 +139,52 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
     @Override
     public boolean setObjectValue(final Object _value) {
+        return setObjectValue(_value, true);
+    }
+
+    private boolean setObjectValue(final Object _value, boolean _allowDirty) {
 
         if (_value == null) {
             return false;
         }
 
         try {
-            setValue((T)_value);
-            return valueChanged;
+            if (_allowDirty)
+            {
+                setValue((T)_value);
+                return valueChanged;
+            }
+            else {
+                if ((value == _value) || ((value != null) && value.equals(_value))) {
+                    return false;
+                }
+
+                value = (T)_value;
+                return true;
+            }
         }
         catch (final ClassCastException _e) {
 
             if ((getTypeDefinition() instanceof NumberDefinition) &&
                 (_value instanceof Number)) {
 
-                setValue((T)((NumberDefinition)getTypeDefinition()).convertNumberValue
-                        ((Number)_value));
-                return valueChanged;
+                T new_value = (T)((NumberDefinition)getTypeDefinition()).convertNumberValue
+                                                                                ((Number)_value);
+
+                if (_allowDirty)
+                {
+                    setValue(new_value);
+                    return valueChanged;
+                }
+                else
+                {
+                    if ((value == new_value) || ((value != null) && value.equals(new_value))) {
+                        return false;
+                    }
+
+                    value = new_value;
+                    return true;
+                }
             }
             else if (value instanceof Map) {
 
@@ -203,7 +232,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
 
         // set fields directly, no change-flag ist set!
         if (_parameter instanceof ValueParameter) {
-            changed = setObjectValue(((ValueParameter)_parameter).getValue());
+            changed = setObjectValue(((ValueParameter)_parameter).getValue(), false);
         }
 
         if (changed) {
