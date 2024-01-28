@@ -1,117 +1,77 @@
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'maven'
+    id 'java-library'
     id 'signing'
-    id "com.zoltu.git-versioning" version "3.0.3"
+    id 'maven-publish'
+    id('io.github.gradle-nexus.publish-plugin') version '1.3.0'
 }
 
+version = "0.3.31"
 
 repositories {
-    jcenter()
     mavenCentral()
     mavenLocal()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_6
+    targetCompatibility = JavaVersion.VERSION_1_6
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+    withJavadocJar()
+    withSourcesJar()
+}
 
-
-group = 'cc.rabbitcontrol'
-archivesBaseName = "rcp"
+base {
+    group = 'cc.rabbitcontrol'
+    archivesName = "rcp"
+}
 
 
 dependencies {
 
-    compile ('io.kaitai:kaitai-struct-runtime:0.8')
-    compile ('io.netty:netty-all:4.1.76.Final')
+    implementation ('io.kaitai:kaitai-struct-runtime:0.10')
+    implementation ('io.netty:netty-all:4.1.106.Final')
 
-    testCompile "junit:junit:4.12"
+    testImplementation ('junit:junit:4.13.2')
 }
 
 
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+nexusPublishing {
+    repositories {
+        sonatype ()
+    }
 }
-
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
+            from(components.java)
+            pom {
+                name = group + ":" + archivesBaseName
+                description = 'RabbitControl is a binary data-format definition to describe data values and ui-elements.'
+                url = 'https://rabbitcontrol.cc/'
+                licenses {
+                    license {
+                        name = 'GNU LESSER GENERAL PUBLIC LICENSE Version 2.1'
+                        url = 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        name.set('Ingo Randolf')
+                        email.set('ingo.randolf@servus.at')
+                    }
+                }
+                scm {
+                    url = 'https://github.com/rabbitControl/rcp-java'
+                    connection = 'scm:git://github.com/rabbitControl/rcp-java.git'
+                    developerConnection = 'scm:git:ssh://github.com:rabbitControl/rcp-java.git'
+                }
+            }
         }
     }
 }
-
-
 
 signing {
     sign configurations.archives
     sign publishing.publications.mavenJava
 }
-
-
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name group + ":" + archivesBaseName
-                packaging 'jar'
-                description 'RabbitControl is a binary data-format definition to describe data ' +
-                        'values and ui-elements.'
-                url 'https://rabbitcontrol.cc/'
-
-                scm {
-                    connection 'scm:git:git://github.com/rabbitControl/rcp-java.git'
-                    developerConnection 'scm:git:ssh://github.com:rabbitControl/rcp-java.git'
-                    url 'https://github.com/rabbitControl/rcp-java/tree/master'
-                }
-
-
-                licenses {
-                    license {
-                        name 'GNU LESSER GENERAL PUBLIC LICENSE Version 2.1'
-                        url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html'
-                        distribution 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        name 'Ingo Randolf'
-                        email 'ingo.randolf@servus.at'
-                    }
-                }
-            }
-        }
-    }
-}
-
-
