@@ -303,11 +303,7 @@ public abstract class Parameter implements IParameter {
 
                             if (parent instanceof GroupParameter) {
                                 setParent((GroupParameter)parent);
-                            }
-
-                            try {
-                            }
-                            catch (final ClassCastException _e) {
+                            } else {
                                 System.err.println("parameter not a GroupParameter!");
                             }
                         } else {
