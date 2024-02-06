@@ -53,7 +53,7 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
                                                                                   RCPDataErrorException {
 
         if (ParameterOptions.byId(_propertyId) == VALUE) {
-            setValue(typeDefinition.readValue(_io));
+            setValueInternal(typeDefinition.readValue(_io));
             return true;
         }
 
@@ -135,6 +135,11 @@ public abstract class ValueParameter<T> extends Parameter implements IValueParam
         valueChanged = true;
 
         setDirty();
+    }
+
+
+    protected void setValueInternal(final T _value) {
+        this.setValue(_value);
     }
 
     @Override

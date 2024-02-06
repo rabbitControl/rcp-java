@@ -30,6 +30,13 @@ public class EnumParameter extends ValueParameter<String> {
     }
 
     @Override
+    public void setValueInternal(final String _value) {
+
+        // don't check if value exists - just set it
+        super.setValue(_value);
+    }
+
+    @Override
     public void setStringValue(final String _value) {
         setValue(_value);
     }
