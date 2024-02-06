@@ -3,6 +3,7 @@ package org.rabbitcontrol.rcp;
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import org.rabbitcontrol.rcp.model.*;
 import org.rabbitcontrol.rcp.model.RCPCommands.Init;
+import org.rabbitcontrol.rcp.model.RCPCommands.Update;
 import org.rabbitcontrol.rcp.model.RcpTypes.Command;
 import org.rabbitcontrol.rcp.model.RcpTypes.Datatype;
 import org.rabbitcontrol.rcp.model.exceptions.*;
@@ -33,7 +34,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     private final List<IParameter> parameterToRemove = Collections.synchronizedList(new ArrayList<IParameter>());
 
     // callback objects
-    private Init initListener;
+    private final Set<Init> initListener = new HashSet<Init>();
 
     //------------------------------------------------------------
     // constructor
@@ -57,7 +58,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         ids.clear();
         parameterToRemove.clear();
 
-        initListener = null;
+        initListener.clear();
     }
 
 
@@ -101,23 +102,41 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     //------------------------------------------------------------
     //
+
+    /**
+     * Set Init listener
+     *
+     * @deprecated please use addInitListener() instead.
+     * @param _listener the Init listener to set.
+     */
+    @Deprecated
     public void setInitListener(final Init _listener) {
 
-        initListener = _listener;
+        addInitListener(_listener);
     }
 
-    //
-    //
-    //
-    private void setupParameter(
-            final Parameter _parameter, final String _label, final GroupParameter _group) {
-
-        _parameter.setLabel(_label);
-        _parameter.setManager(this);
-
-        // addParameter adds _parameter to dirtyParams
-        addParameter(_group, _parameter);
+    /**
+     * Add Init listener
+     *
+     * @param _listener the Init listener to add.
+     */
+    public void addInitListener(final Init _listener) {
+        if (!initListener.contains(_listener)) {
+            initListener.add(_listener);
+        }
     }
+
+    /**
+     * Remove Init listener
+     *
+     * @param _listener the Init listener to remove.
+     */
+    public void removeInitListener(final Init _listener) {
+        if (initListener.contains(_listener)) {
+            initListener.remove(_listener);
+        }
+    }
+
 
     //----------------------------------------------------
     //----------------------------------------------------
@@ -692,6 +711,18 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         return 0;
     }
 
+    //
+    //
+    //
+    private void setupParameter(
+            final Parameter _parameter, final String _label, final GroupParameter _group) {
+
+        _parameter.setLabel(_label);
+
+        // addParameter adds _parameter to dirtyParams
+        addParameter(_group, _parameter);
+    }
+
     //------------------------------------------------------------
     //
     public void addParameters(final IParameter... _parameter) {
@@ -715,6 +746,26 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     public void addParameter(
             final GroupParameter _group, final IParameter _parameter)
     {
+        // check for id 0
+        if (_parameter.getId() == 0) {
+            System.err.println("addParameter: invalid id 0");
+            return;
+        }
+
+        // check if id is already registered
+        if (valueCache.containsKey(_parameter.getId())) {
+
+            System.err.println("addParameter: reject already existing id");
+
+            if (!valueCache.get(_parameter.getId()).equals(_parameter)) {
+                System.err.println("different object with same ID!!!");
+            }
+
+            return;
+        }
+
+        _parameter.setManager(this);
+
         if (_group != null)
         {
             // this adds the parameter to dirtyParams
@@ -742,7 +793,6 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         // add everything to flat-map
         _addParameterFlat(_parameter);
-
     }
 
     private void _addParameterFlat(final IParameter _parameter) {
@@ -1039,8 +1089,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             ((Parameter)cached_parameter).update(parameter);
 
             // call listeners with cached...
-            if (updateListener != null) {
-                updateListener.parameterUpdated(cached_parameter);
+            for (Update listener : updateListener) {
+                listener.parameterUpdated(cached_parameter);
             }
 
             return true;
@@ -1062,8 +1112,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         _sendParameterFull(_parameter, _transporter, _id);
 
-        if (initListener != null) {
-            initListener.init();
+        for (final Init listener : initListener) {
+            listener.init();
         }
     }
 
@@ -1077,9 +1127,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             }
         }
 
-        if (initListener != null)
-        {
-            initListener.init();
+        for (final Init listener : initListener) {
+            listener.init();
         }
     }
 

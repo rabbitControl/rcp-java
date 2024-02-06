@@ -12,16 +12,19 @@ import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.transport.ClientTransporter;
 import org.rabbitcontrol.rcp.transport.ClientTransporterListener;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class RCPClient extends RCPBase implements ClientTransporterListener {
 
     private ClientTransporter transporter;
 
     /* callback objects */
-    private Add addListener;
+    final private Set<Add> addListener = new HashSet<Add>();
 
-    private Remove removeListener;
+    final private Set<Remove> removeListener = new HashSet<Remove>();
 
-    private StatusChange statusChangedListener;
+    final private Set<StatusChange> statusChangedListener = new HashSet<StatusChange>();
 
     //------------------------------------------------------------
     //
@@ -56,9 +59,9 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
         super.dispose();
 
-        addListener = null;
-        removeListener = null;
-        statusChangedListener = null;
+        addListener.clear();
+        removeListener.clear();
+        statusChangedListener.clear();
 
         if (transporter != null) {
             transporter.disconnect();
@@ -80,19 +83,107 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
 
     //------------------------------------------------------------
     //
+
+    /**
+     * Set Add listener
+     *
+     * @deprecated please use addAddListener instead
+     * @param _listener the Add listener to set.
+     */
+    @Deprecated
     public void setAddListener(final Add _listener) {
 
-        addListener = _listener;
+        addAddListener(_listener);
     }
 
+    /**
+     * Add Add listener
+     *
+     * @param _listener the Add listener to add.
+     */
+    public void addAddListener(final Add _listener) {
+        if (!addListener.contains(_listener)) {
+            addListener.add(_listener);
+        }
+    }
+
+    /**
+     * Remove Add listener
+     *
+     * @param _listener the Add listener to remove.
+     */
+    public void removeAddListener(final Add _listener) {
+        if (addListener.contains(_listener)) {
+            addListener.remove(_listener);
+        }
+    }
+
+    /**
+     * Set Remove listener
+     *
+     * @deprecated please use addRemoveListener instead
+     * @param _listener the Remove listener to set.
+     */
+    @Deprecated
     public void setRemoveListener(final Remove _listener) {
 
-        removeListener = _listener;
+        addRemoveListener(_listener);
     }
 
+    /**
+     * Add Remove listener
+     *
+     * @param _listener the Remove listener to add.
+     */
+    public void addRemoveListener(final Remove _listener) {
+        if (!removeListener.contains(_listener)) {
+            removeListener.add(_listener);
+        }
+    }
+
+    /**
+     * Remove Remove listener
+     *
+     * @param _listener the Remove listener to remove.
+     */
+    public void removeRemoveListener(final Remove _listener) {
+        if (removeListener.contains(_listener)) {
+            removeListener.remove(_listener);
+        }
+    }
+
+    /**
+     * Set StatusChange listener
+     *
+     * @deprecated please use addStatusChangeListener instead
+     * @param _listener the StatusChange listener to set.
+     */
+    @Deprecated
     public void setStatusChangedListener(final StatusChange _listener) {
 
-        statusChangedListener = _listener;
+        addStatusChangeListener(_listener);
+    }
+
+    /**
+     * Add StatusChange listener
+     *
+     * @param _listener the StatusChange listener to add.
+     */
+    public void addStatusChangeListener(final StatusChange _listener) {
+        if (!statusChangedListener.contains(_listener)) {
+            statusChangedListener.add(_listener);
+        }
+    }
+
+    /**
+     * Remove StatusChange listener
+     *
+     * @param _listener the StatusChange listener to remove.
+     */
+    public void removeStatusChangeListener(final StatusChange _listener) {
+        if (statusChangedListener.contains(_listener)) {
+            statusChangedListener.remove(_listener);
+        }
     }
 
     //------------------------------------------------------------
@@ -301,17 +392,17 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
             parameter.setManager(this);
 
             // inform listener
-            if (addListener != null) {
-                addListener.parameterAdded(parameter);
+            for (Add listener : addListener) {
+                listener.parameterAdded(parameter);
             }
 
             parameter.addValueUpdateListener(new PARAMETER_VALUE_UPDATED() {
 
                 @Override
                 public void valueUpdated(final IParameter _parameter) {
-                    if (valueUpdateListener != null)
+                    for (ValueUpdate listener : valueUpdateListener)
                     {
-                        valueUpdateListener.parameterValueUpdated(parameter);
+                        listener.parameterValueUpdated(parameter);
                     }
                 }
             });
@@ -321,8 +412,8 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
                 @Override
                 public void updated(final IParameter _parameter) {
                     // inform listener
-                    if (updateListener != null) {
-                        updateListener.parameterUpdated(parameter);
+                    for (Update listener : updateListener) {
+                        listener.parameterUpdated(parameter);
                     }
                 }
             });
@@ -351,8 +442,8 @@ public class RCPClient extends RCPBase implements ClientTransporterListener {
         valueCache.remove(_parameter.getId());
 
         // inform listener
-        if (removeListener != null) {
-            removeListener.parameterRemoved(_parameter);
+        for (Remove listener : removeListener) {
+            listener.parameterRemoved(_parameter);
         }
 
         if (_parameter instanceof GroupParameter) {

@@ -26,11 +26,11 @@ public abstract class RCPBase implements IParameterManager {
             Collections.synchronizedList(new ArrayList<IParameter>());
 
     // callback objects
-    protected Update updateListener;
+    protected final Set<Update> updateListener = new HashSet<Update>();
 
-    protected ValueUpdate valueUpdateListener;
+    protected final Set<ValueUpdate> valueUpdateListener = new HashSet<ValueUpdate>();
 
-    protected RCPCommands.Error errorListener;
+    protected final Set<RCPCommands.Error> errorListener = new HashSet<RCPCommands.Error>();
 
     protected final GroupParameter rootGroup = new GroupParameter((short)0);
 
@@ -52,27 +52,116 @@ public abstract class RCPBase implements IParameterManager {
         valueCache.clear();
         dirtyParams.clear();
 
-        // remove listeners
-        updateListener = null;
-        valueUpdateListener = null;
-        errorListener = null;
+        // clear listeners
+        updateListener.clear();
+        valueUpdateListener.clear();
+        errorListener.clear();
     }
 
     //------------------------------------------------------------
     //
+
+    /**
+     * Set Update listener
+     *
+     * @deprecated please use addUpdateListener() instead.
+     * @param _listener the Update listener to set.
+     */
+    @Deprecated
     public void setUpdateListener(final Update _listener) {
 
-        updateListener = _listener;
+        addUpdateListener(_listener);
     }
 
+    /**
+     * Add Update listener
+     *
+     * @param _listener the Update listener to add.
+     */
+    public void addUpdateListener(final Update _listener) {
+        if (!updateListener.contains(_listener))
+        {
+            updateListener.add(_listener);
+        }
+    }
+
+    /**
+     * Remove Update listener
+     *
+     * @param _listener the Update listener to remove.
+     */
+    public void removeUpdateListener(final Update _listener) {
+        if (updateListener.contains(_listener)) {
+            updateListener.remove(_listener);
+        }
+    }
+
+    /**
+     * Set ValueUpdate listener
+     *
+     * @deprecated please use addValueUpdateListener() instead.
+     * @param _listener the ValueUpdate listener to set.
+     */
+    @Deprecated
     public void setValueUpdateListener(final ValueUpdate _listener) {
 
-        valueUpdateListener = _listener;
+        addValueUpdateListener(_listener);
     }
 
+    /**
+     * Add ValueUpdate listener
+     *
+     * @param _listener the ValueUpdate listener to add.
+     */
+    public void addValueUpdateListener(final ValueUpdate _listener) {
+        if (!valueUpdateListener.contains(_listener)) {
+            valueUpdateListener.add(_listener);
+        }
+    }
+
+    /**
+     * Remove ValueUpdate listener
+     *
+     * @param _listener the ValueUpdate listener to remove.
+     */
+    public void removeValueUpdateListener(final ValueUpdate _listener) {
+        if (valueUpdateListener.contains(_listener)) {
+            valueUpdateListener.remove(_listener);
+        }
+    }
+
+    /**
+     * Set Error listener
+     *
+     * @deprecated please use addErrorListener() instead.
+     * @param _listener the Error listener to set.
+     */
+    @Deprecated
     public void setErrorListener(final RCPCommands.Error _listener) {
 
-        errorListener = _listener;
+        addErrorListener(_listener);
+    }
+
+    /**
+     * Add Error listener
+     *
+     * @param _listener the Error listener to add.
+     */
+    public void addErrorListener(final RCPCommands.Error _listener) {
+        if (!errorListener.contains(_listener)) {
+            errorListener.add(_listener);
+        }
+    }
+
+    /**
+     * Remove Error listener
+     *
+     * @param _listener the Error listener to remove.
+     */
+    public void removeErrorListener(final RCPCommands.Error _listener) {
+        if (errorListener.contains(_listener)) {
+            errorListener.remove(_listener);
+        }
     }
 
     //------------------------------------------------------------
