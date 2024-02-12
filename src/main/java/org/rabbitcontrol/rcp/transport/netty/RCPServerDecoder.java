@@ -62,7 +62,11 @@ public class RCPServerDecoder extends MessageToMessageDecoder<ByteBuf> {
                 System.out.println("RCPServerDecoder: data: " + bytesToHex(array));
             }
 
-            listener.received(array, transporter, ctx.channel());
+            // filter 0-size packets
+            if (array.length > 0)
+            {
+                listener.received(array, transporter, ctx.channel());
+            }
         }
         else
         {

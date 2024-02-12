@@ -38,8 +38,15 @@ public class SizePrefixDecoder extends ByteToMessageDecoder {
                                "expected: " + expected_data_size);
         }
 
-        if (in.readableBytes() < expected_data_size) {
+        if (in.readableBytes() < expected_data_size)
+        {
             in.resetReaderIndex();
+            return;
+        }
+
+        if (expected_data_size == 0)
+        {
+            // no data
             return;
         }
 
