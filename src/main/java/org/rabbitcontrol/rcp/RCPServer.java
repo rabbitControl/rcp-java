@@ -31,6 +31,8 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
     private Set<Short> ids = new HashSet<Short>();
 
+    protected final List<IParameter> addedParams =
+            Collections.synchronizedList(new ArrayList<IParameter>());
     private final List<IParameter> parameterToRemove = Collections.synchronizedList(new ArrayList<IParameter>());
 
     // callback objects
@@ -56,6 +58,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         transporterList.clear();
         ids.clear();
+        addedParams.clear();
         parameterToRemove.clear();
 
         initListener.clear();
@@ -810,14 +813,33 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
         // add parameter to valueCache (flat map)
         valueCache.put(_parameter.getId(), _parameter);
 
-        if (!dirtyParams.contains(_parameter)) {
-            dirtyParams.add(_parameter);
+        // remove from deleted params
+        synchronized (parameterToRemove)
+        {
+            if (parameterToRemove.contains(_parameter)) {
+                parameterToRemove.remove(_parameter);
+            }
+        }
+
+        // remove from dirty params
+        synchronized (dirtyParams)
+        {
+            if (dirtyParams.contains(_parameter)) {
+                dirtyParams.remove(_parameter);
+            }
+        }
+
+        // add to addedParameters list
+        synchronized (addedParams)
+        {
+            if (!addedParams.contains(_parameter)) {
+                addedParams.add(_parameter);
+            }
         }
 
         if (!ids.contains(_parameter.getId())) {
             ids.add(_parameter.getId());
-        }
-        else {
+        } else {
             // ? ignore
         }
 
@@ -830,6 +852,7 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             }
         }
     }
+
 
     private void _sendParameterFullAll(final IParameter _parameter) throws
                                                                     RCPException {
@@ -880,6 +903,18 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
      *      in case Packet.serialize fails
      */
     public void update() throws RCPException {
+
+        // send added parameters first
+        synchronized (addedParams)
+        {
+            for (final IParameter parameter : addedParams)
+            {
+                // send parameter fully and all its children
+                _sendParameterFullAll(parameter);
+            }
+
+            addedParams.clear();
+        }
 
         // update dirty params
         synchronized (dirtyParams)
@@ -957,12 +992,21 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             System.out.println("value not in cache - ignore");
         }
 
-        ((Parameter)_parameter).setParent(null);
+        _parameter.setParent(null);
 
+        // remove from dirty params
         synchronized (dirtyParams)
         {
             if (dirtyParams.contains(_parameter)) {
                 dirtyParams.remove(_parameter);
+            }
+        }
+
+        // remove from added params
+        synchronized (addedParams)
+        {
+            if (addedParams.contains(_parameter)) {
+                addedParams.remove(_parameter);
             }
         }
 
@@ -1137,6 +1181,11 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
 
         if (parameterToRemove.contains(_parameter)) {
             // parameter marked for deletion
+            return;
+        }
+
+        if (addedParams.contains(_parameter)) {
+            // parameter is added - no need to set it dirty
             return;
         }
 
