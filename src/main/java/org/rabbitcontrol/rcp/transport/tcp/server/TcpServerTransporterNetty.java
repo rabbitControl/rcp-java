@@ -37,12 +37,17 @@ public final class TcpServerTransporterNetty implements ServerTransporter, Chann
     private ServerTransporterListener listener;
 
     private int serverPort;
+    private boolean sendPong;
 
 
 
     final ChannelGroup allClients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public TcpServerTransporterNetty() {
+    }
+
+    public void setSendPong(final boolean _sendPong) {
+        sendPong = _sendPong;
     }
 
     @Override
@@ -80,7 +85,7 @@ public final class TcpServerTransporterNetty implements ServerTransporter, Chann
             final ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                      .channel(NioServerSocketChannel.class)
-                     .childHandler(new TcpServerInitializer(this, listener, this));
+                     .childHandler(new TcpServerInitializer(this, listener, this, sendPong));
 
             ch = bootstrap.bind(port).sync().channel();
             serverPort = port;

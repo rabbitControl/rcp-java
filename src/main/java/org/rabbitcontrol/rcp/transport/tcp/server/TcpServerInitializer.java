@@ -17,13 +17,17 @@ public class TcpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final ChannelManager channelManager;
 
+    private boolean sendPong;
+
     public TcpServerInitializer(final ServerTransporter _transporter,
                                 final ServerTransporterListener _listener,
-                                final ChannelManager _channelManager) {
+                                final ChannelManager _channelManager,
+                                final boolean _sendPong) {
 
         transporter = _transporter;
         listener = _listener;
         channelManager = _channelManager;
+        sendPong = _sendPong;
     }
 
     @Override
@@ -32,7 +36,7 @@ public class TcpServerInitializer extends ChannelInitializer<SocketChannel> {
         final ChannelPipeline pipeline = ch.pipeline();
 
         // in
-        pipeline.addLast(new SizePrefixDecoder(),
+        pipeline.addLast(new SizePrefixDecoder(sendPong),
                          new RCPServerDecoder(transporter, listener, channelManager));
 
         // out

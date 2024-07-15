@@ -11,6 +11,15 @@ import static org.rabbitcontrol.rcp.RCP.bytesToHex;
 
 public class SizePrefixDecoder extends ByteToMessageDecoder {
 
+    static final byte[] kZeroData = {};
+
+    //
+    private boolean sendPong;
+
+    public SizePrefixDecoder(final boolean _sendPong) {
+        sendPong = _sendPong;
+    }
+
     @Override
     protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws
                                                                                        Exception
@@ -24,10 +33,10 @@ public class SizePrefixDecoder extends ByteToMessageDecoder {
 
         if (RCP.doDebugLogging)
         {
-            byte[] a = new byte[4];
-            in.getBytes(0, a, 0, 4);
+            byte[] data = new byte[4];
+            in.getBytes(0, data, 0, 4);
 
-            System.out.println("SizePrefixDecoder - 4 bytes: " + bytesToHex(a));
+            System.out.println("SizePrefixDecoder - 4 bytes: " + bytesToHex(data));
         }
 
         int expected_data_size = in.readInt();
@@ -38,15 +47,19 @@ public class SizePrefixDecoder extends ByteToMessageDecoder {
                                "expected: " + expected_data_size);
         }
 
-        if (in.readableBytes() < expected_data_size)
+        if (expected_data_size == 0)
         {
-            in.resetReaderIndex();
+            if (sendPong) {
+                // no data - answer with "pong"
+                ctx.channel().writeAndFlush(kZeroData);
+            }
+
             return;
         }
 
-        if (expected_data_size == 0)
+        if (in.readableBytes() < expected_data_size)
         {
-            // no data
+            in.resetReaderIndex();
             return;
         }
 

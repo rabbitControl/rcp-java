@@ -45,7 +45,7 @@ public class TcpClientInitializer extends ChannelInitializer<SocketChannel> {
         final ChannelPipeline pipeline = ch.pipeline();
 
         // in
-        pipeline.addLast(new SizePrefixDecoder(),
+        pipeline.addLast(new SizePrefixDecoder(false),
                          new RCPClientDecoder(listener));
 
         // out
