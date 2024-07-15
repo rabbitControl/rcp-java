@@ -8,6 +8,7 @@ import java.util.jar.Manifest;
 public class RCP {
 
     public static boolean doDebugLogging = false;
+    public static boolean rcp100FeaturesEnabled = false;
 
     private static String RCP_JAVA_LIB_VERSION = "0.0.0";
 

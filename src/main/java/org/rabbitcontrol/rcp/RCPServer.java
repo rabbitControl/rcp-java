@@ -1218,6 +1218,13 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
             }
         }
 
+        if (RCP.rcp100FeaturesEnabled)
+        {
+            // send INITIALIZE to mark end of parameter list
+            final byte[] data = new Packet(Command.INITIALIZE).serialize(true);
+            _transporter.sendToOne(data, _id);
+        }
+
         for (final Init listener : initListener) {
             listener.init();
         }
