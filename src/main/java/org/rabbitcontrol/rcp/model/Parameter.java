@@ -5,6 +5,7 @@ import org.rabbitcontrol.rcp.model.RcpTypes.*;
 import org.rabbitcontrol.rcp.model.exceptions.*;
 import org.rabbitcontrol.rcp.model.interfaces.*;
 import org.rabbitcontrol.rcp.model.parameter.ArrayParameter;
+import org.rabbitcontrol.rcp.model.parameter.CustomParameter;
 import org.rabbitcontrol.rcp.model.parameter.GroupParameter;
 import org.rabbitcontrol.rcp.model.types.ArrayDefinition;
 import org.rabbitcontrol.rcp.model.widgets.WidgetImpl;
@@ -73,23 +74,27 @@ public abstract class Parameter implements IParameter {
             final Datatype element_datatype = Datatype.byId(_io.readU1());
             return RCPFactory.createRangeParameter(parameter_id, element_datatype);
         }
-        else if (datatype == Datatype.ARRAY) {
+
+        if (datatype == Datatype.ARRAY) {
 
             // create ArrayDefinition
             final ArrayDefinition<?, ?> array_def = ArrayDefinition.parse(_io);
             return ArrayParameter.createFixed(parameter_id, array_def, array_def.getElementType());
         }
-        else if (datatype == Datatype.LIST) {
+
+        if (datatype == Datatype.LIST) {
 
             // read mandatory subtype
 
         }
-        else {
-            // implicitly create typeDefinition
-            return (Parameter)RCPFactory.createParameter(parameter_id, datatype);
+        else if (datatype == Datatype.CUSTOMTYPE) {
+            // read mandatory
+            long size = _io.readU4be();
+            return new CustomParameter(parameter_id, size);
         }
 
-        throw new RCPUnsupportedFeatureException("datatype not implemented: " + datatype);
+        // implicitly create typeDefinition
+        return (Parameter)RCPFactory.createParameter(parameter_id, datatype);
     }
 
     //------------------------------------------------------------
