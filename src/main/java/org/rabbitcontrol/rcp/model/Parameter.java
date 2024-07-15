@@ -81,7 +81,7 @@ public abstract class Parameter implements IParameter {
         }
         else if (datatype == Datatype.LIST) {
 
-            // read mandatory sub-type
+            // read mandatory subtype
 
         }
         else {

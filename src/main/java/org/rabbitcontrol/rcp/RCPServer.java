@@ -685,6 +685,53 @@ public class RCPServer extends RCPBase implements ServerTransporterListener {
     }
 
     //----------------------------------------------------
+    //----------------------------------------------------
+    // IPV4
+    //----------------------------------------------------
+    //----------------------------------------------------
+    public IPv4Parameter createIPv4Parameter(final String _label) throws RCPParameterException {
+
+        return createIPv4Parameter(_label, rootGroup);
+    }
+
+    public IPv4Parameter createIPv4Parameter(
+            final String _label, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final IPv4Parameter p = new IPv4Parameter(id);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+
+    //----------------------------------------------------
+    //----------------------------------------------------
+    // Custom
+    //----------------------------------------------------
+    //----------------------------------------------------
+    public CustomParameter createCustomParameter(final String _label, final long size) throws RCPParameterException {
+
+        return createCustomParameter(_label, size, rootGroup);
+    }
+
+    public CustomParameter createCustomParameter(
+            final String _label, final long size, final GroupParameter _group) throws RCPParameterException {
+
+        final short id = availableId();
+        if (id == 0) {
+            throw new RCPParameterException("could not get valid parameter id");
+        }
+
+        final CustomParameter p = new CustomParameter(id, size);
+        setupParameter(p, _label, _group);
+        return p;
+    }
+
+    //----------------------------------------------------
     // parameter end
     //----------------------------------------------------
     /**

@@ -9,6 +9,7 @@ import org.rabbitcontrol.rcp.model.exceptions.RCPException;
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Array;
+import java.net.Inet4Address;
 import java.nio.ByteBuffer;
 
 public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
@@ -93,6 +94,10 @@ public class ArrayDefinition<T, E> extends DefaultDefinition<T> {
             case RGBA:
                 return new ArrayDefinition<Object, Color>((DefaultDefinition<Color>)_sub_type,
                                                           _dimSizes);
+
+            case IPV4:
+                return new ArrayDefinition<Object, Inet4Address>((DefaultDefinition<Inet4Address>)_sub_type,
+                        _dimSizes);
 
             case ARRAY:
                 //throw new RCPParameterException("no array of array...");

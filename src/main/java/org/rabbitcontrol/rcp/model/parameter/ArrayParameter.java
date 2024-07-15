@@ -5,6 +5,7 @@ import org.rabbitcontrol.rcp.model.types.*;
 
 import java.awt.*;
 import java.lang.reflect.Array;
+import java.net.Inet4Address;
 
 public class ArrayParameter<T, E> extends ValueParameter<T> {
 
@@ -81,9 +82,15 @@ public class ArrayParameter<T, E> extends ValueParameter<T> {
                                                         (ArrayDefinition<Object, Color>)
                                                                 _arrayDefinition);
 
+            case IPV4:
+                return new ArrayParameter<Object, Inet4Address>(param_id,
+                        (ArrayDefinition<Object, Inet4Address>)
+                                _arrayDefinition);
+
             case ARRAY:
                 // nonono
                 break;
+
             case LIST:
                 //?
                 break;

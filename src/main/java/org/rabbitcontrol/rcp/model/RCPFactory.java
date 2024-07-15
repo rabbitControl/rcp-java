@@ -6,6 +6,7 @@ import org.rabbitcontrol.rcp.model.parameter.*;
 import org.rabbitcontrol.rcp.model.types.*;
 
 import java.awt.*;
+import java.net.Inet4Address;
 
 public class RCPFactory {
 
@@ -72,6 +73,9 @@ public class RCPFactory {
 
             case IMAGE:
                 return new ImageParameter(_id);
+
+            case IPV4:
+                return new IPv4Parameter(_id);
         }
 
         return null;
@@ -212,6 +216,8 @@ public class RCPFactory {
             case ENUM:
                 return new EnumDefinition();
 
+            case IPV4:
+                return new IPv4Definition();
 
             case GROUP:
             case ARRAY:
@@ -276,6 +282,9 @@ public class RCPFactory {
 
             case ENUM:
                 return String.class;
+
+            case IPV4:
+                return Inet4Address.class;
 
             case GROUP:
             case ARRAY:

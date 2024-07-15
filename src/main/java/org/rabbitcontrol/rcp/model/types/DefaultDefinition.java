@@ -60,6 +60,7 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
 
             case GROUP:
                 // no default definition...
+                break;
 
             case ARRAY:
                 definition = ArrayDefinition.parse(_io);
@@ -70,6 +71,9 @@ public abstract class DefaultDefinition<T> extends TypeDefinition implements IDe
                 // read special needs before...
                 break;
 
+            case IPV4:
+                definition = new IPv4Definition();
+                break;
 
         }
 
